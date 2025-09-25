@@ -14,6 +14,8 @@ namespace DataAccessLayer.Entities
 
         public bool IsActive { get; set; } = true;
 
+        public string Description { get; set; }
+
 
     }
 }
