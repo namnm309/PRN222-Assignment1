@@ -13,6 +13,7 @@ namespace DataAccessLayer.Entities
         public Guid DealerId { get; set; }
         public virtual Customer Customer { get; set; }
         public virtual Product Product { get; set; }
+        public virtual Dealer Dealer { get; set; }
         public DateTime ScheduledDate { get; set; }
         public string Status { get; set; } = "Successfully"; 
     }

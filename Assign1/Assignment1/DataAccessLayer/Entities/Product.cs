@@ -16,7 +16,10 @@ namespace DataAccessLayer.Entities
         public int StockQuantity { get; set; }
         public bool IsActive { get; set; } = true;
 
-        //Qhe n-1 với Brand
-        public virtual Brand BrandName { get; set; }
+        //Foreign key cho Brand
+        public Guid BrandId { get; set; }
+        
+        //Navigation property cho Brand
+        public virtual Brand Brand { get; set; }
     }
 }

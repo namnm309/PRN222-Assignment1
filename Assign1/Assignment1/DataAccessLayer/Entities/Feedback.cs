@@ -13,6 +13,6 @@ namespace DataAccessLayer.Entities
         public virtual Customer Customer { get; set; }
         public virtual Product Product { get; set; }
         public string Comment { get; set; }
-        public int Rating { get; set; } // 1-5 stars public bool IsActive { get; set; } = true;
+        public int Rating { get; set; } 
     }
 }

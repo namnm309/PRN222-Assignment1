@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DataAccessLayer.Entities
 {
-    public class Dealer
+    public class Dealer : BaseEntity
     {
         //Đại lý
 
