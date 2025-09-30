@@ -1,0 +1,48 @@
+@model PresentationLayer.Models.Auth.RegisterViewModel
+@{
+    ViewData["Title"] = "Đăng ký";
+}
+<h2>Đăng ký</h2>
+
+<form asp-action="Register" method="post">
+    <div class="mb-3">
+        <label class="form-label">Tên đăng nhập</label>
+        <input asp-for="UserName" class="form-control" />
+        <span asp-validation-for="UserName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Họ tên</label>
+        <input asp-for="FullName" class="form-control" />
+        <span asp-validation-for="FullName" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input asp-for="Email" class="form-control" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Mật khẩu</label>
+        <input asp-for="Password" class="form-control" type="password" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Xác nhận mật khẩu</label>
+        <input asp-for="ConfirmPassword" class="form-control" type="password" />
+        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Số điện thoại</label>
+        <input asp-for="PhoneNumber" class="form-control" />
+    </div>
+    <div class="mb-3">
+        <label class="form-label">Địa chỉ</label>
+        <input asp-for="Address" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Đăng ký</button>
+    <a asp-action="Login" class="btn btn-link">Đăng nhập</a>
+</form>
+
+<partial name="_ValidationScriptsPartial" />
+
+
+

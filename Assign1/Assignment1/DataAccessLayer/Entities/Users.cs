@@ -9,6 +9,8 @@ namespace DataAccessLayer.Entities
 {
     public class Users : BaseEntity
     {
+        public string UserName { get; set; }
+
         public string FullName { get; set; }
 
         public string Email { get; set; }
