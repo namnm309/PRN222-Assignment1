@@ -1,21 +1,53 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using PresentationLayer.Models;
+using DataAccessLayer.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace PresentationLayer.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly AppDbContext _dbContext;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, AppDbContext dbContext)
         {
             _logger = logger;
+            _dbContext = dbContext;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index(string search)
         {
-            return View();
+            var query = _dbContext.Product
+                .Include(p => p.Brand)
+                .Where(p => p.IsActive);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                var term = search.Trim().ToLower();
+                query = query.Where(p =>
+                    p.Name.ToLower().Contains(term) ||
+                    p.Sku.ToLower().Contains(term) ||
+                    p.Brand.Name.ToLower().Contains(term));
+            }
+
+            var products = await query
+                .OrderBy(p => p.Name)
+                .Take(24)
+                .Select(p => new HomeProductViewModel
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Sku = p.Sku,
+                    Description = p.Description,
+                    Price = p.Price,
+                    BrandName = p.Brand.Name,
+                    IsActive = p.IsActive
+                })
+                .ToListAsync();
+
+            return View(products);
         }
 
         public IActionResult Privacy()

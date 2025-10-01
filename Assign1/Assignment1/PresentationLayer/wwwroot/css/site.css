@@ -18,5 +18,30 @@ html {
 }
 
 body {
-  margin-bottom: 60px;
+  margin-bottom: 0;
+}
+
+/* EV cards */
+.ev-card {
+  border: 1px solid #e9ecef;
+  border-radius: 8px;
+  overflow: hidden;
+  transition: box-shadow .15s ease-in-out, transform .15s ease-in-out;
+}
+
+.ev-card:hover {
+  box-shadow: 0 8px 24px rgba(0,0,0,.08);
+  transform: translateY(-2px);
+}
+
+.ev-card .ev-card-img {
+  background: linear-gradient(135deg, #f8f9fa, #eef2f7);
+  height: 160px;
+}
+
+.text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
