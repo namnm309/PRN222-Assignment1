@@ -23,6 +23,9 @@ namespace PresentationLayer
             // Đăng ký Repository và Services cho Authen
             builder.Services.AddScoped<IAuthen, Authen>();
             builder.Services.AddScoped<IAuthenService, AuthenService>();
+            
+            // Đăng ký EVM Services
+            builder.Services.AddScoped<IEVMReportService, EVMReportService>();
 
             // Session
             builder.Services.AddSession(options =>
@@ -43,6 +46,46 @@ namespace PresentationLayer
                     var db = services.GetRequiredService<AppDbContext>();
                     // Áp dụng migration (nếu có)
                     db.Database.Migrate();
+
+                    // Seed Admin user nếu chưa có
+                    if (!db.Users.Any(u => u.Role == DataAccessLayer.Enum.UserRole.Admin))
+                    {
+                        var adminUser = new DataAccessLayer.Entities.Users
+                        {
+                            Id = Guid.NewGuid(),
+                            FullName = "Administrator",
+                            Email = "admin@vinfast.com",
+                            PasswordHash = BCrypt.Net.BCrypt.HashPassword("admin123"),
+                            PhoneNumber = "0123456789",
+                            Address = "Hà Nội, Việt Nam",
+                            Role = DataAccessLayer.Enum.UserRole.Admin,
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow
+                        };
+                        db.Users.Add(adminUser);
+                        db.SaveChanges();
+                    }
+
+                    // Seed EVM Staff user nếu chưa có
+                    if (!db.Users.Any(u => u.Role == DataAccessLayer.Enum.UserRole.EVMStaff))
+                    {
+                        var evmStaffUser = new DataAccessLayer.Entities.Users
+                        {
+                            Id = Guid.NewGuid(),
+                            FullName = "EVM Staff",
+                            Email = "evm@vinfast.com",
+                            PasswordHash = BCrypt.Net.BCrypt.HashPassword("evm123"),
+                            PhoneNumber = "0987654321",
+                            Address = "TP.HCM, Việt Nam",
+                            Role = DataAccessLayer.Enum.UserRole.EVMStaff,
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow
+                        };
+                        db.Users.Add(evmStaffUser);
+                        db.SaveChanges();
+                    }
 
                     // Seed Brand/Product cơ bản nếu trống
                     if (!db.Brand.Any())
@@ -113,6 +156,45 @@ namespace PresentationLayer
                             }
                         };
                         db.Product.AddRange(products);
+                        db.SaveChanges();
+                    }
+
+                    // Seed Dealer users nếu chưa có
+                    if (!db.Users.Any(u => u.Role == DataAccessLayer.Enum.UserRole.DealerManager))
+                    {
+                        var dealerManager = new DataAccessLayer.Entities.Users
+                        {
+                            Id = Guid.NewGuid(),
+                            FullName = "Nguyễn Văn A",
+                            Email = "dealer.manager@vinfast.com",
+                            PasswordHash = BCrypt.Net.BCrypt.HashPassword("dealer123"),
+                            PhoneNumber = "0123456788",
+                            Address = "Hà Nội, Việt Nam",
+                            Role = DataAccessLayer.Enum.UserRole.DealerManager,
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow
+                        };
+                        db.Users.Add(dealerManager);
+                        db.SaveChanges();
+                    }
+
+                    if (!db.Users.Any(u => u.Role == DataAccessLayer.Enum.UserRole.DealerStaff))
+                    {
+                        var dealerStaff = new DataAccessLayer.Entities.Users
+                        {
+                            Id = Guid.NewGuid(),
+                            FullName = "Trần Thị B",
+                            Email = "dealer.staff@vinfast.com",
+                            PasswordHash = BCrypt.Net.BCrypt.HashPassword("staff123"),
+                            PhoneNumber = "0987654320",
+                            Address = "TP.HCM, Việt Nam",
+                            Role = DataAccessLayer.Enum.UserRole.DealerStaff,
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow
+                        };
+                        db.Users.Add(dealerStaff);
                         db.SaveChanges();
                     }
                 }
