@@ -6,8 +6,10 @@ namespace PresentationLayer.Controllers
 {
     public class AccountController : Controller
     {
+        //gọi từ BusinessLayer để sử dụng 
         private readonly IAuthenService _authenService;
 
+        //constructor
         public AccountController(IAuthenService authenService)
         {
             _authenService = authenService;
@@ -34,11 +36,15 @@ namespace PresentationLayer.Controllers
                 return View(model);
             }
 
-            // TODO: thiết lập cookie/session sau khi hoàn thiện auth
+            // Lưu thông tin user vào session
             HttpContext.Session.SetString("UserFullName", result.User.FullName);
             HttpContext.Session.SetString("UserEmail", result.User.Email);
+            HttpContext.Session.SetString("UserRole", result.User.Role.ToString());
+            
             TempData["LoginMessage"] = "Đăng nhập thành công";
-            return RedirectToAction("Index", "Home");
+            
+            // Redirect vào Dashboard thay vì Homepage
+            return RedirectToAction("Index", "Dashboard");
         }
 
         [HttpGet]
@@ -71,6 +77,8 @@ namespace PresentationLayer.Controllers
         {
             HttpContext.Session.Remove("UserFullName");
             HttpContext.Session.Remove("UserEmail");
+            HttpContext.Session.Remove("UserRole");
+            HttpContext.Session.Clear();
             return RedirectToAction("Index", "Home");
         }
     }

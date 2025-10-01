@@ -1,0 +1,58 @@
+@{
+    ViewData["Title"] = "Quản lý sản phẩm";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1">Quản lý sản phẩm</h2>
+        <p class="text-muted mb-0">Danh sách và quản lý các sản phẩm xe điện</p>
+    </div>
+    <div>
+        <button class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Thêm sản phẩm
+        </button>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Danh sách sản phẩm</h5>
+            <div class="d-flex gap-2">
+                <input type="text" class="form-control form-control-sm" placeholder="Tìm kiếm..." style="width: 250px;">
+                <select class="form-select form-select-sm" style="width: 150px;">
+                    <option>Tất cả</option>
+                    <option>Đang bán</option>
+                    <option>Hết hàng</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên sản phẩm</th>
+                        <th>SKU</th>
+                        <th>Thương hiệu</th>
+                        <th>Giá</th>
+                        <th>Tồn kho</th>
+                        <th>Trạng thái</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">
+                            <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                            Chưa có dữ liệu sản phẩm
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
