@@ -20,9 +20,19 @@ namespace PresentationLayer
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-            // Đăng ký Repository và Services cho Authen
+            // Đăng ký Repository và Services
             builder.Services.AddScoped<IAuthen, Authen>();
             builder.Services.AddScoped<IAuthenService, AuthenService>();
+            builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
+            builder.Services.AddScoped<IFeedbackService, FeedbackService>();
+            builder.Services.AddScoped<ITestDriveRepository, TestDriveRepository>();
+            builder.Services.AddScoped<ITestDriveService, TestDriveService>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<IProductService, ProductService>();
+            builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+            builder.Services.AddScoped<ICustomerService, CustomerService>();
+
+
 
             // Session
             builder.Services.AddSession(options =>
