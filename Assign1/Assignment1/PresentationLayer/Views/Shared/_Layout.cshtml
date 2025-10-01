@@ -12,7 +12,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">PresentationLayer</a>
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">VinFaster</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -20,25 +20,112 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Giới thiệu</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Ô Tô </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Xe Máy Điện </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Phụ Kiện Xe </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Dịch Vụ Hậu Mãi </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Pin và Trạm Sạc </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Lưu trữ năng lượng </a>
                         </li>
                     </ul>
+                    <div class="d-flex align-items-center gap-3">
+                        @{
+                            var fullName = Context.Session.GetString("UserFullName");
+                        }
+                        @if (!string.IsNullOrEmpty(fullName))
+                        {
+                            <span class="text-dark">Xin chào, <strong>@fullName</strong></span>
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-link text-decoration-none">Đăng xuất</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <a class="text-primary text-uppercase fw-semibold text-decoration-none" asp-area="" asp-controller="Account" asp-action="Login">Tài khoản</a>
+                        }
+                        <a class="btn btn-primary text-uppercase fw-semibold px-3" asp-area="" asp-controller="Home" asp-action="Privacy">Đăng kí lái thử</a>
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
+    <main role="main" class="pb-3">
+        @await RenderSectionAsync("FullWidthTop", required: false)
+        @await RenderSectionAsync("FullWidthContent", required: false)
         <div class="container">
-            &copy; 2025 - PresentationLayer - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            @RenderBody()
+        </div>
+    </main>
+
+    <footer class="vf-footer border-top bg-light mt-5">
+        <div class="container py-5">
+            <div class="row g-4">
+                <div class="col-12 col-lg-6 col-xl-5">
+                    <div class="mb-3 d-flex align-items-center gap-2">
+                        <div class="fw-bold fs-4">VINFAST</div>
+                    </div>
+                    <p class="mb-2">Công ty TNHH Kinh doanh Thương mại và Dịch vụ VinFast</p>
+                    <p class="mb-2"><span class="fw-semibold">MST/MSDN:</span> 0108926276 do Sở KHĐT TP Hà Nội cấp lần đầu ngày 01/10/2019 và các lần thay đổi tiếp theo.</p>
+                    <p class="mb-3"><span class="fw-semibold">Địa chỉ trụ sở chính:</span> Số 7, Đường Bằng Lăng 1, Khu đô thị Vinhomes Riverside, Phường Việt Hưng, Thành phố Hà Nội, Việt Nam</p>
+
+                    <div class="mb-3">
+                        <span class="fw-semibold me-3">Hệ sinh thái</span>
+                        <div class="btn-group" role="group" aria-label="ecosystem">
+                            <a class="btn btn-outline-secondary btn-sm" href="#">Vinhomes</a>
+                            <a class="btn btn-outline-secondary btn-sm" href="#">Vinmec</a>
+                            <a class="btn btn-outline-secondary btn-sm" href="#">Vinpearl</a>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <span class="badge badge-moit text-uppercase">Đã thông báo Bộ Công Thương</span>
+                    </div>
+                    <div class="text-muted small">VinFast. All rights reserved.<br />© Copyright 2025</div>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2 fw-semibold">Về VinFast</li>
+                        <li class="mb-2 fw-semibold">Về Vingroup</li>
+                        <li class="mb-2 fw-semibold">Tin tức</li>
+                        <li class="mb-2 fw-semibold">Showroom & Đại lý</li>
+                        <li class="mb-2 fw-semibold">Điều khoản chính sách</li>
+                    </ul>
+                </div>
+
+                <div class="col-12 col-md-6 col-lg-3">
+                    <div class="mb-3">
+                        <div class="text-uppercase small fw-semibold text-muted mb-2">Dịch vụ khách hàng</div>
+                        <div class="mb-2">📞 <a class="text-decoration-none" href="tel:1900232389">1900 23 23 89</a></div>
+                        <div class="mb-3">✉️ <a class="text-decoration-none" href="mailto:support.vn@vinfastauto.com">support.vn@vinfastauto.com</a></div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="text-uppercase small fw-semibold text-muted mb-2">Speak-up Hotline</div>
+                        <div class="mb-2">📞 <a class="text-decoration-none" href="tel:+842444582193">+84 24 4458 2193</a></div>
+                        <div>✉️ <a class="text-decoration-none" href="mailto:v.speakup@vinfast.vn">v.speakup@vinfast.vn</a></div>
+                    </div>
+                    <div>
+                        <div class="text-uppercase small fw-semibold text-muted mb-2">Kết nối với VinFast</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <a class="social-icon" href="#" aria-label="Facebook">f</a>
+                            <a class="social-icon" href="#" aria-label="YouTube">▶</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
