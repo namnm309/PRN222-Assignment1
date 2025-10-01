@@ -62,11 +62,13 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+    <main role="main" class="pb-3">
+        @await RenderSectionAsync("FullWidthTop", required: false)
+        @await RenderSectionAsync("FullWidthContent", required: false)
+        <div class="container">
             @RenderBody()
-        </main>
-    </div>
+        </div>
+    </main>
 
     <footer class="vf-footer border-top bg-light mt-5">
         <div class="container py-5">
