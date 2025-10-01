@@ -27,5 +27,16 @@ namespace PresentationLayer.Controllers
             // Ví dụ trang Reports
             return View();
         }
+
+        public IActionResult EVMDashboard()
+        {
+            if (!IsAdmin())
+            {
+                TempData["Error"] = "Bạn không có quyền truy cập EVM Dashboard.";
+                return RedirectToAction("Index", "Dashboard");
+            }
+            
+            return RedirectToAction("Index", "EVMDashboard");
+        }
     }
 }

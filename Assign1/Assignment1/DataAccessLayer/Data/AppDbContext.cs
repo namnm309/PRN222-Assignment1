@@ -38,6 +38,12 @@ namespace DataAccessLayer.Data
         public DbSet<Promotion> Promotion { get; set; }
         
         public DbSet<TestDrive> TestDrive { get; set; }
+        
+        public DbSet<Region> Region { get; set; }
+        
+        public DbSet<SalesTarget> SalesTarget { get; set; }
+        
+        public DbSet<DealerContract> DealerContract { get; set; }
 
         // Cấu hình chi tiết Entity - sử dụng khi cần cấu hình phức tạp ngoài Data Annotations 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -107,6 +113,34 @@ namespace DataAccessLayer.Data
                 .HasForeignKey(t => t.DealerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Cấu hình mối quan hệ Order - Region (Many-to-One)
+            modelBuilder.Entity<Order>()
+                .HasOne(o => o.Region)
+                .WithMany()
+                .HasForeignKey(o => o.RegionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Cấu hình mối quan hệ Dealer - Region (Many-to-One)
+            modelBuilder.Entity<Dealer>()
+                .HasOne(d => d.Region)
+                .WithMany()
+                .HasForeignKey(d => d.RegionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Cấu hình mối quan hệ SalesTarget - Dealer (Many-to-One)
+            modelBuilder.Entity<SalesTarget>()
+                .HasOne(st => st.Dealer)
+                .WithMany()
+                .HasForeignKey(st => st.DealerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Cấu hình mối quan hệ DealerContract - Dealer (Many-to-One)
+            modelBuilder.Entity<DealerContract>()
+                .HasOne(dc => dc.Dealer)
+                .WithMany()
+                .HasForeignKey(dc => dc.DealerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Cấu hình các thuộc tính bắt buộc
             modelBuilder.Entity<Users>(entity =>
             {
@@ -144,7 +178,7 @@ namespace DataAccessLayer.Data
             modelBuilder.Entity<Dealer>(entity =>
             {
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.phone).HasMaxLength(20);
+                entity.Property(e => e.Phone).HasMaxLength(20);
                 entity.Property(e => e.Address).HasMaxLength(200);
             });
 
@@ -158,9 +192,9 @@ namespace DataAccessLayer.Data
             modelBuilder.Entity<Order>(entity =>
             {
                 entity.Property(e => e.Description).HasMaxLength(500);
-                entity.Property(e => e.price).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.discount).HasColumnType("decimal(18,2)");
-                entity.Property(e => e.status).HasMaxLength(20);
+                entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Discount).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Status).HasMaxLength(20);
             });
 
             modelBuilder.Entity<Feedback>(entity =>
@@ -178,6 +212,62 @@ namespace DataAccessLayer.Data
             modelBuilder.Entity<TestDrive>(entity =>
             {
                 entity.Property(e => e.Status).HasMaxLength(20);
+            });
+
+            modelBuilder.Entity<Region>(entity =>
+            {
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Code).IsRequired().HasMaxLength(10);
+                entity.Property(e => e.Description).HasMaxLength(500);
+            });
+
+            modelBuilder.Entity<SalesTarget>(entity =>
+            {
+                entity.Property(e => e.TargetAmount).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.ActualAmount).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.AchievementRate).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.Status).HasMaxLength(20);
+                entity.Property(e => e.Notes).HasMaxLength(1000);
+            });
+
+            modelBuilder.Entity<DealerContract>(entity =>
+            {
+                entity.Property(e => e.ContractNumber).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.CommissionRate).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.CreditLimit).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.OutstandingDebt).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Status).HasMaxLength(20);
+                entity.Property(e => e.Terms).HasMaxLength(2000);
+                entity.Property(e => e.Notes).HasMaxLength(1000);
+            });
+
+            modelBuilder.Entity<Dealer>(entity =>
+            {
+                entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
+                entity.Property(e => e.Phone).HasMaxLength(20);
+                entity.Property(e => e.Address).HasMaxLength(200);
+                entity.Property(e => e.City).HasMaxLength(50);
+                entity.Property(e => e.Province).HasMaxLength(50);
+                entity.Property(e => e.DealerCode).HasMaxLength(20);
+                entity.Property(e => e.ContactPerson).HasMaxLength(100);
+                entity.Property(e => e.Email).HasMaxLength(100);
+                entity.Property(e => e.LicenseNumber).HasMaxLength(50);
+                entity.Property(e => e.CreditLimit).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.OutstandingDebt).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Status).HasMaxLength(20);
+            });
+
+            modelBuilder.Entity<Order>(entity =>
+            {
+                entity.Property(e => e.OrderNumber).HasMaxLength(50);
+                entity.Property(e => e.Description).HasMaxLength(500);
+                entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Discount).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.FinalAmount).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Status).HasMaxLength(20);
+                entity.Property(e => e.PaymentStatus).HasMaxLength(20);
+                entity.Property(e => e.PaymentMethod).HasMaxLength(20);
+                entity.Property(e => e.Notes).HasMaxLength(1000);
             });
         }
         }
