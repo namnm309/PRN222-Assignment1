@@ -44,6 +44,12 @@ namespace DataAccessLayer.Data
         public DbSet<SalesTarget> SalesTarget { get; set; }
         
         public DbSet<DealerContract> DealerContract { get; set; }
+        
+        public DbSet<InventoryAllocation> InventoryAllocation { get; set; }
+        
+        public DbSet<PricingPolicy> PricingPolicy { get; set; }
+        
+        public DbSet<InventoryTransaction> InventoryTransaction { get; set; }
 
         // Cấu hình chi tiết Entity - sử dụng khi cần cấu hình phức tạp ngoài Data Annotations 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -267,6 +273,97 @@ namespace DataAccessLayer.Data
                 entity.Property(e => e.Status).HasMaxLength(20);
                 entity.Property(e => e.PaymentStatus).HasMaxLength(20);
                 entity.Property(e => e.PaymentMethod).HasMaxLength(20);
+                entity.Property(e => e.Notes).HasMaxLength(1000);
+            });
+
+            // Cấu hình mối quan hệ InventoryAllocation - Product (Many-to-One)
+            modelBuilder.Entity<InventoryAllocation>()
+                .HasOne(ia => ia.Product)
+                .WithMany()
+                .HasForeignKey(ia => ia.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Cấu hình mối quan hệ InventoryAllocation - Dealer (Many-to-One)
+            modelBuilder.Entity<InventoryAllocation>()
+                .HasOne(ia => ia.Dealer)
+                .WithMany()
+                .HasForeignKey(ia => ia.DealerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Cấu hình mối quan hệ PricingPolicy - Product (Many-to-One)
+            modelBuilder.Entity<PricingPolicy>()
+                .HasOne(pp => pp.Product)
+                .WithMany()
+                .HasForeignKey(pp => pp.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Cấu hình mối quan hệ PricingPolicy - Dealer (Many-to-One)
+            modelBuilder.Entity<PricingPolicy>()
+                .HasOne(pp => pp.Dealer)
+                .WithMany()
+                .HasForeignKey(pp => pp.DealerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Cấu hình mối quan hệ PricingPolicy - Region (Many-to-One)
+            modelBuilder.Entity<PricingPolicy>()
+                .HasOne(pp => pp.Region)
+                .WithMany()
+                .HasForeignKey(pp => pp.RegionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Cấu hình mối quan hệ InventoryTransaction - Product (Many-to-One)
+            modelBuilder.Entity<InventoryTransaction>()
+                .HasOne(it => it.Product)
+                .WithMany()
+                .HasForeignKey(it => it.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Cấu hình mối quan hệ InventoryTransaction - Dealer (Many-to-One)
+            modelBuilder.Entity<InventoryTransaction>()
+                .HasOne(it => it.Dealer)
+                .WithMany()
+                .HasForeignKey(it => it.DealerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Cấu hình mối quan hệ InventoryTransaction - Order (Many-to-One)
+            modelBuilder.Entity<InventoryTransaction>()
+                .HasOne(it => it.Order)
+                .WithMany()
+                .HasForeignKey(it => it.OrderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Cấu hình mối quan hệ InventoryTransaction - User (Many-to-One)
+            modelBuilder.Entity<InventoryTransaction>()
+                .HasOne(it => it.ProcessedByUser)
+                .WithMany()
+                .HasForeignKey(it => it.ProcessedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<InventoryAllocation>(entity =>
+            {
+                entity.Property(e => e.Status).HasMaxLength(20);
+                entity.Property(e => e.Priority).HasMaxLength(20);
+                entity.Property(e => e.Notes).HasMaxLength(1000);
+            });
+
+            modelBuilder.Entity<PricingPolicy>(entity =>
+            {
+                entity.Property(e => e.WholesalePrice).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.RetailPrice).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.DiscountRate).HasColumnType("decimal(5,2)");
+                entity.Property(e => e.MinimumPrice).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.PolicyType).HasMaxLength(50);
+                entity.Property(e => e.ApplicableConditions).HasMaxLength(1000);
+                entity.Property(e => e.Status).HasMaxLength(20);
+                entity.Property(e => e.Notes).HasMaxLength(1000);
+            });
+
+            modelBuilder.Entity<InventoryTransaction>(entity =>
+            {
+                entity.Property(e => e.TransactionType).HasMaxLength(20);
+                entity.Property(e => e.Reason).HasMaxLength(100);
+                entity.Property(e => e.ReferenceNumber).HasMaxLength(50);
+                entity.Property(e => e.Status).HasMaxLength(20);
                 entity.Property(e => e.Notes).HasMaxLength(1000);
             });
         }
