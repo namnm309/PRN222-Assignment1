@@ -1,8 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
-using BusinessLayer.DTOs;
-using PresentationLayer.Models;
-using PresentationLayer.Extensions;
+using DataAccessLayer.Entities;
 using DataAccessLayer.Enum;
 
 namespace PresentationLayer.Controllers
@@ -23,7 +21,7 @@ namespace PresentationLayer.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> SalesReport(EVMSalesReportFilterViewModel filter)
+        public async Task<IActionResult> SalesReport(Guid? regionId = null, Guid? dealerId = null, string period = "monthly", int year = 0, int? month = null, int? quarter = null)
         {
             if (!IsAdmin())
             {
@@ -32,27 +30,31 @@ namespace PresentationLayer.Controllers
             }
 
             // Set default values if not provided
-            if (string.IsNullOrEmpty(filter.Period))
-                filter.Period = "monthly";
-            if (filter.Year == 0)
-                filter.Year = DateTime.Now.Year;
-            if (filter.Month == null)
-                filter.Month = DateTime.Now.Month;
+            if (year == 0)
+                year = DateTime.Now.Year;
+            if (month == null && period == "monthly")
+                month = DateTime.Now.Month;
 
-            var filterDto = filter.ToDTO();
-            var salesReportDto = await _evmReportService.GetSalesReportByRegionAsync(filterDto);
-            var totalSales = await _evmReportService.GetTotalSalesAsync(filterDto);
-
-            var salesReport = salesReportDto.Select(dto => dto.ToViewModel()).ToList();
+            var salesReport = await _evmReportService.GetSalesReportByRegionAsync(regionId, dealerId, period, year, month, quarter);
+            var totalSales = await _evmReportService.GetTotalSalesAsync(regionId, dealerId, period, year, month, quarter);
 
             ViewBag.TotalSales = totalSales;
-            ViewBag.Filter = filter;
+            ViewBag.RegionId = regionId;
+            ViewBag.DealerId = dealerId;
+            ViewBag.Period = period;
+            ViewBag.Year = year;
+            ViewBag.Month = month;
+            ViewBag.Quarter = quarter;
+
+            // Get dropdown data
+            ViewBag.Regions = await _evmReportService.GetAllRegionsAsync();
+            ViewBag.Dealers = await _evmReportService.GetAllDealersAsync();
 
             return View(salesReport);
         }
 
         [HttpGet]
-        public async Task<IActionResult> InventoryReport(EVMInventoryFilterViewModel filter)
+        public async Task<IActionResult> InventoryReport(Guid? brandId = null, string priority = null)
         {
             if (!IsAdmin())
             {
@@ -60,22 +62,19 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction("Index", "Dashboard");
             }
 
-            var filterDto = filter.ToDTO();
-            var inventoryReportDto = await _evmReportService.GetInventoryReportAsync(filterDto);
-            var lowStockProductsDto = await _evmReportService.GetLowStockProductsAsync();
-            var criticalStockProductsDto = await _evmReportService.GetCriticalStockProductsAsync();
+            var inventoryReport = await _evmReportService.GetInventoryReportAsync(brandId, priority);
 
-            var inventoryReport = inventoryReportDto.Select(dto => dto.ToViewModel()).ToList();
+            ViewBag.BrandId = brandId;
+            ViewBag.Priority = priority;
 
-            ViewBag.LowStockCount = lowStockProductsDto.Count;
-            ViewBag.CriticalStockCount = criticalStockProductsDto.Count;
-            ViewBag.Filter = filter;
+            // Get dropdown data
+            ViewBag.Brands = await _evmReportService.GetAllBrandsAsync();
 
             return View(inventoryReport);
         }
 
         [HttpGet]
-        public async Task<IActionResult> DemandForecast(EVMDemandForecastFilterViewModel filter)
+        public async Task<IActionResult> DemandForecast(int forecastPeriod = 6, Guid? productId = null, string priority = null)
         {
             if (!IsAdmin())
             {
@@ -83,24 +82,20 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction("Index", "Dashboard");
             }
 
-            // Set default values
-            if (filter.ForecastPeriod == 0)
-                filter.ForecastPeriod = 6; // 6 months forecast
+            var demandForecast = await _evmReportService.GetDemandForecastAsync(forecastPeriod, productId, priority);
 
-            var filterDto = filter.ToDTO();
-            var demandForecastDto = await _evmReportService.GetDemandForecastAsync(filterDto);
-            var highPriorityForecastsDto = await _evmReportService.GetHighPriorityForecastsAsync();
+            ViewBag.ForecastPeriod = forecastPeriod;
+            ViewBag.ProductId = productId;
+            ViewBag.Priority = priority;
 
-            var demandForecast = demandForecastDto.Select(dto => dto.ToViewModel()).ToList();
-
-            ViewBag.HighPriorityCount = highPriorityForecastsDto.Count;
-            ViewBag.Filter = filter;
+            // Get dropdown data
+            ViewBag.Products = await _evmReportService.GetAllProductsAsync();
 
             return View(demandForecast);
         }
 
         [HttpGet]
-        public async Task<IActionResult> ContractManagement(EVMContractFilterViewModel filter)
+        public async Task<IActionResult> ContractManagement(Guid? dealerId = null, string status = null, string riskLevel = null)
         {
             if (!IsAdmin())
             {
@@ -108,99 +103,57 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction("Index", "Dashboard");
             }
 
-            var filterDto = filter.ToDTO();
-            var contractReportDto = await _evmReportService.GetContractManagementReportAsync(filterDto);
-            var expiringContractsDto = await _evmReportService.GetExpiringContractsAsync(30);
-            var highRiskContractsDto = await _evmReportService.GetHighRiskContractsAsync();
+            var contractReport = await _evmReportService.GetContractManagementReportAsync(dealerId, status, riskLevel);
 
-            var contractReport = contractReportDto.Select(dto => dto.ToViewModel()).ToList();
+            ViewBag.DealerId = dealerId;
+            ViewBag.Status = status;
+            ViewBag.RiskLevel = riskLevel;
 
-            ViewBag.ExpiringCount = expiringContractsDto.Count;
-            ViewBag.HighRiskCount = highRiskContractsDto.Count;
-            ViewBag.Filter = filter;
+            // Get dropdown data
+            ViewBag.Dealers = await _evmReportService.GetAllDealersAsync();
 
             return View(contractReport);
         }
 
+        // API endpoints for AJAX calls
         [HttpGet]
-        public async Task<IActionResult> GetSalesData(string regionId, string dealerId, string period, int year, int? month, int? quarter)
+        public async Task<JsonResult> GetSalesData(Guid? regionId = null, Guid? dealerId = null, string period = "monthly", int year = 0, int? month = null, int? quarter = null)
         {
             if (!IsAdmin())
-            {
                 return Json(new { error = "Unauthorized" });
-            }
 
-            var filter = new EVMSalesReportFilterDTO
-            {
-                RegionId = regionId,
-                DealerId = dealerId,
-                Period = period,
-                Year = year,
-                Month = month,
-                Quarter = quarter
-            };
-
-            var salesData = await _evmReportService.GetSalesReportByRegionAsync(filter);
-            return Json(salesData);
+            var salesReport = await _evmReportService.GetSalesReportByRegionAsync(regionId, dealerId, period, year, month, quarter);
+            return Json(salesReport);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetInventoryData(string productId, string brandId, string stockStatus)
+        public async Task<JsonResult> GetInventoryData(Guid? brandId = null, string priority = null)
         {
             if (!IsAdmin())
-            {
                 return Json(new { error = "Unauthorized" });
-            }
 
-            var filter = new EVMInventoryFilterDTO
-            {
-                ProductId = productId,
-                BrandId = brandId,
-                StockStatus = stockStatus
-            };
-
-            var inventoryData = await _evmReportService.GetInventoryReportAsync(filter);
-            return Json(inventoryData);
+            var inventoryReport = await _evmReportService.GetInventoryReportAsync(brandId, priority);
+            return Json(inventoryReport);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetDemandForecastData(string productId, string brandId, string priority, int forecastPeriod)
+        public async Task<JsonResult> GetDemandForecastData(int forecastPeriod = 6, Guid? productId = null, string priority = null)
         {
             if (!IsAdmin())
-            {
                 return Json(new { error = "Unauthorized" });
-            }
 
-            var filter = new EVMDemandForecastFilterDTO
-            {
-                ProductId = productId,
-                BrandId = brandId,
-                Priority = priority,
-                ForecastPeriod = forecastPeriod
-            };
-
-            var forecastData = await _evmReportService.GetDemandForecastAsync(filter);
-            return Json(forecastData);
+            var demandForecast = await _evmReportService.GetDemandForecastAsync(forecastPeriod, productId, priority);
+            return Json(demandForecast);
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetContractData(string dealerId, string regionId, string status, string riskLevel)
+        public async Task<JsonResult> GetContractData(Guid? dealerId = null, string status = null, string riskLevel = null)
         {
             if (!IsAdmin())
-            {
                 return Json(new { error = "Unauthorized" });
-            }
 
-            var filter = new EVMContractFilterDTO
-            {
-                DealerId = dealerId,
-                RegionId = regionId,
-                Status = status,
-                RiskLevel = riskLevel
-            };
-
-            var contractData = await _evmReportService.GetContractManagementReportAsync(filter);
-            return Json(contractData);
+            var contractReport = await _evmReportService.GetContractManagementReportAsync(dealerId, status, riskLevel);
+            return Json(contractReport);
         }
     }
 }

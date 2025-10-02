@@ -1,4 +1,4 @@
-@model List<PresentationLayer.Models.EVMContractManagementViewModel>
+@model List<DataAccessLayer.Entities.DealerContract>
 @{
     ViewData["Title"] = "Quản lý hợp đồng đại lý EVM";
     Layout = "_DashboardLayout";
@@ -17,15 +17,22 @@
                     <label for="dealerId" class="form-label">Đại lý</label>
                     <select id="dealerId" name="dealerId" class="form-select">
                         <option value="">Tất cả đại lý</option>
+                        @if (ViewBag.Dealers != null)
+                        {
+                            @foreach (var dealer in (List<DataAccessLayer.Entities.Dealer>)ViewBag.Dealers)
+                            {
+                                <option value="@dealer.Id" selected="@(ViewBag.DealerId?.ToString() == dealer.Id.ToString())">@dealer.Name</option>
+                            }
+                        }
                     </select>
                 </div>
                 <div class="col-md-4">
                     <label for="status" class="form-label">Trạng thái hợp đồng</label>
                     <select id="status" name="status" class="form-select">
                         <option value="">Tất cả</option>
-                        <option value="Active">Đang hoạt động</option>
-                        <option value="Expired">Hết hạn</option>
-                        <option value="Terminated">Đã chấm dứt</option>
+                        <option value="Active" selected="@(ViewBag.Status == "Active")">Đang hoạt động</option>
+                        <option value="Expired" selected="@(ViewBag.Status == "Expired")">Hết hạn</option>
+                        <option value="Terminated" selected="@(ViewBag.Status == "Terminated")">Đã chấm dứt</option>
                     </select>
                 </div>
                 <div class="col-12 text-end">
@@ -88,17 +95,22 @@
                 <tbody>
                     @foreach (var item in Model)
                     {
+                        var riskLevel = item.OutstandingDebt > item.CreditLimit * 0.8m ? "Cao" : 
+                                       (item.OutstandingDebt > item.CreditLimit * 0.5m ? "Trung bình" : "Thấp");
+                        var riskClass = riskLevel == "Cao" ? "bg-danger" : (riskLevel == "Trung bình" ? "bg-warning" : "bg-success");
+                        var statusClass = item.Status == "Active" ? "bg-success" : (item.Status == "Expired" ? "bg-warning" : "bg-danger");
+                        
                         <tr>
-                            <td>@item.DealerName</td>
-                            <td>@item.DealerCode</td>
+                            <td>@(item.Dealer?.Name ?? "N/A")</td>
+                            <td>@(item.Dealer?.DealerCode ?? "N/A")</td>
                             <td>@item.ContractNumber</td>
                             <td>@item.StartDate.ToString("dd/MM/yyyy")</td>
                             <td>@item.EndDate.ToString("dd/MM/yyyy")</td>
                             <td>@item.CommissionRate.ToString("P1")</td>
                             <td>@item.CreditLimit.ToString("C0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))</td>
                             <td>@item.OutstandingDebt.ToString("C0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))</td>
-                            <td><span class="badge @(item.Status == "Active" ? "bg-success" : (item.Status == "Expired" ? "bg-warning" : "bg-danger"))">@item.Status</span></td>
-                            <td><span class="badge @(item.RiskLevel == "High" ? "bg-danger" : (item.RiskLevel == "Medium" ? "bg-warning" : "bg-success"))">@item.RiskLevel</span></td>
+                            <td><span class="badge @statusClass">@item.Status</span></td>
+                            <td><span class="badge @riskClass">@riskLevel</span></td>
                         </tr>
                     }
                 </tbody>

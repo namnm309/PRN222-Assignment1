@@ -1,4 +1,4 @@
-@model List<PresentationLayer.Models.EVMInventoryViewModel>
+@model List<DataAccessLayer.Entities.Product>
 @{
     ViewData["Title"] = "Báo cáo tồn kho EVM";
     Layout = "_DashboardLayout";
@@ -17,6 +17,13 @@
                     <label for="brandId" class="form-label">Thương hiệu</label>
                     <select id="brandId" name="brandId" class="form-select">
                         <option value="">Tất cả thương hiệu</option>
+                        @if (ViewBag.Brands != null)
+                        {
+                            @foreach (var brand in (List<DataAccessLayer.Entities.Brand>)ViewBag.Brands)
+                            {
+                                <option value="@brand.Id" selected="@(ViewBag.BrandId?.ToString() == brand.Id.ToString())">@brand.Name</option>
+                            }
+                        }
                     </select>
                 </div>
                 <div class="col-12 text-end">
@@ -32,7 +39,7 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <p class="text-muted mb-1 small">Tổng số lượng tồn kho</p>
-                <h3 class="mb-0 text-primary">@Model.Sum(x => x.CurrentStock)</h3>
+                <h3 class="mb-0 text-primary">@Model.Sum(x => x.StockQuantity)</h3>
             </div>
         </div>
     </div>
@@ -40,7 +47,7 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <p class="text-muted mb-1 small">Số sản phẩm tồn kho thấp</p>
-                <h3 class="mb-0 text-warning">@Model.Count(x => x.StockStatus == "Low")</h3>
+                <h3 class="mb-0 text-warning">@Model.Count(x => x.StockQuantity <= 10)</h3>
             </div>
         </div>
     </div>
@@ -48,7 +55,7 @@
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
                 <p class="text-muted mb-1 small">Số sản phẩm hết hàng</p>
-                <h3 class="mb-0 text-danger">@Model.Count(x => x.StockStatus == "OutOfStock")</h3>
+                <h3 class="mb-0 text-danger">@Model.Count(x => x.StockQuantity <= 0)</h3>
             </div>
         </div>
     </div>
@@ -68,24 +75,25 @@
                         <th>SKU</th>
                         <th>Thương hiệu</th>
                         <th>Tồn kho</th>
-                        <th>Tốc độ tiêu thụ</th>
+                        <th>Giá bán</th>
                         <th>Trạng thái</th>
+                        <th>Cảnh báo</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
+                        var stockStatus = item.StockQuantity <= 0 ? "Hết hàng" : (item.StockQuantity <= 10 ? "Tồn kho thấp" : "Bình thường");
+                        var stockClass = item.StockQuantity <= 0 ? "bg-danger" : (item.StockQuantity <= 10 ? "bg-warning" : "bg-success");
+                        
                         <tr>
-                            <td>@item.ProductName</td>
-                            <td>@item.ProductSku</td>
-                            <td>@item.BrandName</td>
-                            <td>@item.CurrentStock</td>
-                            <td>@item.ConsumptionRate.ToString("F2")</td>
-                            <td>
-                                <span class="badge @(item.StockStatus == "OutOfStock" ? "bg-danger" : (item.StockStatus == "Low" ? "bg-warning" : "bg-success"))">
-                                    @item.StockStatus
-                                </span>
-                            </td>
+                            <td>@item.Name</td>
+                            <td>@item.Sku</td>
+                            <td>@(item.Brand?.Name ?? "N/A")</td>
+                            <td>@item.StockQuantity</td>
+                            <td>@item.Price.ToString("C0", System.Globalization.CultureInfo.GetCultureInfo("vi-VN"))</td>
+                            <td><span class="badge @(item.IsActive ? "bg-success" : "bg-secondary")">@(item.IsActive ? "Hoạt động" : "Ngừng bán")</span></td>
+                            <td><span class="badge @stockClass">@stockStatus</span></td>
                         </tr>
                     }
                 </tbody>

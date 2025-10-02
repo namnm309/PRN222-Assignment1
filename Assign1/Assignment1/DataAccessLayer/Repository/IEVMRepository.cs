@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace BusinessLayer.Services
+namespace DataAccessLayer.Repository
 {
-    public interface IEVMReportService
+    public interface IEVMRepository
     {
         // Sales Reports
         Task<List<Order>> GetSalesReportByRegionAsync(Guid? regionId = null, Guid? dealerId = null, string period = "monthly", int year = 0, int? month = null, int? quarter = null);

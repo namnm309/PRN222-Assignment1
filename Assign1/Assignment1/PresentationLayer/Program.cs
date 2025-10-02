@@ -24,7 +24,8 @@ namespace PresentationLayer
             builder.Services.AddScoped<IAuthen, Authen>();
             builder.Services.AddScoped<IAuthenService, AuthenService>();
             
-            // Đăng ký EVM Services
+            // Đăng ký EVM Repository và Services
+            builder.Services.AddScoped<IEVMRepository, EVMRepository>();
             builder.Services.AddScoped<IEVMReportService, EVMReportService>();
 
             // Session

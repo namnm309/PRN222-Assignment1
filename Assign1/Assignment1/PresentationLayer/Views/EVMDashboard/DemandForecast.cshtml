@@ -1,4 +1,4 @@
-@model List<PresentationLayer.Models.EVMDemandForecastViewModel>
+@model List<DataAccessLayer.Entities.Product>
 @{
     ViewData["Title"] = "AI Dự đoán nhu cầu EVM";
     Layout = "_DashboardLayout";
@@ -15,12 +15,19 @@
             <div class="row g-3 align-items-end">
                 <div class="col-md-4">
                     <label for="forecastPeriod" class="form-label">Số tháng dự đoán</label>
-                    <input type="number" id="forecastPeriod" name="forecastPeriod" class="form-control" value="6" min="1" max="12" />
+                    <input type="number" id="forecastPeriod" name="forecastPeriod" class="form-control" value="@(ViewBag.ForecastPeriod ?? 6)" min="1" max="12" />
                 </div>
                 <div class="col-md-4">
                     <label for="productId" class="form-label">Sản phẩm</label>
                     <select id="productId" name="productId" class="form-select">
                         <option value="">Tất cả sản phẩm</option>
+                        @if (ViewBag.Products != null)
+                        {
+                            @foreach (var product in (List<DataAccessLayer.Entities.Product>)ViewBag.Products)
+                            {
+                                <option value="@product.Id" selected="@(ViewBag.ProductId?.ToString() == product.Id.ToString())">@product.Name</option>
+                            }
+                        }
                     </select>
                 </div>
                 <div class="col-12 text-end">
@@ -43,8 +50,8 @@
     <div class="col-md-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-body">
-                <p class="text-muted mb-1 small">Tổng số lượng dự báo</p>
-                <h3 class="mb-0 text-primary">@Model.Sum(x => x.PredictedDemand)</h3>
+                <p class="text-muted mb-1 small">Số sản phẩm được phân tích</p>
+                <h3 class="mb-0 text-primary">@Model.Count</h3>
             </div>
         </div>
     </div>
@@ -63,27 +70,33 @@
                         <th>Sản phẩm</th>
                         <th>SKU</th>
                         <th>Thương hiệu</th>
-                        <th>Khu vực</th>
-                        <th>Nhu cầu hiện tại</th>
-                        <th>Nhu cầu dự báo</th>
+                        <th>Tồn kho hiện tại</th>
+                        <th>Dự báo nhu cầu (@(ViewBag.ForecastPeriod ?? 6) tháng)</th>
                         <th>Độ tin cậy</th>
                         <th>Xu hướng</th>
-                        <th>Ưu tiên</th>
+                        <th>Khuyến nghị</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
+                        // Simulate AI forecast data
+                        var predictedDemand = item.StockQuantity * 2 + new Random().Next(10, 50);
+                        var confidence = 0.75 + (new Random().NextDouble() * 0.2); // 75-95%
+                        var trend = item.StockQuantity > 20 ? "Tăng" : (item.StockQuantity > 10 ? "Ổn định" : "Giảm");
+                        var trendClass = trend == "Tăng" ? "text-success" : (trend == "Ổn định" ? "text-info" : "text-danger");
+                        var recommendation = item.StockQuantity < predictedDemand ? "Cần tăng sản xuất" : "Duy trì mức hiện tại";
+                        var recClass = recommendation.Contains("tăng") ? "text-warning" : "text-success";
+                        
                         <tr>
-                            <td>@item.ProductName</td>
-                            <td>@item.ProductSku</td>
-                            <td>@item.BrandName</td>
-                            <td>@item.RegionName</td>
-                            <td>@item.CurrentDemand</td>
-                            <td>@item.PredictedDemand</td>
-                            <td>@item.ConfidenceLevel.ToString("P1")</td>
-                            <td>@item.Trend</td>
-                            <td>@item.Priority</td>
+                            <td>@item.Name</td>
+                            <td>@item.Sku</td>
+                            <td>@(item.Brand?.Name ?? "N/A")</td>
+                            <td>@item.StockQuantity</td>
+                            <td>@predictedDemand</td>
+                            <td>@confidence.ToString("P1")</td>
+                            <td><span class="@trendClass fw-bold">@trend</span></td>
+                            <td><span class="@recClass">@recommendation</span></td>
                         </tr>
                     }
                 </tbody>
@@ -94,4 +107,8 @@
             <p class="text-muted">Không có dữ liệu dự đoán để hiển thị.</p>
         }
     </div>
+</div>
+
+<div class="alert alert-info">
+    <strong>ℹ️ Lưu ý:</strong> Dữ liệu dự đoán được tạo bởi mô hình AI mô phỏng. Trong thực tế, cần tích hợp với hệ thống AI thực để có kết quả chính xác.
 </div>
