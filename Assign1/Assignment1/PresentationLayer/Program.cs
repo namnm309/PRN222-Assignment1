@@ -28,6 +28,8 @@ namespace PresentationLayer
             // Đăng ký Repository & Service
             builder.Services.AddScoped<IDealerRepository, DealerRepository>();
             builder.Services.AddScoped<IDealerService, DealerService>();
+            builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+            builder.Services.AddScoped<ICategoryService, CategoryService>();    
 
             // Đăng ký Swagger
             builder.Services.AddEndpointsApiExplorer();
