@@ -1,5 +1,4 @@
-﻿using BusinessLayer.DTO;
-using DataAccessLayer.Entities;
+﻿using DataAccessLayer.Entities;
 using DataAccessLayer.Repository;
 using System;
 using System.Collections.Generic;
@@ -18,73 +17,32 @@ namespace BusinessLayer.Services
             _repo = repo;
         }
 
-        public async Task<IEnumerable<CategoryDto>> GetAllAsync()
+        public Task<IEnumerable<Category>> GetAllAsync() => _repo.GetAllAsync();
+
+        public Task<Category> GetByIdAsync(Guid id) => _repo.GetByIdAsync(id);
+
+        public async Task CreateAsync(Category category)
         {
-            var categories = await _repo.GetAllAsync();
-            return categories.Select(c => new CategoryDto
-            {
-                Id = c.Id,
-                ModelName = c.ModelName,
-                Color = c.color,
-                Varian = c.varian,
-                IsActive = c.IsActive
-            });
+            category.Id = Guid.NewGuid();
+            await _repo.AddAsync(category);
         }
 
-        public async Task<CategoryDto?> GetByIdAsync(Guid id)
+        public async Task UpdateAsync(Guid id, Category category)
         {
-            var c = await _repo.GetByIdAsync(id);
-            if (c == null) return null;
-            return new CategoryDto
-            {
-                Id = c.Id,
-                ModelName = c.ModelName,
-                Color = c.color,
-                Varian = c.varian,
-                IsActive = c.IsActive
-            };
-        }
+            var existing = await _repo.GetByIdAsync(id);
+            if (existing == null) return;
 
-        public async Task<CategoryDto> CreateAsync(CreateCategoryDto dto)
-        {
-            var entity = new Category
-            {
-                ModelName = dto.ModelName,
-                color = dto.Color,
-                varian = dto.Varian,
-                IsActive = dto.IsActive
-            };
-            await _repo.AddAsync(entity);
-            return new CategoryDto
-            {
-                Id = entity.Id,
-                ModelName = entity.ModelName,
-                Color = entity.color,
-                Varian = entity.varian,
-                IsActive = entity.IsActive
-            };
-        }
+            existing.ModelName = category.ModelName;
+            existing.color = category.color;
+            existing.varian = category.varian;
+            existing.IsActive = category.IsActive;
 
-        public async Task<CategoryDto?> UpdateAsync(Guid id, CategoryDto dto)
-        {
-            var entity = await _repo.GetByIdAsync(id);
-            if (entity == null) return null;
-
-            entity.ModelName = dto.ModelName;
-            entity.color = dto.Color;
-            entity.varian = dto.Varian;
-            entity.IsActive = dto.IsActive;
-
-            await _repo.UpdateAsync(entity);
-            return dto;
+            await _repo.UpdateAsync(existing);
         }
 
         public async Task<bool> DeleteAsync(Guid id)
         {
-            var entity = await _repo.GetByIdAsync(id);
-            if (entity == null) return false;
-            await _repo.DeleteAsync(id);
-            return true;
+            return await _repo.DeleteAsync(id); // repo trả về bool
         }
     }
 }

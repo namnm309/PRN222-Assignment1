@@ -1,11 +1,12 @@
-﻿using BusinessLayer.DTO;
-using BusinessLayer.Services;
+﻿using BusinessLayer.Services;
+using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PresentationLayer.Models;
 
 namespace PresentationLayer.Controllers
 {
+    [Authorize(Roles = "Admin,EVMStaff")]
     public class DealerController : Controller
     {
         private readonly IDealerService _service;
@@ -15,50 +16,41 @@ namespace PresentationLayer.Controllers
             _service = service;
         }
 
-        // GET: Dealer
         public async Task<IActionResult> Index()
         {
             var dealers = await _service.GetAllAsync();
-
-            var viewModels = dealers.Select(d => new DealerViewModel
+            var vm = dealers.Select(d => new DealerViewModel
             {
                 Id = d.Id,
                 Name = d.Name,
                 Address = d.Address,
-                Phone = d.Phone,
+                Phone = d.phone,
                 IsActive = d.IsActive
-            }).ToList();
-
-            return View(viewModels); // => Views/Dealer/Index.cshtml
+            });
+            return View(vm);
         }
 
-        // GET: Dealer/Create
-        public IActionResult Create()
-        {
-            return View(new DealerViewModel());
-        }
+        public IActionResult Create() => View();
 
-        // POST: Dealer/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(DealerViewModel model)
+        public async Task<IActionResult> Create(DealerViewModel vm)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!ModelState.IsValid) return View(vm);
 
-            var dto = new CreateDealerDto
+            var dealer = new Dealer
             {
-                Name = model.Name,
-                Address = model.Address,
-                Phone = model.Phone
+                Id = Guid.NewGuid(),
+                Name = vm.Name,
+                Address = vm.Address,
+                phone = vm.Phone,
+                IsActive = vm.IsActive
             };
 
-            await _service.CreateAsync(dto);
-            TempData["Message"] = "Dealer created successfully.";
+            await _service.CreateAsync(dealer);
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Dealer/Edit/{id}
         public async Task<IActionResult> Edit(Guid id)
         {
             var dealer = await _service.GetByIdAsync(id);
@@ -69,36 +61,31 @@ namespace PresentationLayer.Controllers
                 Id = dealer.Id,
                 Name = dealer.Name,
                 Address = dealer.Address,
-                Phone = dealer.Phone,
+                Phone = dealer.phone,
                 IsActive = dealer.IsActive
             };
 
             return View(vm);
         }
 
-        // POST: Dealer/Edit/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, DealerViewModel model)
+        public async Task<IActionResult> Edit(Guid id, DealerViewModel vm)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!ModelState.IsValid) return View(vm);
 
-            var dto = new DealerDto
-            {
-                Id = model.Id,
-                Name = model.Name,
-                Address = model.Address,
-                Phone = model.Phone,
-                IsActive = model.IsActive
-            };
+            var dealer = await _service.GetByIdAsync(id);
+            if (dealer == null) return NotFound();
 
-            await _service.UpdateAsync(id, dto);
-            TempData["Message"] = "Dealer updated successfully.";
+            dealer.Name = vm.Name;
+            dealer.Address = vm.Address;
+            dealer.phone = vm.Phone;
+            dealer.IsActive = vm.IsActive;
+
+            await _service.UpdateAsync(id, dealer);
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Dealer/Delete/{id}
         public async Task<IActionResult> Delete(Guid id)
         {
             var dealer = await _service.GetByIdAsync(id);
@@ -109,21 +96,19 @@ namespace PresentationLayer.Controllers
                 Id = dealer.Id,
                 Name = dealer.Name,
                 Address = dealer.Address,
-                Phone = dealer.Phone,
+                Phone = dealer.phone,
                 IsActive = dealer.IsActive
             };
 
             return View(vm);
         }
 
-        // POST: Dealer/Delete/{id}
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        [Authorize(Roles = "Admin")] // chỉ Admin mới xóa được
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             await _service.DeleteAsync(id);
-            TempData["Message"] = "Dealer deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
     }

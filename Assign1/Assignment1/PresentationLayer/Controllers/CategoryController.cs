@@ -1,11 +1,12 @@
-﻿using BusinessLayer.DTO;
-using BusinessLayer.Services;
+﻿using BusinessLayer.Services;
+using DataAccessLayer.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PresentationLayer.Models;
 
 namespace PresentationLayer.Controllers
 {
+    [Authorize(Roles = "Admin,EVMStaff")]
     public class CategoryController : Controller
     {
         private readonly ICategoryService _service;
@@ -15,117 +16,99 @@ namespace PresentationLayer.Controllers
             _service = service;
         }
 
-        // GET: Category/Index
         public async Task<IActionResult> Index()
         {
             var categories = await _service.GetAllAsync();
-
-            // map DTO -> ViewModel
-            var viewModels = categories.Select(c => new CategoryViewModel
+            var vm = categories.Select(c => new CategoryViewModel
             {
                 Id = c.Id,
                 ModelName = c.ModelName,
-                Color = c.Color,
-                Variant = c.Varian,
+                Color = c.color,
+                Variant = c.varian,
                 IsActive = c.IsActive
-            }).ToList();
-
-            return View(viewModels);
+            });
+            return View(vm);
         }
 
-        // GET: Category/Create
-        public IActionResult Create()
-        {
-            return View(new CategoryViewModel());
-        }
+        public IActionResult Create() => View();
 
-        // POST: Category/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(CategoryViewModel model)
+        public async Task<IActionResult> Create(CategoryViewModel vm)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!ModelState.IsValid) return View(vm);
 
-            var dto = new CreateCategoryDto
+            var category = new Category
             {
-                ModelName = model.ModelName,
-                Color = model.Color,
-                Varian = model.Variant
+                Id = Guid.NewGuid(),
+                ModelName = vm.ModelName,
+                color = vm.Color,
+                varian = vm.Variant,
+                IsActive = vm.IsActive
             };
 
-            await _service.CreateAsync(dto);
-            TempData["Message"] = "Category created successfully.";
+            await _service.CreateAsync(category);
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Category/Edit/{id}
         public async Task<IActionResult> Edit(Guid id)
         {
-            var dto = await _service.GetByIdAsync(id);
-            if (dto == null) return NotFound();
+            var category = await _service.GetByIdAsync(id);
+            if (category == null) return NotFound();
 
             var vm = new CategoryViewModel
             {
-                Id = dto.Id,
-                ModelName = dto.ModelName,
-                Color = dto.Color,
-                Variant = dto.Varian,
-                IsActive = dto.IsActive
+                Id = category.Id,
+                ModelName = category.ModelName,
+                Color = category.color,
+                Variant = category.varian,
+                IsActive = category.IsActive
             };
 
             return View(vm);
         }
 
-        // POST: Category/Edit/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(Guid id, CategoryViewModel model)
+        public async Task<IActionResult> Edit(Guid id, CategoryViewModel vm)
         {
-            if (!ModelState.IsValid)
-                return View(model);
+            if (!ModelState.IsValid) return View(vm);
 
-            var dto = new CategoryDto
-            {
-                Id = model.Id,
-                ModelName = model.ModelName,
-                Color = model.Color,
-                Varian = model.Variant,
-                IsActive = model.IsActive
-            };
+            var category = await _service.GetByIdAsync(id);
+            if (category == null) return NotFound();
 
-            var updated = await _service.UpdateAsync(id, dto);
-            if (updated == null) return NotFound();
+            category.ModelName = vm.ModelName;
+            category.color = vm.Color;
+            category.varian = vm.Variant;
+            category.IsActive = vm.IsActive;
 
-            TempData["Message"] = "Category updated successfully.";
+            await _service.UpdateAsync(id, category);
             return RedirectToAction(nameof(Index));
         }
 
-        // GET: Category/Delete/{id}
         public async Task<IActionResult> Delete(Guid id)
         {
-            var dto = await _service.GetByIdAsync(id);
-            if (dto == null) return NotFound();
+            var category = await _service.GetByIdAsync(id);
+            if (category == null) return NotFound();
 
             var vm = new CategoryViewModel
             {
-                Id = dto.Id,
-                ModelName = dto.ModelName,
-                Color = dto.Color,
-                Variant = dto.Varian,
-                IsActive = dto.IsActive
+                Id = category.Id,
+                ModelName = category.ModelName,
+                Color = category.color,
+                Variant = category.varian,
+                IsActive = category.IsActive
             };
 
             return View(vm);
         }
 
-        // POST: Category/Delete/{id}
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(Guid id)
         {
             await _service.DeleteAsync(id);
-            TempData["Message"] = "Category deleted successfully.";
             return RedirectToAction(nameof(Index));
         }
     }

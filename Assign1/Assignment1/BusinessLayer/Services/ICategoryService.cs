@@ -1,4 +1,4 @@
-﻿using BusinessLayer.DTO;
+﻿using DataAccessLayer.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +9,10 @@ namespace BusinessLayer.Services
 {
     public interface ICategoryService
     {
-        Task<IEnumerable<CategoryDto>> GetAllAsync();
-        Task<CategoryDto?> GetByIdAsync(Guid id);
-        Task<CategoryDto> CreateAsync(CreateCategoryDto dto);
-        Task<CategoryDto?> UpdateAsync(Guid id, CategoryDto dto);
+        Task<IEnumerable<Category>> GetAllAsync();
+        Task<Category> GetByIdAsync(Guid id);
+        Task CreateAsync(Category category);
+        Task UpdateAsync(Guid id, Category category);
         Task<bool> DeleteAsync(Guid id);
     }
 }

@@ -1,4 +1,4 @@
-﻿using BusinessLayer.DTO;
+﻿using DataAccessLayer.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,10 +9,10 @@ namespace BusinessLayer.Services
 {
     public interface IDealerService
     {
-        Task<IEnumerable<DealerDto>> GetAllAsync();
-        Task<DealerDto> GetByIdAsync(Guid id);
-        Task<DealerDto> CreateAsync(CreateDealerDto dto);
-        Task<DealerDto> UpdateAsync(Guid id, DealerDto dto);
+        Task<IEnumerable<Dealer>> GetAllAsync();
+        Task<Dealer> GetByIdAsync(Guid id);
+        Task CreateAsync(Dealer dealer);
+        Task UpdateAsync(Guid id, Dealer dealer);
         Task<bool> DeleteAsync(Guid id);
     }
 }

@@ -1,11 +1,5 @@
-﻿using BusinessLayer.DTO;
-using DataAccessLayer.Entities;
+﻿using DataAccessLayer.Entities;
 using DataAccessLayer.Repository;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BusinessLayer.Services
 {
@@ -18,69 +12,27 @@ namespace BusinessLayer.Services
             _repo = repo;
         }
 
-        public async Task<IEnumerable<DealerDto>> GetAllAsync()
+        public Task<IEnumerable<Dealer>> GetAllAsync() => _repo.GetAllAsync();
+
+        public Task<Dealer> GetByIdAsync(Guid id) => _repo.GetByIdAsync(id);
+
+        public async Task CreateAsync(Dealer dealer)
         {
-            var dealers = await _repo.GetAllAsync();
-            return dealers.Select(d => new DealerDto
-            {
-                Id = d.Id,
-                Name = d.Name,
-                Phone = d.phone,
-                Address = d.Address,
-                IsActive = d.IsActive
-            });
-        }
-
-        public async Task<DealerDto> GetByIdAsync(Guid id)
-        {
-            var d = await _repo.GetByIdAsync(id);
-            if (d == null) return null;
-
-            return new DealerDto
-            {
-                Id = d.Id,
-                Name = d.Name,
-                Phone = d.phone,
-                Address = d.Address,
-                IsActive = d.IsActive
-            };
-        }
-
-        public async Task<DealerDto> CreateAsync(CreateDealerDto dto)
-        {
-            var dealer = new Dealer
-            {
-                Name = dto.Name,
-                phone = dto.Phone,
-                Address = dto.Address,
-                IsActive = true
-            };
-
+            dealer.Id = Guid.NewGuid();
             await _repo.AddAsync(dealer);
-
-            return new DealerDto
-            {
-                Id = dealer.Id,
-                Name = dealer.Name,
-                Phone = dealer.phone,
-                Address = dealer.Address,
-                IsActive = dealer.IsActive
-            };
         }
 
-        public async Task<DealerDto> UpdateAsync(Guid id, DealerDto dto)
+        public async Task UpdateAsync(Guid id, Dealer dealer)
         {
-            var dealer = await _repo.GetByIdAsync(id);
-            if (dealer == null) return null;
+            var existing = await _repo.GetByIdAsync(id);
+            if (existing == null) return;
 
-            dealer.Name = dto.Name;
-            dealer.phone = dto.Phone;
-            dealer.Address = dto.Address;
-            dealer.IsActive = dto.IsActive;
+            existing.Name = dealer.Name;
+            existing.Address = dealer.Address;
+            existing.phone = dealer.phone;
+            existing.IsActive = dealer.IsActive;
 
-            await _repo.UpdateAsync(dealer);
-
-            return dto;
+            await _repo.UpdateAsync(existing);
         }
 
         public async Task<bool> DeleteAsync(Guid id)
@@ -88,7 +40,7 @@ namespace BusinessLayer.Services
             var dealer = await _repo.GetByIdAsync(id);
             if (dealer == null) return false;
 
-            await _repo.DeleteAsync(id);
+            await _repo.DeleteAsync(id); // gọi theo Id
             return true;
         }
     }
