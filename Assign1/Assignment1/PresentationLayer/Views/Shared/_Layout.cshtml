@@ -1,62 +1,94 @@
 ﻿<!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - PresentationLayer</title>
+    <title>@ViewData["Title"] - VinFast Electric Vehicles</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- Font Awesome 6 Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PresentationLayer.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">VinFaster</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
+<body style="font-family: 'Inter', sans-serif;">
+    <header class="homepage-header">
+        <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+            <div class="container-fluid px-lg-5">
+                <a class="navbar-brand fw-bold d-flex align-items-center" asp-area="" asp-controller="Home" asp-action="Index">
+                    <div class="brand-logo-home me-2">
+                        <i class="fas fa-charging-station"></i>
+                    </div>
+                    <span class="brand-text-gradient">VinFast</span>
+                </a>
+                <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="navbar-collapse collapse">
+                    <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Giới thiệu</a>
+                            <a class="nav-link nav-link-modern px-3" asp-area="" asp-controller="Home" asp-action="Index">
+                                <i class="fas fa-info-circle me-1"></i> Giới thiệu
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Ô Tô </a>
+                            <a class="nav-link nav-link-modern px-3" asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i class="fas fa-car me-1"></i> Ô Tô
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Xe Máy Điện </a>
+                            <a class="nav-link nav-link-modern px-3" asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i class="fas fa-motorcycle me-1"></i> Xe Máy Điện
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Phụ Kiện Xe </a>
+                            <a class="nav-link nav-link-modern px-3" asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i class="fas fa-box me-1"></i> Phụ Kiện Xe
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Dịch Vụ Hậu Mãi </a>
+                            <a class="nav-link nav-link-modern px-3" asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i class="fas fa-tools me-1"></i> Dịch Vụ Hậu Mãi
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Pin và Trạm Sạc </a>
+                            <a class="nav-link nav-link-modern px-3" asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i class="fas fa-bolt me-1"></i> Pin & Trạm Sạc
+                            </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Lưu trữ năng lượng </a>
+                            <a class="nav-link nav-link-modern px-3" asp-area="" asp-controller="Home" asp-action="Privacy">
+                                <i class="fas fa-battery-full me-1"></i> Lưu trữ năng lượng
+                            </a>
                         </li>
                     </ul>
-                    <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2">
                         @{
                             var fullName = Context.Session.GetString("UserFullName");
                         }
                         @if (!string.IsNullOrEmpty(fullName))
                         {
-                            <span class="text-dark">Xin chào, <strong>@fullName</strong></span>
+                            <div class="user-welcome-badge">
+                                <i class="fas fa-user-circle me-1"></i>
+                                <span class="fw-semibold">@fullName</span>
+                            </div>
                             <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
-                                <button type="submit" class="btn btn-link text-decoration-none">Đăng xuất</button>
+                                <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
+                                    <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất
+                                </button>
                             </form>
                         }
                         else
                         {
-                            <a class="text-primary text-uppercase fw-semibold text-decoration-none" asp-area="" asp-controller="Account" asp-action="Login">Tài khoản</a>
+                            <a class="btn btn-sm btn-outline-primary rounded-pill px-3" asp-area="" asp-controller="Account" asp-action="Login">
+                                <i class="fas fa-user me-1"></i> Tài khoản
+                            </a>
                         }
-                        <a class="btn btn-primary text-uppercase fw-semibold px-3" asp-area="" asp-controller="Home" asp-action="Privacy">Đăng kí lái thử</a>
+                        <a class="btn btn-sm btn-primary rounded-pill px-4 fw-semibold" asp-area="" asp-controller="Home" asp-action="Privacy">
+                            <i class="fas fa-calendar-check me-1"></i> Đăng ký lái thử
+                        </a>
                     </div>
                 </div>
             </div>
@@ -70,58 +102,114 @@
         </div>
     </main>
 
-    <footer class="vf-footer border-top bg-light mt-5">
+    <footer class="vf-footer-modern border-top mt-5">
         <div class="container py-5">
             <div class="row g-4">
                 <div class="col-12 col-lg-6 col-xl-5">
                     <div class="mb-3 d-flex align-items-center gap-2">
-                        <div class="fw-bold fs-4">VINFAST</div>
+                        <div class="brand-logo-footer">
+                            <i class="fas fa-charging-station"></i>
+                        </div>
+                        <div class="fw-bold fs-3 brand-text-gradient">VINFAST</div>
                     </div>
-                    <p class="mb-2">Công ty TNHH Kinh doanh Thương mại và Dịch vụ VinFast</p>
-                    <p class="mb-2"><span class="fw-semibold">MST/MSDN:</span> 0108926276 do Sở KHĐT TP Hà Nội cấp lần đầu ngày 01/10/2019 và các lần thay đổi tiếp theo.</p>
-                    <p class="mb-3"><span class="fw-semibold">Địa chỉ trụ sở chính:</span> Số 7, Đường Bằng Lăng 1, Khu đô thị Vinhomes Riverside, Phường Việt Hưng, Thành phố Hà Nội, Việt Nam</p>
+                    <p class="mb-2 text-muted">Công ty TNHH Kinh doanh Thương mại và Dịch vụ VinFast</p>
+                    <p class="mb-2 text-muted small"><span class="fw-semibold text-dark">MST/MSDN:</span> 0108926276 do Sở KHĐT TP Hà Nội cấp lần đầu ngày 01/10/2019 và các lần thay đổi tiếp theo.</p>
+                    <p class="mb-3 text-muted small"><span class="fw-semibold text-dark">Địa chỉ trụ sở chính:</span> Số 7, Đường Bằng Lăng 1, Khu đô thị Vinhomes Riverside, Phường Việt Hưng, Thành phố Hà Nội, Việt Nam</p>
 
                     <div class="mb-3">
-                        <span class="fw-semibold me-3">Hệ sinh thái</span>
-                        <div class="btn-group" role="group" aria-label="ecosystem">
-                            <a class="btn btn-outline-secondary btn-sm" href="#">Vinhomes</a>
-                            <a class="btn btn-outline-secondary btn-sm" href="#">Vinmec</a>
-                            <a class="btn btn-outline-secondary btn-sm" href="#">Vinpearl</a>
+                        <span class="fw-semibold text-dark me-3 d-block mb-2">Hệ sinh thái Vingroup</span>
+                        <div class="d-flex flex-wrap gap-2">
+                            <a class="ecosystem-badge" href="#"><i class="fas fa-building me-1"></i> Vinhomes</a>
+                            <a class="ecosystem-badge" href="#"><i class="fas fa-hospital me-1"></i> Vinmec</a>
+                            <a class="ecosystem-badge" href="#"><i class="fas fa-umbrella-beach me-1"></i> Vinpearl</a>
                         </div>
                     </div>
 
-                    <div class="d-flex align-items-center gap-3 mb-2">
-                        <span class="badge badge-moit text-uppercase">Đã thông báo Bộ Công Thương</span>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="badge bg-success text-white">
+                            <i class="fas fa-check-circle me-1"></i> Đã thông báo Bộ Công Thương
+                        </span>
                     </div>
-                    <div class="text-muted small">VinFast. All rights reserved.<br />© Copyright 2025</div>
+                    <div class="text-muted small">
+                        <i class="far fa-copyright"></i> 2025 VinFast. All rights reserved.
+                    </div>
                 </div>
 
                 <div class="col-12 col-md-6 col-lg-3">
-                    <ul class="list-unstyled mb-0">
-                        <li class="mb-2 fw-semibold">Về VinFast</li>
-                        <li class="mb-2 fw-semibold">Về Vingroup</li>
-                        <li class="mb-2 fw-semibold">Tin tức</li>
-                        <li class="mb-2 fw-semibold">Showroom & Đại lý</li>
-                        <li class="mb-2 fw-semibold">Điều khoản chính sách</li>
+                    <h6 class="fw-bold mb-3 text-dark">Liên kết nhanh</h6>
+                    <ul class="list-unstyled mb-0 footer-links">
+                        <li class="mb-2">
+                            <a href="#" class="text-decoration-none text-muted">
+                                <i class="fas fa-chevron-right me-2"></i> Về VinFast
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-decoration-none text-muted">
+                                <i class="fas fa-chevron-right me-2"></i> Về Vingroup
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-decoration-none text-muted">
+                                <i class="fas fa-chevron-right me-2"></i> Tin tức
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-decoration-none text-muted">
+                                <i class="fas fa-chevron-right me-2"></i> Showroom & Đại lý
+                            </a>
+                        </li>
+                        <li class="mb-2">
+                            <a href="#" class="text-decoration-none text-muted">
+                                <i class="fas fa-chevron-right me-2"></i> Điều khoản chính sách
+                            </a>
+                        </li>
                     </ul>
                 </div>
 
-                <div class="col-12 col-md-6 col-lg-3">
-                    <div class="mb-3">
-                        <div class="text-uppercase small fw-semibold text-muted mb-2">Dịch vụ khách hàng</div>
-                        <div class="mb-2">📞 <a class="text-decoration-none" href="tel:1900232389">1900 23 23 89</a></div>
-                        <div class="mb-3">✉️ <a class="text-decoration-none" href="mailto:support.vn@vinfastauto.com">support.vn@vinfastauto.com</a></div>
+                <div class="col-12 col-md-6 col-lg-4">
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3 text-dark">
+                            <i class="fas fa-headset me-2 text-primary"></i> Dịch vụ khách hàng
+                        </h6>
+                        <div class="contact-item mb-2">
+                            <i class="fas fa-phone-alt text-primary me-2"></i>
+                            <a class="text-decoration-none text-muted fw-semibold" href="tel:1900232389">1900 23 23 89</a>
+                        </div>
+                        <div class="contact-item mb-3">
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            <a class="text-decoration-none text-muted" href="mailto:support.vn@vinfastauto.com">support.vn@vinfastauto.com</a>
+                        </div>
                     </div>
-                    <div class="mb-3">
-                        <div class="text-uppercase small fw-semibold text-muted mb-2">Speak-up Hotline</div>
-                        <div class="mb-2">📞 <a class="text-decoration-none" href="tel:+842444582193">+84 24 4458 2193</a></div>
-                        <div>✉️ <a class="text-decoration-none" href="mailto:v.speakup@vinfast.vn">v.speakup@vinfast.vn</a></div>
+                    <div class="mb-4">
+                        <h6 class="fw-bold mb-3 text-dark">
+                            <i class="fas fa-flag text-warning me-2"></i> Speak-up Hotline
+                        </h6>
+                        <div class="contact-item mb-2">
+                            <i class="fas fa-phone-alt text-primary me-2"></i>
+                            <a class="text-decoration-none text-muted" href="tel:+842444582193">+84 24 4458 2193</a>
+                        </div>
+                        <div class="contact-item">
+                            <i class="fas fa-envelope text-primary me-2"></i>
+                            <a class="text-decoration-none text-muted" href="mailto:v.speakup@vinfast.vn">v.speakup@vinfast.vn</a>
+                        </div>
                     </div>
                     <div>
-                        <div class="text-uppercase small fw-semibold text-muted mb-2">Kết nối với VinFast</div>
+                        <h6 class="fw-bold mb-3 text-dark">
+                            <i class="fas fa-share-alt me-2 text-primary"></i> Kết nối với VinFast
+                        </h6>
                         <div class="d-flex align-items-center gap-2">
-                            <a class="social-icon" href="#" aria-label="Facebook">f</a>
-                            <a class="social-icon" href="#" aria-label="YouTube">▶</a>
+                            <a class="social-icon-modern facebook" href="#" aria-label="Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            <a class="social-icon-modern youtube" href="#" aria-label="YouTube">
+                                <i class="fab fa-youtube"></i>
+                            </a>
+                            <a class="social-icon-modern instagram" href="#" aria-label="Instagram">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                            <a class="social-icon-modern twitter" href="#" aria-label="Twitter">
+                                <i class="fab fa-twitter"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
