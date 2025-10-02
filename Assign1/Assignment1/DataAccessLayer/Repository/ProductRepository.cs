@@ -33,5 +33,23 @@ namespace DataAccessLayer.Repository
 
             return query.OrderBy(x => x.Name).ToListAsync();
         }
+
+        public async Task<bool> UpdateStockAsync(Guid id, int newStockQuantity)
+        {
+            try
+            {
+                var product = await _db.Product.FindAsync(id);
+                if (product == null) return false;
+
+                product.StockQuantity = newStockQuantity;
+                product.UpdatedAt = DateTime.UtcNow;
+
+                return await _db.SaveChangesAsync() > 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

@@ -9,5 +9,6 @@ namespace DataAccessLayer.Repository
     {
         Task<Product?> GetByIdAsync(Guid id);
         Task<List<Product>> SearchAsync(string? q, Guid? brandId, decimal? minPrice, decimal? maxPrice, bool? inStock, bool? isActive);
+        Task<bool> UpdateStockAsync(Guid id, int newStockQuantity);
     }
 }

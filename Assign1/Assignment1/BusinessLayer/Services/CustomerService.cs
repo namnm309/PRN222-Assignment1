@@ -23,5 +23,28 @@ namespace BusinessLayer.Services
             var ok = await _repo.UpdateAsync(updated);
             return ok ? (true, null, updated) : (false, "Cập nhật thất bại", null);
         }
+
+        public async Task<(bool Success, string Error, Customer Data)> CreateAsync(string fullName, string email, string phoneNumber, string address)
+        {
+            if (string.IsNullOrWhiteSpace(fullName)) return (false, "Vui lòng nhập họ tên", null);
+            if (string.IsNullOrWhiteSpace(phoneNumber)) return (false, "Vui lòng nhập số điện thoại", null);
+            if (string.IsNullOrWhiteSpace(email)) return (false, "Vui lòng nhập email", null);
+
+            var customer = new Customer
+            {
+                Id = Guid.NewGuid(),
+                FullName = fullName,
+                Name = fullName, // Duplicate for backward compatibility
+                Email = email,
+                PhoneNumber = phoneNumber,
+                Address = address ?? "",
+                IsActive = true,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            var ok = await _repo.CreateAsync(customer);
+            return ok ? (true, null, customer) : (false, "Không thể tạo khách hàng", null);
+        }
     }
 }

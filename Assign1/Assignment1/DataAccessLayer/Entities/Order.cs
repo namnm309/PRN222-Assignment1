@@ -13,11 +13,13 @@ namespace DataAccessLayer.Entities
         public Guid DealerId { get; set; }
         public Guid ProductId { get; set; }
         public Guid? RegionId { get; set; }
+        public Guid? SalesPersonId { get; set; } // Nhân viên bán hàng
 
         public virtual Customer Customer { get; set; } //Trong order chứa thông tin khách hàng 
         public virtual Dealer Dealer { get; set; } //Trong order chứa Id của đại lý 
         public virtual Product Product { get; set; } //Trong order chứa Id của sản phẩm
         public virtual Region Region { get; set; } //Khu vực bán hàng
+        public virtual Users SalesPerson { get; set; } //Nhân viên bán hàng
 
         public string OrderNumber { get; set; }
         public string Description { get; set; }

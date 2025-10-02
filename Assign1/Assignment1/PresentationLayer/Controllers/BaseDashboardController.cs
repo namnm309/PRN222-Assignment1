@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.AspNetCore.Authorization;
 using DataAccessLayer.Enum;
 
 namespace PresentationLayer.Controllers
@@ -13,6 +14,15 @@ namespace PresentationLayer.Controllers
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             base.OnActionExecuting(context);
+
+            // Cho phép bỏ qua kiểm tra đăng nhập với các action có [AllowAnonymous]
+            var isAnonymous = context.ActionDescriptor.EndpointMetadata
+                .OfType<AllowAnonymousAttribute>()
+                .Any();
+            if (isAnonymous)
+            {
+                return;
+            }
 
             // Lấy thông tin user từ session
             var roleString = HttpContext.Session.GetString("UserRole");

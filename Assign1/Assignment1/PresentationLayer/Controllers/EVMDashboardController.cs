@@ -155,5 +155,60 @@ namespace PresentationLayer.Controllers
             var contractReport = await _evmReportService.GetContractManagementReportAsync(dealerId, status, riskLevel);
             return Json(contractReport);
         }
+
+        [HttpGet]
+        public async Task<IActionResult> SalesReportByStaff(Guid? salesPersonId = null, Guid? dealerId = null, string period = "monthly", int year = 0, int? month = null, int? quarter = null)
+        {
+            if (!IsAdmin())
+            {
+                TempData["Error"] = "Bạn không có quyền truy cập chức năng này.";
+                return RedirectToAction("Index", "Dashboard");
+            }
+
+            // Set default values if not provided
+            if (year == 0)
+                year = DateTime.Now.Year;
+            if (month == null && period == "monthly")
+                month = DateTime.Now.Month;
+
+            var salesReport = await _evmReportService.GetSalesReportByStaffAsync(salesPersonId, dealerId, period, year, month, quarter);
+            var totalSales = salesReport.Sum(o => o.FinalAmount);
+
+            ViewBag.TotalSales = totalSales;
+            ViewBag.SalesPersonId = salesPersonId;
+            ViewBag.DealerId = dealerId;
+            ViewBag.Period = period;
+            ViewBag.Year = year;
+            ViewBag.Month = month;
+            ViewBag.Quarter = quarter;
+
+            // Get dropdown data
+            ViewBag.SalesStaff = await _evmReportService.GetAllSalesStaffAsync();
+            ViewBag.Dealers = await _evmReportService.GetAllDealersAsync();
+
+            return View(salesReport);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> CustomerDebtReport(Guid? customerId = null, string paymentStatus = null)
+        {
+            if (!IsAdmin())
+            {
+                TempData["Error"] = "Bạn không có quyền truy cập chức năng này.";
+                return RedirectToAction("Index", "Dashboard");
+            }
+
+            var debtReport = await _evmReportService.GetCustomerDebtReportAsync(customerId, paymentStatus);
+            var totalDebt = debtReport.Sum(o => o.FinalAmount);
+
+            ViewBag.TotalDebt = totalDebt;
+            ViewBag.CustomerId = customerId;
+            ViewBag.PaymentStatus = paymentStatus;
+
+            // Get dropdown data
+            ViewBag.Customers = await _evmReportService.GetAllCustomersAsync();
+
+            return View(debtReport);
+        }
     }
 }

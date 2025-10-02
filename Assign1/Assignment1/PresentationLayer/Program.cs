@@ -15,6 +15,7 @@ namespace PresentationLayer
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddHttpContextAccessor();
 
             // Cấu hình DbContext (đăng ký DI trước khi build app)
             builder.Services.AddDbContext<AppDbContext>(options =>
@@ -33,8 +34,17 @@ namespace PresentationLayer
             builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
 
-
-
+            builder.Services.AddScoped<IBrandRepository, BrandRepository>();
+            builder.Services.AddScoped<IBrandService, BrandService>();
+            
+            builder.Services.AddScoped<IDealerRepository, DealerRepository>();
+            builder.Services.AddScoped<IDealerService, DealerService>();
+            
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            
+            builder.Services.AddScoped<IDealerContractRepository, DealerContractRepository>();
+            builder.Services.AddScoped<IDealerContractService, DealerContractService>();
             
             // Đăng ký EVM Repository và Services
             builder.Services.AddScoped<IEVMRepository, EVMRepository>();
@@ -173,6 +183,39 @@ namespace PresentationLayer
                         db.SaveChanges();
                     }
 
+                    // Seed một Dealer mặc định nếu chưa có TRƯỚC
+                    Guid defaultDealerId = Guid.Empty;
+                    if (!db.Dealer.Any())
+                    {
+                        var defaultDealer = new DataAccessLayer.Entities.Dealer
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = "VinFast Đại Lý Hà Nội",
+                            Phone = "024-1234-5678",
+                            Address = "123 Phố Huế, Hai Bà Trưng",
+                            City = "Hà Nội",
+                            Province = "Hà Nội",
+                            RegionId = null, // chưa cấu hình vùng
+                            DealerCode = "DL-HN-001",
+                            ContactPerson = "Nguyễn Văn C",
+                            Email = "dl-hn-001@vinfast.com",
+                            LicenseNumber = "DLHN001",
+                            CreditLimit = 1_000_000_000m,
+                            OutstandingDebt = 0m,
+                            Status = "Active",
+                            IsActive = true,
+                            CreatedAt = DateTime.UtcNow,
+                            UpdatedAt = DateTime.UtcNow
+                        };
+                        db.Dealer.Add(defaultDealer);
+                        db.SaveChanges();
+                        defaultDealerId = defaultDealer.Id;
+                    }
+                    else
+                    {
+                        defaultDealerId = db.Dealer.First().Id;
+                    }
+
                     // Seed Dealer users nếu chưa có
                     if (!db.Users.Any(u => u.Role == DataAccessLayer.Enum.UserRole.DealerManager))
                     {
@@ -185,6 +228,7 @@ namespace PresentationLayer
                             PhoneNumber = "0123456788",
                             Address = "Hà Nội, Việt Nam",
                             Role = DataAccessLayer.Enum.UserRole.DealerManager,
+                            DealerId = defaultDealerId, // Gán vào dealer mặc định
                             IsActive = true,
                             CreatedAt = DateTime.UtcNow,
                             UpdatedAt = DateTime.UtcNow
@@ -204,6 +248,7 @@ namespace PresentationLayer
                             PhoneNumber = "0987654320",
                             Address = "TP.HCM, Việt Nam",
                             Role = DataAccessLayer.Enum.UserRole.DealerStaff,
+                            DealerId = defaultDealerId, // Gán vào dealer mặc định
                             IsActive = true,
                             CreatedAt = DateTime.UtcNow,
                             UpdatedAt = DateTime.UtcNow

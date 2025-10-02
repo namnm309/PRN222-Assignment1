@@ -176,5 +176,86 @@ namespace DataAccessLayer.Repository
                 .Where(p => p.IsActive)
                 .ToListAsync();
         }
+
+        public async Task<List<Order>> GetSalesReportByStaffAsync(Guid? salesPersonId = null, Guid? dealerId = null, string period = "monthly", int year = 0, int? month = null, int? quarter = null)
+        {
+            var query = _context.Order
+                .Include(o => o.SalesPerson)
+                .Include(o => o.Dealer)
+                .Include(o => o.Product)
+                .Include(o => o.Customer)
+                .AsQueryable();
+
+            // Apply filters
+            if (salesPersonId.HasValue)
+                query = query.Where(o => o.SalesPersonId == salesPersonId.Value);
+
+            if (dealerId.HasValue)
+                query = query.Where(o => o.DealerId == dealerId.Value);
+
+            // Apply date filters based on period
+            if (year == 0) year = DateTime.Now.Year;
+
+            switch (period?.ToLower())
+            {
+                case "monthly":
+                    if (month.HasValue)
+                        query = query.Where(o => o.OrderDate.HasValue && o.OrderDate.Value.Year == year && o.OrderDate.Value.Month == month.Value);
+                    else
+                        query = query.Where(o => o.OrderDate.HasValue && o.OrderDate.Value.Year == year);
+                    break;
+                case "quarterly":
+                    if (quarter.HasValue)
+                    {
+                        var startMonth = (quarter.Value - 1) * 3 + 1;
+                        var endMonth = quarter.Value * 3;
+                        query = query.Where(o => o.OrderDate.HasValue && o.OrderDate.Value.Year == year && 
+                                               o.OrderDate.Value.Month >= startMonth && o.OrderDate.Value.Month <= endMonth);
+                    }
+                    break;
+                case "yearly":
+                    query = query.Where(o => o.OrderDate.HasValue && o.OrderDate.Value.Year == year);
+                    break;
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<List<Users>> GetAllSalesStaffAsync()
+        {
+            return await _context.Users
+                .Where(u => u.Role == DataAccessLayer.Enum.UserRole.DealerStaff || u.Role == DataAccessLayer.Enum.UserRole.DealerManager)
+                .Where(u => u.IsActive)
+                .OrderBy(u => u.FullName)
+                .ToListAsync();
+        }
+
+        public async Task<List<Order>> GetCustomerDebtReportAsync(Guid? customerId = null, string paymentStatus = null)
+        {
+            var query = _context.Order
+                .Include(o => o.Customer)
+                .Include(o => o.Dealer)
+                .Include(o => o.Product)
+                .Where(o => o.PaymentStatus != "Paid") // Chỉ lấy các đơn chưa thanh toán hết
+                .AsQueryable();
+
+            if (customerId.HasValue)
+                query = query.Where(o => o.CustomerId == customerId.Value);
+
+            if (!string.IsNullOrEmpty(paymentStatus))
+                query = query.Where(o => o.PaymentStatus == paymentStatus);
+
+            return await query
+                .OrderBy(o => o.PaymentDueDate)
+                .ToListAsync();
+        }
+
+        public async Task<List<Customer>> GetAllCustomersAsync()
+        {
+            return await _context.Customer
+                .Where(c => c.IsActive)
+                .OrderBy(c => c.FullName)
+                .ToListAsync();
+        }
     }
 }
