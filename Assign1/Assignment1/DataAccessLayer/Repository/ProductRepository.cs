@@ -51,5 +51,62 @@ namespace DataAccessLayer.Repository
                 return false;
             }
         }
+
+        public async Task<bool> CreateAsync(Product product)
+        {
+            try
+            {
+                product.Id = Guid.NewGuid();
+                product.CreatedAt = DateTime.UtcNow;
+                product.UpdatedAt = DateTime.UtcNow;
+
+                await _db.Product.AddAsync(product);
+                return await _db.SaveChangesAsync() > 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> UpdateAsync(Product product)
+        {
+            try
+            {
+                var existingProduct = await _db.Product.FindAsync(product.Id);
+                if (existingProduct == null) return false;
+
+                existingProduct.Sku = product.Sku;
+                existingProduct.Name = product.Name;
+                existingProduct.Description = product.Description;
+                existingProduct.Price = product.Price;
+                existingProduct.StockQuantity = product.StockQuantity;
+                existingProduct.IsActive = product.IsActive;
+                existingProduct.BrandId = product.BrandId;
+                existingProduct.UpdatedAt = DateTime.UtcNow;
+
+                return await _db.SaveChangesAsync() > 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public async Task<bool> DeleteAsync(Guid id)
+        {
+            try
+            {
+                var product = await _db.Product.FindAsync(id);
+                if (product == null) return false;
+
+                _db.Product.Remove(product);
+                return await _db.SaveChangesAsync() > 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }
