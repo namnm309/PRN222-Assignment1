@@ -144,11 +144,11 @@ else if (userRole == UserRole.EVMStaff)
             <i class="fas fa-car"></i>
             <span>Danh mục xe điện</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("Index", "InventoryManagement")" class="menu-item @(currentController == "InventoryManagement" ? "active" : "")">
             <i class="fas fa-boxes"></i>
             <span>Quản lý tồn kho</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("Index", "PricingManagement")" class="menu-item @(currentController == "PricingManagement" ? "active" : "")">
             <i class="fas fa-dollar-sign"></i>
             <span>Quản lý giá sỉ</span>
         </a>
@@ -226,11 +226,11 @@ else if (userRole == UserRole.Admin)
                 <span>Danh mục</span>
             </a>
         </div>
-        <a href="@Url.Action("Index", "ProductManagement")" class="menu-item @(currentController == "ProductManagement" ? "active" : "")">
+        <a href="@Url.Action("Index", "InventoryManagement")" class="menu-item @(currentController == "InventoryManagement" ? "active" : "")">
             <i class="fas fa-boxes"></i>
             <span>Quản lý tồn kho</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("Index", "PricingManagement")" class="menu-item @(currentController == "PricingManagement" ? "active" : "")">
             <i class="fas fa-dollar-sign"></i>
             <span>Quản lý giá sỉ</span>
         </a>

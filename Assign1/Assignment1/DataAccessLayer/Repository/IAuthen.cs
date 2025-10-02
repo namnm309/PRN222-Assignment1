@@ -10,11 +10,8 @@ namespace DataAccessLayer.Repository
     {
         //Login 
         public bool Login(string username, string password);
-        //Register
-        public bool Register(string username, string password, string email);
 
         // New async APIs used by BusinessLayer
         Task<Entities.Users> GetByEmailAsync(string email);
-        Task<bool> CreateUserAsync(Entities.Users user);
     }
 }

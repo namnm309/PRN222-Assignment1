@@ -50,6 +50,14 @@ namespace PresentationLayer
             builder.Services.AddScoped<IEVMRepository, EVMRepository>();
             builder.Services.AddScoped<IEVMReportService, EVMReportService>();
 
+            // Đăng ký Inventory Management Repository và Services
+            builder.Services.AddScoped<IInventoryManagementRepository, InventoryManagementRepository>();
+            builder.Services.AddScoped<IInventoryManagementService, InventoryManagementService>();
+
+            // Đăng ký Pricing Management Repository và Services
+            builder.Services.AddScoped<IPricingManagementRepository, PricingManagementRepository>();
+            builder.Services.AddScoped<IPricingManagementService, PricingManagementService>();
+
 
             // Session
             builder.Services.AddSession(options =>

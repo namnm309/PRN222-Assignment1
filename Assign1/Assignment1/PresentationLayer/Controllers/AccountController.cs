@@ -66,30 +66,6 @@ namespace PresentationLayer.Controllers
             return RedirectToAction("Index", "Dashboard");
         }
 
-        [HttpGet]
-        public IActionResult Register()
-        {
-            return View(new RegisterViewModel());
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> Register(RegisterViewModel model)
-        {
-            if (!ModelState.IsValid)
-            {
-                return View(model);
-            }
-
-            var result = await _authenService.RegisterAsync(model.FullName, model.Email, model.Password);
-            if (!result.Success)
-            {
-                ModelState.AddModelError(string.Empty, result.Error);
-                return View(model);
-            }
-
-            TempData["RegisterMessage"] = "Đăng ký thành công. Vui lòng đăng nhập.";
-            return RedirectToAction("Login");
-        }
 
         [HttpPost]
         public IActionResult Logout()
