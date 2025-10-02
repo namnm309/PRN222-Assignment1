@@ -23,7 +23,7 @@ namespace PresentationLayer
             // Đăng ký Repository và Services
             builder.Services.AddScoped<IAuthen, Authen>();
             builder.Services.AddScoped<IAuthenService, AuthenService>();
-<<<<<<< HEAD
+
             builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             builder.Services.AddScoped<IFeedbackService, FeedbackService>();
             builder.Services.AddScoped<ITestDriveRepository, TestDriveRepository>();
@@ -34,11 +34,11 @@ namespace PresentationLayer
             builder.Services.AddScoped<ICustomerService, CustomerService>();
 
 
-=======
+
             
             // Đăng ký EVM Services
             builder.Services.AddScoped<IEVMReportService, EVMReportService>();
->>>>>>> origin/dev
+
 
             // Session
             builder.Services.AddSession(options =>
