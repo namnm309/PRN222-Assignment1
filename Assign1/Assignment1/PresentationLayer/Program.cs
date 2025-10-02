@@ -1,4 +1,5 @@
-﻿using DataAccessLayer.Data;
+﻿using BusinessLayer.Services;
+using DataAccessLayer.Data;
 using DataAccessLayer.Repository;
 using BusinessLayer.Services;
 using Microsoft.EntityFrameworkCore;
@@ -24,6 +25,14 @@ namespace PresentationLayer
             builder.Services.AddScoped<IAuthen, Authen>();
             builder.Services.AddScoped<IAuthenService, AuthenService>();
 
+            // Đăng ký Repository & Service
+            builder.Services.AddScoped<IDealerRepository, DealerRepository>();
+            builder.Services.AddScoped<IDealerService, DealerService>();
+
+            // Đăng ký Swagger
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+
             // Session
             builder.Services.AddSession(options =>
             {
@@ -38,9 +47,14 @@ namespace PresentationLayer
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Home/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+            app.UseSwagger();
+            app.UseSwaggerUI(c =>
+            {
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Dealer API V1");
+            });
+
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -50,6 +64,8 @@ namespace PresentationLayer
             app.UseSession();
 
             app.UseAuthorization();
+
+            app.MapControllers();
 
             app.MapControllerRoute(
                 name: "default",
