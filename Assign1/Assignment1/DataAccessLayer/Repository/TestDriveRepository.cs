@@ -17,10 +17,47 @@ namespace DataAccessLayer.Repository
             => _db.TestDrive.Include(t => t.Product).Include(t => t.Customer).Include(t => t.Dealer)
                             .FirstOrDefaultAsync(t => t.Id == id);
 
+        public async Task<List<TestDrive>> GetAllAsync(Guid? dealerId = null, string? status = null)
+        {
+            var query = _db.TestDrive
+                .Include(t => t.Product)
+                .Include(t => t.Customer)
+                .Include(t => t.Dealer)
+                .AsQueryable();
+
+            if (dealerId.HasValue)
+                query = query.Where(t => t.DealerId == dealerId.Value);
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                if (System.Enum.TryParse<Enum.TestDriveStatus>(status, out var statusEnum))
+                    query = query.Where(t => t.Status == statusEnum);
+            }
+
+            return await query
+                .OrderByDescending(t => t.ScheduledDate)
+                .ToListAsync();
+        }
+
+        public async Task<List<TestDrive>> GetByDealerAsync(Guid dealerId)
+        {
+            return await _db.TestDrive
+                .Include(t => t.Product)
+                .Include(t => t.Customer)
+                .Include(t => t.Dealer)
+                .Where(t => t.DealerId == dealerId)
+                .OrderByDescending(t => t.ScheduledDate)
+                .ToListAsync();
+        }
+
         public Task<List<TestDrive>> GetByCustomerAsync(Guid customerId)
-            => _db.TestDrive.Where(t => t.CustomerId == customerId)
-                            .OrderByDescending(t => t.ScheduledDate)
-                            .ToListAsync();
+            => _db.TestDrive
+                .Include(t => t.Product)
+                .Include(t => t.Customer)
+                .Include(t => t.Dealer)
+                .Where(t => t.CustomerId == customerId)
+                .OrderByDescending(t => t.ScheduledDate)
+                .ToListAsync();
 
         public Task<List<TestDrive>> GetByDealerAndProductInRangeAsync(Guid dealerId, Guid productId, DateTime from, DateTime to)
             => _db.TestDrive.Where(t => t.DealerId == dealerId && t.ProductId == productId

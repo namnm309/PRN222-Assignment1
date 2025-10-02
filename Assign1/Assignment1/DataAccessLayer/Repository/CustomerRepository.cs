@@ -20,5 +20,11 @@ namespace DataAccessLayer.Repository
             _db.Set<Customer>().Update(entity);
             return await _db.SaveChangesAsync() > 0;
         }
+
+        public async Task<bool> CreateAsync(Customer entity)
+        {
+            await _db.Set<Customer>().AddAsync(entity);
+            return await _db.SaveChangesAsync() > 0;
+        }
     }
 }

@@ -31,7 +31,7 @@
             <i class="fas fa-users"></i>
             <span>Khách hàng</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("Index", "TestDrive")" class="menu-item @(currentController == "TestDrive" ? "active" : "")">
             <i class="fas fa-calendar-check"></i>
             <span>Lịch lái thử</span>
         </a>
@@ -70,9 +70,13 @@ else if (userRole == UserRole.DealerManager)
     
     <div class="menu-section">
         <div class="menu-title">KINH DOANH</div>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("Index", "Order")" class="menu-item @(currentController == "Order" ? "active" : "")">
+            <i class="fas fa-file-invoice"></i>
+            <span>Quản lý đơn hàng</span>
+        </a>
+        <a href="@Url.Action("CreateQuotation", "Order")" class="menu-item">
             <i class="fas fa-briefcase"></i>
-            <span>Tạo báo giá & đơn hàng</span>
+            <span>Tạo báo giá mới</span>
         </a>
         <a href="#" class="menu-item">
             <i class="fas fa-tags"></i>
@@ -113,7 +117,7 @@ else if (userRole == UserRole.DealerManager)
                 <span>Thêm khách hàng mới</span>
             </a>
         </div>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("Index", "TestDrive")" class="menu-item @(currentController == "TestDrive" ? "active" : "")">
             <i class="fas fa-calendar-alt"></i>
             <span>Lịch hẹn lái thử</span>
         </a>
@@ -199,6 +203,10 @@ else if (userRole == UserRole.Admin)
     
     <div class="menu-section">
         <div class="menu-title">QUẢN LÝ SẢN PHẨM</div>
+        <a href="@Url.Action("Index", "Brand")" class="menu-item @(currentController == "Brand" ? "active" : "")">
+            <i class="fas fa-copyright"></i>
+            <span>Quản lý Thương hiệu</span>
+        </a>
         <a href="#productsSubmenu" class="menu-item" data-bs-toggle="collapse" aria-expanded="false">
             <i class="fas fa-car"></i>
             <span>Danh mục xe điện</span>
@@ -218,7 +226,7 @@ else if (userRole == UserRole.Admin)
                 <span>Danh mục</span>
             </a>
         </div>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("Index", "ProductManagement")" class="menu-item @(currentController == "ProductManagement" ? "active" : "")">
             <i class="fas fa-boxes"></i>
             <span>Quản lý tồn kho</span>
         </a>
@@ -234,7 +242,7 @@ else if (userRole == UserRole.Admin)
     
     <div class="menu-section">
         <div class="menu-title">ĐẠI LÝ & ĐỐI TÁC</div>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("Index", "Dealer")" class="menu-item @(currentController == "Dealer" ? "active" : "")">
             <i class="fas fa-building"></i>
             <span>Quản lý đại lý</span>
         </a>
@@ -242,23 +250,31 @@ else if (userRole == UserRole.Admin)
             <i class="fas fa-users"></i>
             <span>Tài khoản đại lý</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("ContractManagement", "EVMDashboard")" class="menu-item">
             <i class="fas fa-file-contract"></i>
             <span>Hợp đồng & chỉ tiêu</span>
         </a>
     </div>
     
     <div class="menu-section">
-        <div class="menu-title">PHÂN TÍCH & DỰ ĐOÁN</div>
-        <a href="#" class="menu-item">
+        <div class="menu-title">BÁO CÁO & PHÂN TÍCH</div>
+        <a href="@Url.Action("SalesReport", "EVMDashboard")" class="menu-item">
             <i class="fas fa-chart-area"></i>
             <span>Doanh số theo khu vực</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("SalesReportByStaff", "EVMDashboard")" class="menu-item">
+            <i class="fas fa-user-tie"></i>
+            <span>Doanh số theo nhân viên</span>
+        </a>
+        <a href="@Url.Action("CustomerDebtReport", "EVMDashboard")" class="menu-item">
+            <i class="fas fa-money-bill-wave"></i>
+            <span>Công nợ khách hàng</span>
+        </a>
+        <a href="@Url.Action("InventoryReport", "EVMDashboard")" class="menu-item">
             <i class="fas fa-warehouse"></i>
             <span>Tồn kho & tiêu thụ</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("DemandForecast", "EVMDashboard")" class="menu-item">
             <i class="fas fa-robot"></i>
             <span>AI dự đoán nhu cầu</span>
         </a>

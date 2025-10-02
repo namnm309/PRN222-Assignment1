@@ -5,7 +5,13 @@ using PresentationLayer.Models;
 public class ProductsController : Controller
 {
     private readonly IProductService _service;
-    public ProductsController(IProductService service) => _service = service;
+    private readonly IEVMReportService _evmService;
+    
+    public ProductsController(IProductService service, IEVMReportService evmService)
+    {
+        _service = service;
+        _evmService = evmService;
+    }
 
     [HttpGet]
     public async Task<IActionResult> Index([FromQuery] ProductViewModel vm)
@@ -20,6 +26,10 @@ public class ProductsController : Controller
     {
         var (ok, err, product) = await _service.GetAsync(id);
         if (!ok) return NotFound();
+        
+        // Load dealers cho form đặt lịch lái thử
+        ViewBag.Dealers = await _evmService.GetAllDealersAsync();
+        
         return View(product); 
     }
 }

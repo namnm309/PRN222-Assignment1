@@ -8,5 +8,6 @@ namespace DataAccessLayer.Repository
     {
         Task<Customer?> GetByIdAsync(Guid id);
         Task<bool> UpdateAsync(Customer entity);
+        Task<bool> CreateAsync(Customer entity);
     }
 }

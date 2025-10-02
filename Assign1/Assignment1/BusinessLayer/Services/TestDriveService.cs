@@ -17,10 +17,18 @@ namespace BusinessLayer.Services
             if (customerId == Guid.Empty || productId == Guid.Empty || dealerId == Guid.Empty)
                 return (false, "Thiếu thông tin", null);
 
-            if (scheduledDate < DateTime.UtcNow.AddMinutes(30))
+            // Chuẩn hóa thời gian sang UTC để tương thích PostgreSQL (timestamp with time zone)
+            var scheduledUtc = scheduledDate.Kind switch
+            {
+                DateTimeKind.Utc => scheduledDate,
+                DateTimeKind.Local => scheduledDate.ToUniversalTime(),
+                _ => DateTime.SpecifyKind(scheduledDate, DateTimeKind.Local).ToUniversalTime()
+            };
+
+            if (scheduledUtc < DateTime.UtcNow.AddMinutes(30))
                 return (false, "Thời gian phải ít nhất 30 phút nữa", null);
 
-            var overlaps = await _repo.GetByDealerAndProductInRangeAsync(dealerId, productId, scheduledDate, scheduledDate.AddMinutes(90));
+            var overlaps = await _repo.GetByDealerAndProductInRangeAsync(dealerId, productId, scheduledUtc, scheduledUtc.AddMinutes(90));
             if (overlaps.Count > 0)
                 return (false, "Trùng lịch hẹn", null);
 
@@ -29,7 +37,49 @@ namespace BusinessLayer.Services
                 CustomerId = customerId,
                 ProductId = productId,
                 DealerId = dealerId,
-                ScheduledDate = scheduledDate,
+                ScheduledDate = scheduledUtc,
+                Status = TestDriveStatus.Pending,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            var ok = await _repo.CreateAsync(td);
+            return ok ? (true, null, td) : (false, "Không thể tạo lịch hẹn", null);
+        }
+
+        public async Task<(bool Success, string Error, TestDrive Data)> CreatePublicAsync(string customerName, string customerPhone, string customerEmail, string? notes, Guid productId, Guid dealerId, DateTime scheduledDate)
+        {
+            if (string.IsNullOrWhiteSpace(customerName) || string.IsNullOrWhiteSpace(customerPhone) || string.IsNullOrWhiteSpace(customerEmail))
+                return (false, "Thiếu thông tin khách hàng", null);
+
+            if (productId == Guid.Empty || dealerId == Guid.Empty)
+                return (false, "Thiếu thông tin", null);
+
+            // Chuẩn hóa thời gian sang UTC để tương thích PostgreSQL (timestamp with time zone)
+            var scheduledUtc = scheduledDate.Kind switch
+            {
+                DateTimeKind.Utc => scheduledDate,
+                DateTimeKind.Local => scheduledDate.ToUniversalTime(),
+                _ => DateTime.SpecifyKind(scheduledDate, DateTimeKind.Local).ToUniversalTime()
+            };
+
+            if (scheduledUtc < DateTime.UtcNow.AddMinutes(30))
+                return (false, "Thời gian phải ít nhất 30 phút nữa", null);
+
+            var overlaps = await _repo.GetByDealerAndProductInRangeAsync(dealerId, productId, scheduledUtc, scheduledUtc.AddMinutes(90));
+            if (overlaps.Count > 0)
+                return (false, "Trùng lịch hẹn", null);
+
+            var td = new TestDrive
+            {
+                CustomerId = null, // Public registration doesn't have customer account
+                CustomerName = customerName,
+                CustomerPhone = customerPhone,
+                CustomerEmail = customerEmail,
+                Notes = notes,
+                ProductId = productId,
+                DealerId = dealerId,
+                ScheduledDate = scheduledUtc,
                 Status = TestDriveStatus.Pending,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow
@@ -45,9 +95,21 @@ namespace BusinessLayer.Services
             return td == null ? (false, "Không tìm thấy", null) : (true, null, td);
         }
 
+        public async Task<(bool Success, string Error, List<TestDrive> Data)> GetAllAsync(Guid? dealerId = null, string? status = null)
+        {
+            var list = await _repo.GetAllAsync(dealerId, status);
+            return (true, null, list);
+        }
+
         public async Task<(bool Success, string Error, List<TestDrive> Data)> GetByCustomerAsync(Guid customerId)
         {
             var list = await _repo.GetByCustomerAsync(customerId);
+            return (true, null, list);
+        }
+
+        public async Task<(bool Success, string Error, List<TestDrive> Data)> GetByDealerAsync(Guid dealerId)
+        {
+            var list = await _repo.GetByDealerAsync(dealerId);
             return (true, null, list);
         }
 

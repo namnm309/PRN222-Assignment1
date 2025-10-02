@@ -84,5 +84,25 @@ namespace BusinessLayer.Services
         {
             return await _evmRepository.GetAllProductsAsync();
         }
+
+        public async Task<List<Order>> GetSalesReportByStaffAsync(Guid? salesPersonId = null, Guid? dealerId = null, string period = "monthly", int year = 0, int? month = null, int? quarter = null)
+        {
+            return await _evmRepository.GetSalesReportByStaffAsync(salesPersonId, dealerId, period, year, month, quarter);
+        }
+
+        public async Task<List<Users>> GetAllSalesStaffAsync()
+        {
+            return await _evmRepository.GetAllSalesStaffAsync();
+        }
+
+        public async Task<List<Order>> GetCustomerDebtReportAsync(Guid? customerId = null, string paymentStatus = null)
+        {
+            return await _evmRepository.GetCustomerDebtReportAsync(customerId, paymentStatus);
+        }
+
+        public async Task<List<Customer>> GetAllCustomersAsync()
+        {
+            return await _evmRepository.GetAllCustomersAsync();
+        }
     }
 }

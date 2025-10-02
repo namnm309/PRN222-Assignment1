@@ -27,5 +27,21 @@ namespace BusinessLayer.Services
             var list = await _repo.SearchAsync(q, brandId, minPrice, maxPrice, inStock, isActive);
             return (true, null, list);
         }
+
+        public async Task<(bool Success, string Error)> UpdateStockAsync(Guid id, int newStockQuantity)
+        {
+            if (newStockQuantity < 0)
+                return (false, "Số lượng tồn kho không hợp lệ");
+
+            var product = await _repo.GetByIdAsync(id);
+            if (product == null)
+                return (false, "Không tìm thấy sản phẩm");
+
+            var success = await _repo.UpdateStockAsync(id, newStockQuantity);
+            if (!success)
+                return (false, "Không thể cập nhật tồn kho");
+
+            return (true, null);
+        }
     }
 }

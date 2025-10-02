@@ -1,29 +1,87 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using BusinessLayer.Services;
 using PresentationLayer.Models;
 
 namespace PresentationLayer.Controllers
 {
-    public class TestDriveController : Controller
+    public class TestDriveController : BaseDashboardController
     {
         private readonly ITestDriveService _service;
-        public TestDriveController(ITestDriveService service) => _service = service;
+        private readonly IEVMReportService _evmService;
+        
+        public TestDriveController(ITestDriveService service, IEVMReportService evmService)
+        {
+            _service = service;
+            _evmService = evmService;
+        }
+
+        // Danh sách lịch hẹn cho Dealer Staff/Manager
+        [HttpGet]
+        public async Task<IActionResult> Index(Guid? dealerId = null, string? status = null)
+        {
+            // Lấy danh sách dealers cho filter
+            ViewBag.Dealers = await _evmService.GetAllDealersAsync();
+            ViewBag.SelectedDealerId = dealerId;
+            ViewBag.SelectedStatus = status;
+
+            var (ok, err, testDrives) = await _service.GetAllAsync(dealerId, status);
+            if (!ok)
+            {
+                TempData["Error"] = err;
+                return View(new List<DataAccessLayer.Entities.TestDrive>());
+            }
+
+            return View(testDrives);
+        }
+
+        // Lịch hẹn của Customer
+        [HttpGet]
+        public async Task<IActionResult> MyTestDrives(Guid customerId)
+        {
+            var (ok, err, testDrives) = await _service.GetByCustomerAsync(customerId);
+            if (!ok)
+            {
+                TempData["Error"] = err;
+                return View(new List<DataAccessLayer.Entities.TestDrive>());
+            }
+            return View(testDrives);
+        }
 
         [HttpGet]
-        public IActionResult Create(Guid productId, Guid dealerId, Guid customerId)
-            => View(new TestDriveViewModel { ProductId = productId, DealerId = dealerId, CustomerId = customerId });
+        [AllowAnonymous]
+        public IActionResult Create(Guid productId, Guid dealerId)
+            => View(new TestDriveViewModel { ProductId = productId, DealerId = dealerId });
 
         [HttpPost]
+        [AllowAnonymous]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(TestDriveViewModel vm)
         {
-            if (!ModelState.IsValid) return View(vm);
+            if (vm.ScheduledDate == default)
+            {
+                // Nếu view không truyền lên (ẩn), đặt mặc định sau 2 giờ kể từ hiện tại (UTC)
+                vm.ScheduledDate = DateTime.UtcNow.AddHours(2);
+            }
 
-            var (ok, err, td) = await _service.CreateAsync(vm.CustomerId, vm.ProductId, vm.DealerId, vm.ScheduledDate);
-            if (!ok) { ModelState.AddModelError("", err); return View(vm); }
+            var (ok, err, td) = await _service.CreatePublicAsync(
+                vm.CustomerName, 
+                vm.CustomerPhone, 
+                vm.CustomerEmail, 
+                vm.Notes,
+                vm.ProductId, 
+                vm.DealerId, 
+                vm.ScheduledDate
+            );
+            
+            if (!ok) 
+            { 
+                ModelState.AddModelError("", err); 
+                return View(vm); 
+            }
 
-            TempData["Msg"] = "Đã tạo lịch hẹn.";
-            return RedirectToAction(nameof(Detail), new { id = td.Id });
+            TempData["Msg"] = "Đã gửi đơn đăng ký lái thử thành công! Chúng tôi sẽ liên hệ với bạn sớm.";
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
