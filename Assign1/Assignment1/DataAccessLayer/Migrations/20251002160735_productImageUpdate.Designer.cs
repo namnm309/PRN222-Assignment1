@@ -3,6 +3,7 @@ using System;
 using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DataAccessLayer.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251002160735_productImageUpdate")]
+    partial class productImageUpdate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -486,86 +489,6 @@ namespace DataAccessLayer.Migrations
                     b.ToTable("Promotion");
                 });
 
-            modelBuilder.Entity("DataAccessLayer.Entities.PurchaseOrder", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("ActualDeliveryDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("ApprovedById")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("ApprovedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("DealerId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime?>("ExpectedDeliveryDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<string>("Notes")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<string>("OrderNumber")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<string>("RejectReason")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<Guid>("RequestedById")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTime>("RequestedDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<int>("RequestedQuantity")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
-                    b.Property<decimal>("TotalAmount")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("UnitPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ApprovedById");
-
-                    b.HasIndex("DealerId");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("RequestedById");
-
-                    b.ToTable("PurchaseOrder");
-                });
-
             modelBuilder.Entity("DataAccessLayer.Entities.Region", b =>
                 {
                     b.Property<Guid>("Id")
@@ -846,40 +769,6 @@ namespace DataAccessLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("Brand");
-                });
-
-            modelBuilder.Entity("DataAccessLayer.Entities.PurchaseOrder", b =>
-                {
-                    b.HasOne("DataAccessLayer.Entities.Users", "ApprovedBy")
-                        .WithMany()
-                        .HasForeignKey("ApprovedById")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("DataAccessLayer.Entities.Dealer", "Dealer")
-                        .WithMany()
-                        .HasForeignKey("DealerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("DataAccessLayer.Entities.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("DataAccessLayer.Entities.Users", "RequestedBy")
-                        .WithMany()
-                        .HasForeignKey("RequestedById")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ApprovedBy");
-
-                    b.Navigation("Dealer");
-
-                    b.Navigation("Product");
-
-                    b.Navigation("RequestedBy");
                 });
 
             modelBuilder.Entity("DataAccessLayer.Entities.SalesTarget", b =>

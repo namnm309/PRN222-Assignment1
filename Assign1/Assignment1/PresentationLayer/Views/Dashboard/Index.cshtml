@@ -24,6 +24,24 @@
     </div>
 </div>
 
+@if (TempData["Debug"] != null)
+{
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        @TempData["Debug"]
+        <br><br>
+        <a href="@Url.Action("FixDealerAccount", "PurchaseOrder")" class="btn btn-warning btn-sm">
+            🔧 Fix DealerId ngay
+        </a>
+        <a href="@Url.Action("CheckDatabase", "PurchaseOrder")" class="btn btn-info btn-sm">
+            🔍 Check Database
+        </a>
+        <a href="@Url.Action("CreatePurchaseOrderTable", "PurchaseOrder")" class="btn btn-success btn-sm">
+            🔧 Create Table
+        </a>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+}
+
 @if (userRole == UserRole.DealerStaff)
 {
     <!-- Dashboard cho Dealer Staff -->

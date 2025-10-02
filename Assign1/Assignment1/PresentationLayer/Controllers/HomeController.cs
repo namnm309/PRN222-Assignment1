@@ -43,7 +43,8 @@ namespace PresentationLayer.Controllers
                     Description = p.Description,
                     Price = p.Price,
                     BrandName = p.Brand.Name,
-                    IsActive = p.IsActive
+                    IsActive = p.IsActive,
+                    ImageUrl = p.ImageUrl
                 })
                 .ToListAsync();
 
@@ -75,7 +76,8 @@ namespace PresentationLayer.Controllers
                     Description = p.Description,
                     Price = p.Price,
                     BrandName = p.Brand.Name,
-                    IsActive = p.IsActive
+                    IsActive = p.IsActive,
+                    ImageUrl = p.ImageUrl
                 })
                 .ToListAsync();
 

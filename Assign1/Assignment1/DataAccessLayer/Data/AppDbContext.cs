@@ -38,6 +38,7 @@ namespace DataAccessLayer.Data
         public DbSet<Promotion> Promotion { get; set; }
         
         public DbSet<TestDrive> TestDrive { get; set; }
+    public DbSet<PurchaseOrder> PurchaseOrder { get; set; }
         
         public DbSet<Region> Region { get; set; }
         
@@ -113,6 +114,42 @@ namespace DataAccessLayer.Data
                 .HasForeignKey(t => t.DealerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            // Configure PurchaseOrder properties
+            modelBuilder.Entity<PurchaseOrder>(entity =>
+            {
+                entity.Property(e => e.OrderNumber).IsRequired().HasMaxLength(50);
+                entity.Property(e => e.UnitPrice).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.TotalAmount).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.Reason).IsRequired().HasMaxLength(500);
+                entity.Property(e => e.Notes).HasMaxLength(1000);
+                entity.Property(e => e.RejectReason).HasMaxLength(500);
+            });
+
+            // Configure PurchaseOrder relationships
+            modelBuilder.Entity<PurchaseOrder>()
+                .HasOne(p => p.Dealer)
+                .WithMany()
+                .HasForeignKey(p => p.DealerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PurchaseOrder>()
+                .HasOne(p => p.Product)
+                .WithMany()
+                .HasForeignKey(p => p.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PurchaseOrder>()
+                .HasOne(p => p.RequestedBy)
+                .WithMany()
+                .HasForeignKey(p => p.RequestedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<PurchaseOrder>()
+                .HasOne(p => p.ApprovedBy)
+                .WithMany()
+                .HasForeignKey(p => p.ApprovedById)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Cấu hình mối quan hệ Order - Region (Many-to-One)
             modelBuilder.Entity<Order>()
                 .HasOne(o => o.Region)
@@ -164,6 +201,7 @@ namespace DataAccessLayer.Data
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
                 entity.Property(e => e.Description).HasMaxLength(1000);
                 entity.Property(e => e.Price).HasColumnType("decimal(18,2)");
+                entity.Property(e => e.ImageUrl).HasMaxLength(500);
             });
 
             modelBuilder.Entity<Customer>(entity =>

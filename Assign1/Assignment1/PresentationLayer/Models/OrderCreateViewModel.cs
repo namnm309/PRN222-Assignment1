@@ -13,6 +13,9 @@ namespace PresentationLayer.Models
         [Display(Name = "Khách hàng")]
         public Guid CustomerId { get; set; }
 
+        [Display(Name = "Đại lý")]
+        public Guid? DealerId { get; set; }
+
         [Display(Name = "Nhân viên bán hàng")]
         public Guid? SalesPersonId { get; set; }
 

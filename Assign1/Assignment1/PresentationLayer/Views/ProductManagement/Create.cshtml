@@ -14,7 +14,7 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Create" method="post" novalidate>
+                    <form asp-action="Create" method="post" enctype="multipart/form-data" novalidate>
                         @Html.AntiForgeryToken()
                         
                         @if (!ViewData.ModelState.IsValid)
@@ -65,6 +65,22 @@
                                 <label asp-for="StockQuantity" class="form-label">Số lượng tồn kho <span class="text-danger">*</span></label>
                                 <input asp-for="StockQuantity" type="number" min="0" class="form-control" placeholder="Nhập số lượng" />
                                 <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Hình ảnh sản phẩm</label>
+                                <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" />
+                                <span asp-validation-for="ImageFile" class="text-danger"></span>
+                                <div class="form-text">Chấp nhận: JPG, PNG, GIF, WEBP. Tối đa 5MB.</div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ImageUrl" class="form-label">Hoặc nhập URL hình ảnh</label>
+                                <input asp-for="ImageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
+                                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                                <div class="form-text">Thay thế cho upload file.</div>
                             </div>
                         </div>
 

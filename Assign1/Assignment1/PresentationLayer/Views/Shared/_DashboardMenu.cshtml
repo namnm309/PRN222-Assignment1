@@ -78,13 +78,13 @@ else if (userRole == UserRole.DealerManager)
             <i class="fas fa-briefcase"></i>
             <span>Tạo báo giá mới</span>
         </a>
+        <a href="@Url.Action("Index", "PurchaseOrder")" class="menu-item @(currentController == "PurchaseOrder" ? "active" : "")">
+            <i class="fas fa-box"></i>
+            <span>Đặt xe từ hãng</span>
+        </a>
         <a href="#" class="menu-item">
             <i class="fas fa-tags"></i>
             <span>Quản lý khuyến mãi</span>
-        </a>
-        <a href="#" class="menu-item">
-            <i class="fas fa-box"></i>
-            <span>Đặt xe từ hãng</span>
         </a>
         <a href="#" class="menu-item">
             <i class="fas fa-shipping-fast"></i>
@@ -144,13 +144,33 @@ else if (userRole == UserRole.EVMStaff)
             <i class="fas fa-car"></i>
             <span>Danh mục xe điện</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("Index", "ProductManagement")" class="menu-item @(currentController == "ProductManagement" ? "active" : "")">
             <i class="fas fa-boxes"></i>
-            <span>Quản lý tồn kho</span>
+            <span>Quản lý sản phẩm</span>
+        </a>
+        <a href="@Url.Action("Create", "ProductManagement")" class="menu-item">
+            <i class="fas fa-plus"></i>
+            <span>Thêm sản phẩm mới</span>
         </a>
         <a href="#" class="menu-item">
             <i class="fas fa-dollar-sign"></i>
             <span>Quản lý giá sỉ</span>
+        </a>
+    </div>
+    
+    <div class="menu-section">
+        <div class="menu-title">ĐẶT HÀNG TỪ HÃNG</div>
+        <a href="@Url.Action("Index", "PurchaseOrder")" class="menu-item @(currentController == "PurchaseOrder" ? "active" : "")">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Đơn đặt hàng</span>
+        </a>
+        <a href="@Url.Action("Index", "PurchaseOrder", new { status = 0 })" class="menu-item">
+            <i class="fas fa-clock"></i>
+            <span>Chờ duyệt</span>
+        </a>
+        <a href="@Url.Action("Index", "PurchaseOrder", new { status = 1 })" class="menu-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Đã duyệt</span>
         </a>
     </div>
     
@@ -170,6 +190,26 @@ else if (userRole == UserRole.EVMStaff)
         </a>
     </div>
     
+    <div class="menu-section">
+        <div class="menu-title">ĐẶT HÀNG TỪ HÃNG</div>
+        <a href="@Url.Action("Index", "PurchaseOrder")" class="menu-item @(currentController == "PurchaseOrder" ? "active" : "")">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Tất cả đơn hàng</span>
+        </a>
+        <a href="@Url.Action("Index", "PurchaseOrder", new { status = 0 })" class="menu-item">
+            <i class="fas fa-clock"></i>
+            <span>Chờ duyệt</span>
+        </a>
+        <a href="@Url.Action("Index", "PurchaseOrder", new { status = 1 })" class="menu-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Đã duyệt</span>
+        </a>
+        <a href="@Url.Action("Index", "PurchaseOrder", new { status = 3 })" class="menu-item">
+            <i class="fas fa-truck"></i>
+            <span>Đang vận chuyển</span>
+        </a>
+    </div>
+
     <div class="menu-section">
         <div class="menu-title">BÁO CÁO</div>
         <a href="#" class="menu-item">
@@ -217,7 +257,11 @@ else if (userRole == UserRole.Admin)
                 <i class="fas fa-list"></i>
                 <span>Tất cả sản phẩm</span>
             </a>
-            <a href="#" class="submenu-item">
+            <a href="@Url.Action("Index", "ProductManagement")" class="submenu-item">
+                <i class="fas fa-cog"></i>
+                <span>Quản lý sản phẩm</span>
+            </a>
+            <a href="@Url.Action("Create", "ProductManagement")" class="submenu-item">
                 <i class="fas fa-plus"></i>
                 <span>Thêm sản phẩm mới</span>
             </a>
@@ -226,10 +270,6 @@ else if (userRole == UserRole.Admin)
                 <span>Danh mục</span>
             </a>
         </div>
-        <a href="@Url.Action("Index", "ProductManagement")" class="menu-item @(currentController == "ProductManagement" ? "active" : "")">
-            <i class="fas fa-boxes"></i>
-            <span>Quản lý tồn kho</span>
-        </a>
         <a href="#" class="menu-item">
             <i class="fas fa-dollar-sign"></i>
             <span>Quản lý giá sỉ</span>
@@ -237,6 +277,26 @@ else if (userRole == UserRole.Admin)
         <a href="#" class="menu-item">
             <i class="fas fa-palette"></i>
             <span>Màu sắc & phiên bản</span>
+        </a>
+    </div>
+    
+    <div class="menu-section">
+        <div class="menu-title">ĐẶT HÀNG TỪ HÃNG</div>
+        <a href="@Url.Action("Index", "PurchaseOrder")" class="menu-item @(currentController == "PurchaseOrder" ? "active" : "")">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Tất cả đơn hàng</span>
+        </a>
+        <a href="@Url.Action("Index", "PurchaseOrder", new { status = 0 })" class="menu-item">
+            <i class="fas fa-clock"></i>
+            <span>Chờ duyệt</span>
+        </a>
+        <a href="@Url.Action("Index", "PurchaseOrder", new { status = 1 })" class="menu-item">
+            <i class="fas fa-check-circle"></i>
+            <span>Đã duyệt</span>
+        </a>
+        <a href="@Url.Action("Index", "PurchaseOrder", new { status = 3 })" class="menu-item">
+            <i class="fas fa-truck"></i>
+            <span>Đang vận chuyển</span>
         </a>
     </div>
     

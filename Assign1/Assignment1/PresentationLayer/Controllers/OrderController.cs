@@ -33,10 +33,32 @@ namespace PresentationLayer.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(Guid? dealerId = null, string? status = null)
         {
-            // Dealer Manager chỉ xem đơn hàng của đại lý mình
-            var dealerIdFilter = CurrentUserRole == DataAccessLayer.Enum.UserRole.DealerManager
-                ? Guid.Parse(HttpContext.Session.GetString("DealerId") ?? Guid.Empty.ToString())
-                : dealerId;
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var dealerIdString = HttpContext.Session.GetString("DealerId");
+            var userEmail = HttpContext.Session.GetString("UserEmail");
+            
+            Console.WriteLine($"[DEBUG] Order Index - UserRole: {userRole}, DealerId: {dealerIdString}, Email: {userEmail}");
+
+            // Xác định dealerIdFilter dựa trên role
+            Guid? dealerIdFilter = null;
+            
+            if (userRole == "DealerManager" || userRole == "DealerStaff")
+            {
+                if (!string.IsNullOrEmpty(dealerIdString) && Guid.TryParse(dealerIdString, out var dealerIdParsed))
+                {
+                    dealerIdFilter = dealerIdParsed; // Dealer chỉ thấy đơn hàng của mình
+                }
+                else
+                {
+                    TempData["Error"] = "Tài khoản chưa được gán đại lý. Vui lòng liên hệ Admin.";
+                    return View(new System.Collections.Generic.List<DataAccessLayer.Entities.Order>());
+                }
+            }
+            else
+            {
+                // Admin/EVM có thể xem tất cả đơn hàng hoặc filter theo dealerId parameter
+                dealerIdFilter = dealerId;
+            }
 
             ViewBag.Dealers = await _evmService.GetAllDealersAsync();
             ViewBag.SelectedDealerId = dealerIdFilter;
@@ -52,10 +74,20 @@ namespace PresentationLayer.Controllers
             return View(orders);
         }
 
+
         // GET: Order/CreateQuotation
         [HttpGet]
         public async Task<IActionResult> CreateQuotation()
         {
+            var userRole = HttpContext.Session.GetString("UserRole");
+            
+            // Chỉ cho phép Dealer Manager/Staff tạo báo giá
+            if (userRole != "DealerManager" && userRole != "DealerStaff")
+            {
+                TempData["Error"] = "Chỉ Dealer Manager và Dealer Staff mới được tạo báo giá.";
+                return RedirectToAction("Index");
+            }
+
             // Load danh sách sản phẩm và khách hàng từ EVM service
             ViewBag.Products = await _evmService.GetAllProductsAsync();
             ViewBag.Customers = await _evmService.GetAllCustomersAsync();
@@ -77,14 +109,32 @@ namespace PresentationLayer.Controllers
                 return View(vm);
             }
 
-            // Lấy dealerId từ session (Dealer Manager)
+            // Xác định dealerId dựa trên role của user
+            Guid dealerId = Guid.Empty;
+            var userRole = HttpContext.Session.GetString("UserRole");
             var dealerIdString = HttpContext.Session.GetString("DealerId");
-            Console.WriteLine($"[DEBUG] CreateQuotation - Session DealerId: {dealerIdString}");
             
-            if (string.IsNullOrEmpty(dealerIdString) || !Guid.TryParse(dealerIdString, out var dealerId))
+            Console.WriteLine($"[DEBUG] CreateQuotation - UserRole: {userRole}, Session DealerId: {dealerIdString}");
+            
+            // Nếu là Dealer Manager/Staff - lấy từ session
+            if (userRole == "DealerManager" || userRole == "DealerStaff")
             {
-                Console.WriteLine($"[DEBUG] ERROR: Cannot get DealerId from session in CreateQuotation");
-                TempData["Error"] = "Không xác định được Dealer. Vui lòng đăng nhập lại.";
+                if (string.IsNullOrEmpty(dealerIdString) || !Guid.TryParse(dealerIdString, out dealerId))
+                {
+                    Console.WriteLine($"[DEBUG] ERROR: Dealer user has no DealerId in session");
+                    TempData["Error"] = "Tài khoản chưa được gán đại lý. Vui lòng liên hệ Admin.";
+                    return RedirectToAction("Index");
+                }
+            }
+            // Admin/EVM Staff không được tạo báo giá trực tiếp
+            else if (userRole == "Admin" || userRole == "EVMStaff")
+            {
+                TempData["Error"] = "Admin và EVM Staff không được tạo báo giá trực tiếp. Chỉ Dealer Manager/Staff mới có quyền này.";
+                return RedirectToAction("Index");
+            }
+            else
+            {
+                TempData["Error"] = "Bạn không có quyền tạo báo giá.";
                 return RedirectToAction("Index");
             }
 

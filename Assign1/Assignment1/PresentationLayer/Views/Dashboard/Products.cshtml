@@ -1,31 +1,43 @@
+@model List<DataAccessLayer.Entities.Product>
+
 @{
-    ViewData["Title"] = "Quản lý sản phẩm";
+    ViewData["Title"] = "Danh mục xe điện";
 }
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="mb-1">Quản lý sản phẩm</h2>
-        <p class="text-muted mb-0">Danh sách và quản lý các sản phẩm xe điện</p>
+        <h2 class="mb-1">Danh mục xe điện</h2>
+        <p class="text-muted mb-0">Danh sách các sản phẩm xe điện</p>
     </div>
-    <div>
-        <button class="btn btn-primary">
-            <i class="fas fa-plus me-2"></i>Thêm sản phẩm
-        </button>
-    </div>
+    @if (ViewBag.UserRole.ToString() == "Admin" || ViewBag.UserRole.ToString() == "EVMStaff")
+    {
+        <div>
+            <a href="@Url.Action("Create", "ProductManagement")" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Thêm sản phẩm
+            </a>
+        </div>
+    }
 </div>
 
 <div class="card">
     <div class="card-header">
         <div class="d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Danh sách sản phẩm</h5>
-            <div class="d-flex gap-2">
-                <input type="text" class="form-control form-control-sm" placeholder="Tìm kiếm..." style="width: 250px;">
-                <select class="form-select form-select-sm" style="width: 150px;">
-                    <option>Tất cả</option>
-                    <option>Đang bán</option>
-                    <option>Hết hàng</option>
+            <form method="get" asp-action="Products" class="d-flex gap-2">
+                <input type="text" name="q" class="form-control form-control-sm" placeholder="Tìm kiếm..." value="@ViewBag.SearchQuery" style="width: 250px;">
+                <select name="brandId" class="form-select form-select-sm" style="width: 200px;">
+                    <option value="">-- Tất cả thương hiệu --</option>
+                    @foreach (var brand in ViewBag.Brands as List<DataAccessLayer.Entities.Brand>)
+                    {
+                        <option value="@brand.Id" selected="@(ViewBag.SelectedBrandId == brand.Id)">
+                            @brand.Name
+                        </option>
+                    }
                 </select>
-            </div>
+                <button type="submit" class="btn btn-primary btn-sm">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
         </div>
     </div>
     <div class="card-body">
@@ -33,23 +45,102 @@
             <table class="table table-hover">
                 <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Tên sản phẩm</th>
+                        <th>Hình ảnh</th>
                         <th>SKU</th>
+                        <th>Tên sản phẩm</th>
                         <th>Thương hiệu</th>
                         <th>Giá</th>
                         <th>Tồn kho</th>
                         <th>Trạng thái</th>
-                        <th>Thao tác</th>
+                        @if (ViewBag.UserRole.ToString() == "Admin" || ViewBag.UserRole.ToString() == "EVMStaff")
+                        {
+                            <th>Thao tác</th>
+                        }
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td colspan="8" class="text-center text-muted py-4">
-                            <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
-                            Chưa có dữ liệu sản phẩm
-                        </td>
-                    </tr>
+                    @if (Model.Count == 0)
+                    {
+                        <tr>
+                            <td colspan="@(ViewBag.UserRole.ToString() == "Admin" || ViewBag.UserRole.ToString() == "EVMStaff" ? "8" : "7")" class="text-center text-muted py-4">
+                                <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                Chưa có sản phẩm nào
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var product in Model)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(product.ImageUrl))
+                                    {
+                                        <img src="@product.ImageUrl" alt="@product.Name" class="img-thumbnail" style="width: 60px; height: 45px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="text-muted" style="width: 60px; height: 45px; display: flex; align-items: center; justify-content: center; border: 1px solid #dee2e6; border-radius: 4px;">
+                                            <i class="fas fa-image"></i>
+                                        </div>
+                                    }
+                                </td>
+                                <td>@product.Sku</td>
+                                <td>
+                                    <div>
+                                        <strong>@product.Name</strong>
+                                        @if (!string.IsNullOrWhiteSpace(product.Description) && product.Description.Length > 50)
+                                        {
+                                            <div class="text-muted small">@product.Description.Substring(0, 50)...</div>
+                                        }
+                                        else if (!string.IsNullOrWhiteSpace(product.Description))
+                                        {
+                                            <div class="text-muted small">@product.Description</div>
+                                        }
+                                    </div>
+                                </td>
+                                <td>@product.Brand?.Name</td>
+                                <td>@product.Price.ToString("N0") VNĐ</td>
+                                <td>
+                                    @if (product.StockQuantity <= 5)
+                                    {
+                                        <span class="badge bg-danger">@product.StockQuantity</span>
+                                    }
+                                    else if (product.StockQuantity <= 10)
+                                    {
+                                        <span class="badge bg-warning text-dark">@product.StockQuantity</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">@product.StockQuantity</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (product.IsActive)
+                                    {
+                                        <span class="badge bg-success">Đang bán</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Ngừng bán</span>
+                                    }
+                                </td>
+                                @if (ViewBag.UserRole.ToString() == "Admin" || ViewBag.UserRole.ToString() == "EVMStaff")
+                                {
+                                    <td>
+                                        <div class="btn-group" role="group" aria-label="Actions">
+                                            <a href="@Url.Action("Edit", "ProductManagement", new { id = product.Id })" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <a href="@Url.Action("Index", "ProductManagement")" class="btn btn-sm btn-outline-secondary" title="Quản lý đầy đủ">
+                                                <i class="fas fa-cog"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    }
                 </tbody>
             </table>
         </div>
