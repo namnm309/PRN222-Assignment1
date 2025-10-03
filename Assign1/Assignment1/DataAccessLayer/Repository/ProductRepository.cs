@@ -83,6 +83,7 @@ namespace DataAccessLayer.Repository
                 existingProduct.StockQuantity = product.StockQuantity;
                 existingProduct.IsActive = product.IsActive;
                 existingProduct.BrandId = product.BrandId;
+                existingProduct.ImageUrl = product.ImageUrl;
                 existingProduct.UpdatedAt = DateTime.UtcNow;
 
                 return await _db.SaveChangesAsync() > 0;

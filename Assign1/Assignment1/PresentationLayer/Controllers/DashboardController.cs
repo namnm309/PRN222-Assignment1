@@ -1,19 +1,29 @@
 using Microsoft.AspNetCore.Mvc;
+using BusinessLayer.Services;
 
 namespace PresentationLayer.Controllers
 {
     public class DashboardController : BaseDashboardController
     {
+        private readonly IProductService _productService;
+        private readonly IBrandService _brandService;
+
+        public DashboardController(IProductService productService, IBrandService brandService)
+        {
+            _productService = productService;
+            _brandService = brandService;
+        }
+
         public IActionResult Index()
         {
             // ViewBag đã được set tự động từ BaseDashboardController
             return View();
         }
 
-        public IActionResult Products()
+        public IActionResult Products(string? q = null, Guid? brandId = null)
         {
-            // Ví dụ trang Products - tự động có sidebar và layout
-            return View();
+            // Redirect to ProductManagement for unified product management
+            return RedirectToAction("Index", "ProductManagement", new { q, brandId });
         }
 
         public IActionResult Orders()

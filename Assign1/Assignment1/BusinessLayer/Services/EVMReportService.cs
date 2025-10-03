@@ -104,5 +104,25 @@ namespace BusinessLayer.Services
         {
             return await _evmRepository.GetAllCustomersAsync();
         }
+
+        public async Task<List<Users>> GetAllUsersAsync()
+        {
+            return await _evmRepository.GetAllUsersAsync();
+        }
+
+        public async Task<List<Users>> GetUsersByDealerAsync(Guid dealerId)
+        {
+            return await _evmRepository.GetUsersByDealerAsync(dealerId);
+        }
+
+        public async Task<Users> GetUserByIdAsync(Guid userId)
+        {
+            return await _evmRepository.GetUserByIdAsync(userId);
+        }
+
+        public async Task<bool> UpdateUserAsync(Users user)
+        {
+            return await _evmRepository.UpdateUserAsync(user);
+        }
     }
 }

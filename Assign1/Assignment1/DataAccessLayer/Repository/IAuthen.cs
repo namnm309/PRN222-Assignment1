@@ -13,5 +13,6 @@ namespace DataAccessLayer.Repository
 
         // New async APIs used by BusinessLayer
         Task<Entities.Users> GetByEmailAsync(string email);
+        Task<bool> CreateAsync(Entities.Users user);
     }
 }

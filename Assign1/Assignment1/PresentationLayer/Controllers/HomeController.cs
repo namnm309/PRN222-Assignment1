@@ -43,7 +43,8 @@ namespace PresentationLayer.Controllers
                     Description = p.Description,
                     Price = p.Price,
                     BrandName = p.Brand.Name,
-                    IsActive = p.IsActive
+                    IsActive = p.IsActive,
+                    ImageUrl = p.ImageUrl
                 })
                 .ToListAsync();
 
@@ -75,9 +76,34 @@ namespace PresentationLayer.Controllers
                     Description = p.Description,
                     Price = p.Price,
                     BrandName = p.Brand.Name,
-                    IsActive = p.IsActive
+                    IsActive = p.IsActive,
+                    ImageUrl = p.ImageUrl
                 })
                 .ToListAsync();
+
+            return View(products);
+        }
+
+        public async Task<IActionResult> TestDrive()
+        {
+            // Lấy tất cả sản phẩm active để khách hàng chọn lái thử
+            var products = await _dbContext.Product
+                .Include(p => p.Brand)
+                .Where(p => p.IsActive)
+                .OrderBy(p => p.Name)
+                .Select(p => new HomeProductViewModel
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Sku = p.Sku,
+                    Description = p.Description,
+                    Price = p.Price,
+                    BrandName = p.Brand.Name,
+                    IsActive = p.IsActive,
+                    ImageUrl = p.ImageUrl
+                })
+                .ToListAsync();
+
 
             return View(products);
         }

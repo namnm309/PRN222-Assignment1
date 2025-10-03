@@ -29,6 +29,10 @@ namespace PresentationLayer
             builder.Services.AddScoped<IFeedbackService, FeedbackService>();
             builder.Services.AddScoped<ITestDriveRepository, TestDriveRepository>();
             builder.Services.AddScoped<ITestDriveService, TestDriveService>();
+
+            // PurchaseOrder services
+            builder.Services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
+            builder.Services.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
@@ -157,6 +161,7 @@ namespace PresentationLayer
                                 StockQuantity = 10,
                                 IsActive = true,
                                 BrandId = vinfast.Id,
+                                ImageUrl = "https://via.placeholder.com/400x300/0084FF/FFFFFF?text=VinFast+VF+e34",
                                 CreatedAt = DateTime.UtcNow,
                                 UpdatedAt = DateTime.UtcNow
                             },
@@ -170,6 +175,7 @@ namespace PresentationLayer
                                 StockQuantity = 5,
                                 IsActive = true,
                                 BrandId = vinfast.Id,
+                                ImageUrl = "https://via.placeholder.com/400x300/00C853/FFFFFF?text=VinFast+VF+8",
                                 CreatedAt = DateTime.UtcNow,
                                 UpdatedAt = DateTime.UtcNow
                             },
@@ -183,6 +189,7 @@ namespace PresentationLayer
                                 StockQuantity = 7,
                                 IsActive = true,
                                 BrandId = tesla.Id,
+                                ImageUrl = "https://via.placeholder.com/400x300/FF1744/FFFFFF?text=Tesla+Model+3",
                                 CreatedAt = DateTime.UtcNow,
                                 UpdatedAt = DateTime.UtcNow
                             }

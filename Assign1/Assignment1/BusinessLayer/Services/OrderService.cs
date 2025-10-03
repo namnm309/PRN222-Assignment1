@@ -3,13 +3,21 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DataAccessLayer.Entities;
 using DataAccessLayer.Repository;
+using DataAccessLayer.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Services
 {
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _repo;
-        public OrderService(IOrderRepository repo) => _repo = repo;
+        private readonly AppDbContext _dbContext;
+        
+        public OrderService(IOrderRepository repo, AppDbContext dbContext)
+        {
+            _repo = repo;
+            _dbContext = dbContext;
+        }
 
         public async Task<(bool Success, string Error, Order Data)> GetAsync(Guid id)
         {
@@ -119,6 +127,56 @@ namespace BusinessLayer.Services
             order.DeliveryDate = deliveryUtc;
             order.Status = "Delivered";
             order.UpdatedAt = DateTime.UtcNow;
+
+            // 🔥 GIẢM TỒN KHO ĐẠI LÝ KHI GIAO HÀNG CHO KHÁCH
+            try
+            {
+                Console.WriteLine($"[Order Delivered] Reducing inventory for Dealer={order.DealerId}, Product={order.ProductId}");
+                
+                var inventory = await _dbContext.InventoryAllocation
+                    .FirstOrDefaultAsync(i => i.DealerId == order.DealerId 
+                                           && i.ProductId == order.ProductId 
+                                           && i.IsActive);
+
+                if (inventory != null)
+                {
+                    if (inventory.AvailableQuantity > 0)
+                    {
+                        inventory.AvailableQuantity -= 1; // Giảm 1 xe
+                        inventory.UpdatedAt = DateTime.UtcNow;
+                        inventory.Notes = string.IsNullOrWhiteSpace(inventory.Notes)
+                            ? $"Bán xe cho khách - Order #{order.OrderNumber}"
+                            : $"{inventory.Notes}\n[{DateTime.Now:dd/MM/yyyy HH:mm}] Bán 1 xe - Order #{order.OrderNumber}";
+                        
+                        // Cập nhật status nếu hết hàng
+                        if (inventory.AvailableQuantity <= 0)
+                        {
+                            inventory.Status = "OutOfStock";
+                        }
+                        else if (inventory.AvailableQuantity <= inventory.MinimumStock)
+                        {
+                            inventory.Status = "LowStock";
+                        }
+
+                        _dbContext.InventoryAllocation.Update(inventory);
+                        await _dbContext.SaveChangesAsync();
+                        Console.WriteLine($"[Order Delivered] Inventory reduced successfully! AvailableQty={inventory.AvailableQuantity}");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"[Order Delivered] WARNING: AvailableQuantity is 0, cannot reduce!");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine($"[Order Delivered] WARNING: No inventory allocation found for this dealer/product!");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Order Delivered] ERROR reducing inventory: {ex.Message}");
+                // Không return lỗi, chỉ ghi log - vẫn cho phép giao hàng
+            }
 
             var ok = await _repo.UpdateAsync(order);
             return ok ? (true, null, order) : (false, "Không thể cập nhật giao hàng", null);

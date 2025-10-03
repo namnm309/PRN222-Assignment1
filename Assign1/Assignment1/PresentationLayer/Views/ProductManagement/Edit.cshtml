@@ -14,9 +14,10 @@
                     </h4>
                 </div>
                 <div class="card-body">
-                    <form asp-action="Edit" method="post" novalidate>
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data" novalidate>
                         @Html.AntiForgeryToken()
                         <input asp-for="Id" type="hidden" />
+                        <input asp-for="CurrentImageUrl" type="hidden" />
                         
                         @if (!ViewData.ModelState.IsValid)
                         {
@@ -66,6 +67,34 @@
                                 <label asp-for="StockQuantity" class="form-label">Số lượng tồn kho <span class="text-danger">*</span></label>
                                 <input asp-for="StockQuantity" type="number" min="0" class="form-control" placeholder="Nhập số lượng" />
                                 <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Hình ảnh hiện tại</label>
+                                @if (!string.IsNullOrWhiteSpace(Model.CurrentImageUrl))
+                                {
+                                    <div class="mb-2">
+                                        <img src="@Model.CurrentImageUrl" alt="Hình ảnh sản phẩm" class="img-thumbnail" style="max-width: 200px; max-height: 150px;" />
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="mb-2 text-muted">Chưa có hình ảnh</div>
+                                }
+                                
+                                <label class="form-label">Thay đổi hình ảnh</label>
+                                <input asp-for="ImageFile" type="file" class="form-control" accept="image/*" />
+                                <span asp-validation-for="ImageFile" class="text-danger"></span>
+                                <div class="form-text">Chấp nhận: JPG, PNG, GIF, WEBP. Tối đa 5MB.</div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="ImageUrl" class="form-label">Hoặc nhập URL hình ảnh mới</label>
+                                <input asp-for="ImageUrl" class="form-control" placeholder="https://example.com/image.jpg" />
+                                <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                                <div class="form-text">Thay thế cho upload file.</div>
                             </div>
                         </div>
 

@@ -28,5 +28,11 @@ namespace PresentationLayer.Models
 
         [Required(ErrorMessage = "Thương hiệu không được để trống")]
         public Guid BrandId { get; set; }
+
+        // Hình ảnh sản phẩm
+        public IFormFile? ImageFile { get; set; }
+        
+        [StringLength(500, ErrorMessage = "URL hình ảnh không được vượt quá 500 ký tự")]
+        public string? ImageUrl { get; set; }
     }
 }

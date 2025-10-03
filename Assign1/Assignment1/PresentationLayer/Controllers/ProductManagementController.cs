@@ -92,6 +92,23 @@ namespace PresentationLayer.Controllers
                 return View(model);
             }
 
+            // Xử lý upload hình ảnh
+            string? imageUrl = null;
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                imageUrl = await SaveImageAsync(model.ImageFile);
+                if (imageUrl == null)
+                {
+                    ModelState.AddModelError("ImageFile", "Lỗi khi upload hình ảnh");
+                    await LoadBrandsToViewBag();
+                    return View(model);
+                }
+            }
+            else if (!string.IsNullOrWhiteSpace(model.ImageUrl))
+            {
+                imageUrl = model.ImageUrl;
+            }
+
             var product = new Product
             {
                 Sku = model.Sku,
@@ -100,7 +117,8 @@ namespace PresentationLayer.Controllers
                 Price = model.Price,
                 StockQuantity = model.StockQuantity,
                 IsActive = model.IsActive,
-                BrandId = model.BrandId
+                BrandId = model.BrandId,
+                ImageUrl = imageUrl
             };
 
             var (ok, err) = await _productService.CreateAsync(product);
@@ -140,7 +158,9 @@ namespace PresentationLayer.Controllers
                 Price = product.Price,
                 StockQuantity = product.StockQuantity,
                 IsActive = product.IsActive,
-                BrandId = product.BrandId
+                BrandId = product.BrandId,
+                CurrentImageUrl = product.ImageUrl,
+                ImageUrl = product.ImageUrl
             };
 
             await LoadBrandsToViewBag();
@@ -163,6 +183,31 @@ namespace PresentationLayer.Controllers
                 return View(model);
             }
 
+            // Xử lý upload hình ảnh
+            string? imageUrl = model.CurrentImageUrl; // Giữ hình cũ nếu không upload mới
+            if (model.ImageFile != null && model.ImageFile.Length > 0)
+            {
+                var newImageUrl = await SaveImageAsync(model.ImageFile);
+                if (newImageUrl == null)
+                {
+                    ModelState.AddModelError("ImageFile", "Lỗi khi upload hình ảnh");
+                    await LoadBrandsToViewBag();
+                    return View(model);
+                }
+                
+                // Xóa hình cũ nếu có
+                if (!string.IsNullOrWhiteSpace(model.CurrentImageUrl))
+                {
+                    DeleteImage(model.CurrentImageUrl);
+                }
+                
+                imageUrl = newImageUrl;
+            }
+            else if (!string.IsNullOrWhiteSpace(model.ImageUrl) && model.ImageUrl != model.CurrentImageUrl)
+            {
+                imageUrl = model.ImageUrl;
+            }
+
             var product = new Product
             {
                 Id = model.Id,
@@ -172,7 +217,8 @@ namespace PresentationLayer.Controllers
                 Price = model.Price,
                 StockQuantity = model.StockQuantity,
                 IsActive = model.IsActive,
-                BrandId = model.BrandId
+                BrandId = model.BrandId,
+                ImageUrl = imageUrl
             };
 
             var (ok, err) = await _productService.UpdateAsync(product);
@@ -214,6 +260,71 @@ namespace PresentationLayer.Controllers
         {
             var (ok, err, brands) = await _brandService.GetAllAsync();
             ViewBag.Brands = ok ? brands : new List<Brand>();
+        }
+
+        private async Task<string?> SaveImageAsync(IFormFile imageFile)
+        {
+            try
+            {
+                // Kiểm tra định dạng file
+                var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+                var extension = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
+                
+                if (!allowedExtensions.Contains(extension))
+                {
+                    return null;
+                }
+
+                // Kiểm tra kích thước file (tối đa 5MB)
+                if (imageFile.Length > 5 * 1024 * 1024)
+                {
+                    return null;
+                }
+
+                // Tạo tên file unique
+                var fileName = $"{Guid.NewGuid()}{extension}";
+                var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products");
+                
+                // Tạo thư mục nếu chưa có
+                if (!Directory.Exists(uploadsFolder))
+                {
+                    Directory.CreateDirectory(uploadsFolder);
+                }
+
+                var filePath = Path.Combine(uploadsFolder, fileName);
+
+                // Lưu file
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await imageFile.CopyToAsync(fileStream);
+                }
+
+                // Trả về relative path
+                return $"/images/products/{fileName}";
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        private void DeleteImage(string imageUrl)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(imageUrl) || !imageUrl.StartsWith("/images/products/"))
+                    return;
+
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", imageUrl.TrimStart('/'));
+                if (System.IO.File.Exists(filePath))
+                {
+                    System.IO.File.Delete(filePath);
+                }
+            }
+            catch
+            {
+                // Log error if needed but don't throw
+            }
         }
     }
 }

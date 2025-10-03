@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PresentationLayer.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body style="font-family: 'Inter', sans-serif;">
     <header class="homepage-header">
@@ -74,6 +75,9 @@
                                 <i class="fas fa-user-circle me-1"></i>
                                 <span class="fw-semibold">@fullName</span>
                             </div>
+                            <a href="@Url.Action("Index", "Dashboard")" class="btn btn-sm btn-primary rounded-pill px-3">
+                                <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+                            </a>
                             <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
                                 <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">
                                     <i class="fas fa-sign-out-alt me-1"></i> Đăng xuất
@@ -86,7 +90,7 @@
                                 <i class="fas fa-user me-1"></i> Tài khoản
                             </a>
                         }
-                        <a class="btn btn-sm btn-primary rounded-pill px-4 fw-semibold" asp-area="" asp-controller="Home" asp-action="Privacy">
+                        <a class="btn btn-sm btn-primary rounded-pill px-4 fw-semibold" asp-area="" asp-controller="Home" asp-action="TestDrive">
                             <i class="fas fa-calendar-check me-1"></i> Đăng ký lái thử
                         </a>
                     </div>

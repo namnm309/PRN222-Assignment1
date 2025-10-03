@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using BusinessLayer.Services;
 using PresentationLayer.Models;
+using System.Linq;
 
 namespace PresentationLayer.Controllers
 {
@@ -50,8 +51,25 @@ namespace PresentationLayer.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public IActionResult Create(Guid productId, Guid dealerId)
-            => View(new TestDriveViewModel { ProductId = productId, DealerId = dealerId });
+        public async Task<IActionResult> Create(Guid productId, Guid? dealerId = null)
+        {
+            // Nếu không có dealerId, tự động chọn dealer đầu tiên
+            if (!dealerId.HasValue)
+            {
+                var dealers = await _evmService.GetAllDealersAsync();
+                if (dealers.Any())
+                {
+                    dealerId = dealers.First().Id;
+                }
+                else
+                {
+                    TempData["Error"] = "Hiện tại chưa có đại lý nào có sẵn. Vui lòng liên hệ trực tiếp.";
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+
+            return View(new TestDriveViewModel { ProductId = productId, DealerId = dealerId.Value });
+        }
 
         [HttpPost]
         [AllowAnonymous]
@@ -80,7 +98,8 @@ namespace PresentationLayer.Controllers
                 return View(vm); 
             }
 
-            TempData["Msg"] = "Đã gửi đơn đăng ký lái thử thành công! Chúng tôi sẽ liên hệ với bạn sớm.";
+            TempData["Msg"] = "Đăng ký lái thử thành công! Mã đặt lịch: " + td.Id.ToString().Substring(0, 8).ToUpper();
+            TempData["Success"] = "true";
             return RedirectToAction("Index", "Home");
         }
 

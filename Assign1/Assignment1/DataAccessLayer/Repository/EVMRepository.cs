@@ -1,5 +1,6 @@
 using DataAccessLayer.Data;
 using DataAccessLayer.Entities;
+using DataAccessLayer.Enum;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -256,6 +257,45 @@ namespace DataAccessLayer.Repository
                 .Where(c => c.IsActive)
                 .OrderBy(c => c.FullName)
                 .ToListAsync();
+        }
+
+        public async Task<List<Users>> GetAllUsersAsync()
+        {
+            return await _context.Users
+                .Include(u => u.Dealer)
+                .OrderBy(u => u.Role)
+                .ThenBy(u => u.FullName)
+                .ToListAsync();
+        }
+
+        public async Task<List<Users>> GetUsersByDealerAsync(Guid dealerId)
+        {
+            return await _context.Users
+                .Include(u => u.Dealer)
+                .Where(u => u.DealerId == dealerId && u.Role == UserRole.DealerStaff)
+                .OrderBy(u => u.FullName)
+                .ToListAsync();
+        }
+
+        public async Task<Users> GetUserByIdAsync(Guid userId)
+        {
+            return await _context.Users
+                .Include(u => u.Dealer)
+                .FirstOrDefaultAsync(u => u.Id == userId);
+        }
+
+        public async Task<bool> UpdateUserAsync(Users user)
+        {
+            try
+            {
+                _context.Users.Update(user);
+                var result = await _context.SaveChangesAsync();
+                return result > 0;
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }
