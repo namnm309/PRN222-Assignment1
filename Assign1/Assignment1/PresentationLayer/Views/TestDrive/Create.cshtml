@@ -16,13 +16,31 @@
                     <form asp-action="Create" method="post">
                         @Html.AntiForgeryToken()
                         <input type="hidden" asp-for="ProductId" />
-                        <input type="hidden" asp-for="DealerId" />
 
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
                         <div class="alert alert-info">
                             <i class="fas fa-info-circle"></i> 
                             <strong>Lưu ý:</strong> Vui lòng điền đầy đủ thông tin. Chúng tôi sẽ liên hệ xác nhận với bạn trong vòng 24 giờ.
+                        </div>
+
+                        <h5 class="mb-3 text-primary">Chọn đại lý</h5>
+                        
+                        <div class="mb-4">
+                            <label asp-for="DealerId" class="form-label">Đại lý <span class="text-danger">*</span></label>
+                            <select asp-for="DealerId" class="form-select">
+                                <option value="">-- Chọn đại lý gần bạn --</option>
+                                @foreach (var dealer in ViewBag.Dealers as List<DataAccessLayer.Entities.Dealer>)
+                                {
+                                    <option value="@dealer.Id">
+                                        @dealer.Name - @dealer.Address (@dealer.Region)
+                                    </option>
+                                }
+                            </select>
+                            <span asp-validation-for="DealerId" class="text-danger"></span>
+                            <small class="form-text text-muted">
+                                <i class="fas fa-map-marker-alt"></i> Vui lòng chọn đại lý thuận tiện cho bạn để trải nghiệm lái thử
+                            </small>
                         </div>
 
                         <h5 class="mb-3 text-primary">Thông tin của bạn</h5>
