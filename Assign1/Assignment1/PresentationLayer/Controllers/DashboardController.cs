@@ -20,22 +20,10 @@ namespace PresentationLayer.Controllers
             return View();
         }
 
-        public async Task<IActionResult> Products(string? q = null, Guid? brandId = null)
+        public IActionResult Products(string? q = null, Guid? brandId = null)
         {
-            // Load dữ liệu sản phẩm thực sự
-            var (ok, err, products) = await _productService.SearchAsync(q, brandId, null, null, null, true); // Chỉ hiển thị sản phẩm active
-            if (!ok)
-            {
-                TempData["Error"] = err;
-            }
-
-            // Load brands để filter
-            var (brandOk, brandErr, brands) = await _brandService.GetAllAsync();
-            ViewBag.Brands = brandOk ? brands : new List<DataAccessLayer.Entities.Brand>();
-            ViewBag.SearchQuery = q;
-            ViewBag.SelectedBrandId = brandId;
-
-            return View(products ?? new List<DataAccessLayer.Entities.Product>());
+            // Redirect to ProductManagement for unified product management
+            return RedirectToAction("Index", "ProductManagement", new { q, brandId });
         }
 
         public IActionResult Orders()

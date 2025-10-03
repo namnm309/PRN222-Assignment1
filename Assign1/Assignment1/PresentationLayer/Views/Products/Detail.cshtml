@@ -45,17 +45,6 @@
                                 <p>@Model.Description</p>
                             </div>
                             
-                            <div class="mb-3">
-                                <strong>Tồn kho:</strong> 
-                                @if (Model.StockQuantity > 0)
-                                {
-                                    <span class="badge bg-success fs-6">@Model.StockQuantity chiếc</span>
-                                }
-                                else
-                                {
-                                    <span class="badge bg-danger fs-6">Hết hàng</span>
-                                }
-                            </div>
 
                             @if (Model.IsActive)
                             {

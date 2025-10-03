@@ -38,5 +38,11 @@ namespace DataAccessLayer.Repository
         Task<List<Brand>> GetAllBrandsAsync();
         Task<List<Product>> GetAllProductsAsync();
         Task<List<Customer>> GetAllCustomersAsync();
+        
+        // User Management methods
+        Task<List<Users>> GetAllUsersAsync();
+        Task<List<Users>> GetUsersByDealerAsync(Guid dealerId);
+        Task<Users> GetUserByIdAsync(Guid userId);
+        Task<bool> UpdateUserAsync(Users user);
     }
 }

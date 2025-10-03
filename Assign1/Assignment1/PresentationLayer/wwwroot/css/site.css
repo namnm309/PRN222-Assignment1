@@ -442,7 +442,16 @@ body {
 
 .product-row {
   /* Ẩn bớt item vượt quá chiều ngang ở mobile để đảm bảo tối đa 1 hàng */
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+.product-row::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
 }
 .product-row > [class*="col-"] {
   scroll-snap-align: start;
@@ -451,6 +460,7 @@ body {
 /* ===== PRODUCT SLIDER CONTROLS ===== */
 .product-slider {
   position: relative;
+  padding: 0 60px; /* Make room for buttons */
 }
 
 .product-slider .product-control {
@@ -460,34 +470,57 @@ body {
   width: 3rem;
   height: 3rem;
   border: none;
-  background: var(--primary-gradient);
+  background: rgba(14, 165, 233, 0.9);
   border-radius: 50%;
-  z-index: 10;
-  opacity: 0.9;
+  z-index: 100;
+  opacity: 1;
   transition: all 0.3s;
   box-shadow: 0 4px 12px rgba(14, 165, 233, 0.3);
+  display: flex !important; /* Force display */
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  user-select: none;
 }
 
 .product-slider .product-control:hover {
-  opacity: 1;
+  background: rgba(14, 165, 233, 1);
   transform: translateY(-50%) scale(1.1);
-  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.4);
+  box-shadow: 0 6px 16px rgba(14, 165, 233, 0.5);
 }
 
 .product-slider .product-control .carousel-control-prev-icon,
 .product-slider .product-control .carousel-control-next-icon {
   filter: none;
+  width: 1.5rem;
+  height: 1.5rem;
 }
 
-.product-slider .product-prev { left: -45px; }
-.product-slider .product-next { right: -45px; }
+.product-slider .product-prev { 
+  left: 10px;
+}
+.product-slider .product-next { 
+  right: 10px;
+}
 
 @media (min-width: 992px) {
-  .product-slider .product-prev { left: -55px; }
-  .product-slider .product-next { right: -55px; }
+  .product-slider {
+    padding: 0 70px;
+  }
+  .product-slider .product-prev { left: 15px; }
+  .product-slider .product-next { right: 15px; }
 }
 
-@media (max-width: 991px) {
+@media (max-width: 767px) {
+  .product-slider {
+    padding: 0 50px;
+  }
+  .product-slider .product-control {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
   .product-slider .product-prev { left: 5px; }
   .product-slider .product-next { right: 5px; }
 }

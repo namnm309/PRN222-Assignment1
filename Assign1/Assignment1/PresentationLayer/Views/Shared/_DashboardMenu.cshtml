@@ -20,16 +20,20 @@
 
 @if (userRole == UserRole.DealerStaff)
 {
-    <!-- MENU CHO DEALER STAFF -->
+    <!-- MENU CHO DEALER STAFF - Gần như Dealer Manager nhưng loại bỏ 4 tính năng -->
     <div class="menu-section">
-        <div class="menu-title">QUẢN LÝ BÁN HÀNG</div>
-        <a href="#" class="menu-item">
-            <i class="fas fa-shopping-cart"></i>
-            <span>Đơn hàng của tôi</span>
+        <div class="menu-title">KINH DOANH</div>
+        <a href="@Url.Action("Index", "Order")" class="menu-item @(currentController == "Order" ? "active" : "")">
+            <i class="fas fa-file-invoice"></i>
+            <span>Quản lý đơn hàng</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("CreateQuotation", "Order")" class="menu-item">
+            <i class="fas fa-briefcase"></i>
+            <span>Tạo báo giá mới</span>
+        </a>
+        <a href="@Url.Action("Index", "CustomerManagement")" class="menu-item @(currentController == "CustomerManagement" ? "active" : "")">
             <i class="fas fa-users"></i>
-            <span>Khách hàng</span>
+            <span>Quản lý khách hàng</span>
         </a>
         <a href="@Url.Action("Index", "TestDrive")" class="menu-item @(currentController == "TestDrive" ? "active" : "")">
             <i class="fas fa-calendar-check"></i>
@@ -62,7 +66,7 @@ else if (userRole == UserRole.DealerManager)
             <i class="fas fa-file-invoice-dollar"></i>
             <span>Báo cáo công nợ</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("Index", "UserManagement")" class="menu-item @(currentController == "UserManagement" ? "active" : "")">
             <i class="fas fa-users-cog"></i>
             <span>Quản lý nhân viên</span>
         </a>
@@ -104,17 +108,13 @@ else if (userRole == UserRole.DealerManager)
             <i class="fas fa-chevron-down ms-auto submenu-arrow"></i>
         </a>
         <div class="collapse submenu" id="customersSubmenu">
-            <a href="#" class="submenu-item">
+            <a asp-controller="CustomerManagement" asp-action="Index" class="submenu-item">
                 <i class="fas fa-list"></i>
                 <span>Danh sách khách hàng</span>
             </a>
-            <a href="#" class="submenu-item">
-                <i class="fas fa-folder"></i>
-                <span>Hồ sơ khách hàng</span>
-            </a>
-            <a href="#" class="submenu-item">
+            <a asp-controller="CustomerManagement" asp-action="Create" class="submenu-item">
                 <i class="fas fa-user-plus"></i>
-                <span>Thêm khách hàng mới</span>
+                <span>Thêm khách hàng</span>
             </a>
         </div>
         <a href="@Url.Action("Index", "TestDrive")" class="menu-item @(currentController == "TestDrive" ? "active" : "")">
@@ -140,12 +140,8 @@ else if (userRole == UserRole.EVMStaff)
     <!-- MENU CHO EVM STAFF -->
     <div class="menu-section">
         <div class="menu-title">QUẢN LÝ SẢN PHẨM</div>
-        <a href="@Url.Action("Products", "Dashboard")" class="menu-item">
-            <i class="fas fa-car"></i>
-            <span>Danh mục xe điện</span>
-        </a>
         <a href="@Url.Action("Index", "ProductManagement")" class="menu-item @(currentController == "ProductManagement" ? "active" : "")">
-            <i class="fas fa-boxes"></i>
+            <i class="fas fa-car"></i>
             <span>Quản lý sản phẩm</span>
         </a>
         <a href="@Url.Action("Create", "ProductManagement")" class="menu-item">
@@ -227,7 +223,7 @@ else if (userRole == UserRole.Admin)
     <!-- MENU CHO ADMIN - Full quyền -->
     <div class="menu-section">
         <div class="menu-title">QUẢN TRỊ HỆ THỐNG</div>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("Index", "UserManagement")" class="menu-item @(currentController == "UserManagement" ? "active" : "")">
             <i class="fas fa-users-cog"></i>
             <span>Quản lý tài khoản</span>
         </a>
@@ -247,29 +243,14 @@ else if (userRole == UserRole.Admin)
             <i class="fas fa-copyright"></i>
             <span>Quản lý Thương hiệu</span>
         </a>
-        <a href="#productsSubmenu" class="menu-item" data-bs-toggle="collapse" aria-expanded="false">
+        <a href="@Url.Action("Index", "ProductManagement")" class="menu-item @(currentController == "ProductManagement" ? "active" : "")">
             <i class="fas fa-car"></i>
-            <span>Danh mục xe điện</span>
-            <i class="fas fa-chevron-down ms-auto submenu-arrow"></i>
+            <span>Quản lý sản phẩm</span>
         </a>
-        <div class="collapse submenu" id="productsSubmenu">
-            <a href="@Url.Action("Products", "Dashboard")" class="submenu-item">
-                <i class="fas fa-list"></i>
-                <span>Tất cả sản phẩm</span>
-            </a>
-            <a href="@Url.Action("Index", "ProductManagement")" class="submenu-item">
-                <i class="fas fa-cog"></i>
-                <span>Quản lý sản phẩm</span>
-            </a>
-            <a href="@Url.Action("Create", "ProductManagement")" class="submenu-item">
-                <i class="fas fa-plus"></i>
-                <span>Thêm sản phẩm mới</span>
-            </a>
-            <a href="#" class="submenu-item">
-                <i class="fas fa-tags"></i>
-                <span>Danh mục</span>
-            </a>
-        </div>
+        <a href="@Url.Action("Create", "ProductManagement")" class="menu-item">
+            <i class="fas fa-plus"></i>
+            <span>Thêm sản phẩm mới</span>
+        </a>
         <a href="#" class="menu-item">
             <i class="fas fa-dollar-sign"></i>
             <span>Quản lý giá sỉ</span>

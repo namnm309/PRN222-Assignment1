@@ -4,6 +4,8 @@ using PresentationLayer.Models;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
+using DataAccessLayer.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace PresentationLayer.Controllers
 {
@@ -14,19 +16,22 @@ namespace PresentationLayer.Controllers
         private readonly ICustomerService _customerService;
         private readonly IDealerContractService _contractService;
         private readonly IEVMReportService _evmService;
+        private readonly AppDbContext _dbContext;
 
         public OrderController(
             IOrderService orderService,
             IProductService productService,
             ICustomerService customerService,
             IDealerContractService contractService,
-            IEVMReportService evmService)
+            IEVMReportService evmService,
+            AppDbContext dbContext)
         {
             _orderService = orderService;
             _productService = productService;
             _customerService = customerService;
             _contractService = contractService;
             _evmService = evmService;
+            _dbContext = dbContext;
         }
 
         // GET: Order/Index
@@ -136,6 +141,19 @@ namespace PresentationLayer.Controllers
             {
                 TempData["Error"] = "Bạn không có quyền tạo báo giá.";
                 return RedirectToAction("Index");
+            }
+
+            // KIỂM TRA TỒN KHO TRƯỚC KHI TẠO BÁO GIÁ
+            var inventory = await _dbContext.InventoryAllocation
+                .FirstOrDefaultAsync(i => i.ProductId == vm.ProductId && i.DealerId == dealerId && i.IsActive);
+            
+            if (inventory == null || inventory.AvailableQuantity <= 0)
+            {
+                TempData["Error"] = "Sản phẩm này đã hết hàng trong kho đại lý. Vui lòng đặt hàng từ hãng hoặc chọn sản phẩm khác.";
+                ViewBag.Products = await _evmService.GetAllProductsAsync();
+                ViewBag.Customers = await _evmService.GetAllCustomersAsync();
+                ViewBag.SalesStaff = await _evmService.GetAllSalesStaffAsync();
+                return View(vm);
             }
 
             var (ok, err, order) = await _orderService.CreateQuotationAsync(
@@ -277,6 +295,79 @@ namespace PresentationLayer.Controllers
             var (ok, err, contract) = await _contractService.GetAsync(id);
             if (!ok) return NotFound();
             return View(contract);
+        }
+
+        // GET: Order/GetProductStock - Lấy tồn kho của sản phẩm theo dealer (AJAX)
+        [HttpGet]
+        public async Task<IActionResult> GetProductStock(Guid productId)
+        {
+            try
+            {
+                var dealerIdString = HttpContext.Session.GetString("DealerId");
+                var userRole = HttpContext.Session.GetString("UserRole");
+                
+                Console.WriteLine($"[GetProductStock] ProductId={productId}, DealerId={dealerIdString}, Role={userRole}");
+
+                // Nếu không có DealerId hoặc không phải dealer role -> trả về thông báo chung
+                if (string.IsNullOrEmpty(dealerIdString) || !Guid.TryParse(dealerIdString, out Guid dealerId))
+                {
+                    Console.WriteLine("[GetProductStock] No DealerId in session - returning generic stock info");
+                    
+                    // Với Admin/EVM hoặc user chưa có DealerId -> chỉ hiển thị thông tin chung
+                    var product = await _dbContext.Product.FindAsync(productId);
+                    if (product == null)
+                    {
+                        return Json(new { success = false, message = "Không tìm thấy sản phẩm" });
+                    }
+
+                    return Json(new
+                    {
+                        success = true,
+                        hasStock = product.StockQuantity > 0,
+                        availableQuantity = product.StockQuantity,
+                        message = product.StockQuantity > 0 
+                            ? $"Tồn kho hệ thống: {product.StockQuantity} xe" 
+                            : "Hết hàng trong hệ thống"
+                    });
+                }
+
+                // Dealer role -> kiểm tra tồn kho của dealer
+                var inventory = await _dbContext.InventoryAllocation
+                    .Include(i => i.Product)
+                    .FirstOrDefaultAsync(i => i.ProductId == productId && i.DealerId == dealerId && i.IsActive);
+
+                Console.WriteLine($"[GetProductStock] Inventory found: {inventory != null}, Available: {inventory?.AvailableQuantity}");
+
+                if (inventory == null)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        hasStock = false,
+                        availableQuantity = 0,
+                        message = "Sản phẩm này chưa có trong kho đại lý. Vui lòng đặt hàng từ hãng."
+                    });
+                }
+
+                return Json(new
+                {
+                    success = true,
+                    hasStock = inventory.AvailableQuantity > 0,
+                    availableQuantity = inventory.AvailableQuantity,
+                    reservedQuantity = inventory.ReservedQuantity,
+                    allocatedQuantity = inventory.AllocatedQuantity,
+                    minimumStock = inventory.MinimumStock,
+                    status = inventory.Status,
+                    message = inventory.AvailableQuantity > 0
+                        ? $"Còn {inventory.AvailableQuantity} xe trong kho"
+                        : "Sản phẩm đã hết hàng. Vui lòng đặt hàng từ hãng."
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[GetProductStock] ERROR: {ex.Message}");
+                return Json(new { success = false, message = "Lỗi khi kiểm tra tồn kho: " + ex.Message });
+            }
         }
 
         // POST: Order/CreateCustomer (AJAX)

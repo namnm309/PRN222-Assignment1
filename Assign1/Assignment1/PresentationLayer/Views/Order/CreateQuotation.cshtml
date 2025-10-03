@@ -12,6 +12,12 @@
                     <h3 class="mb-0"><i class="fas fa-file-invoice"></i> Tạo báo giá mới</h3>
                 </div>
                 <div class="card-body">
+                    <!-- Thông báo stock ngay từ đầu -->
+                    <div id="global-stock-alert" class="alert alert-info mb-4" style="display: none;">
+                        <i class="fas fa-info-circle"></i>
+                        <span id="global-stock-message">Đang kiểm tra tồn kho...</span>
+                    </div>
+                    
                     <form asp-action="CreateQuotation" method="post">
                         @Html.AntiForgeryToken()
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
@@ -19,16 +25,19 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label asp-for="ProductId" class="form-label"></label>
-                                <select asp-for="ProductId" class="form-select">
+                                <select asp-for="ProductId" class="form-select" id="product-select">
                                     <option value="">-- Chọn sản phẩm --</option>
                                     @foreach (var product in ViewBag.Products as List<DataAccessLayer.Entities.Product>)
                                     {
-                                        <option value="@product.Id" data-price="@product.Price">
+                                        <option value="@product.Id" data-price="@product.Price" data-stock="@product.StockQuantity">
                                             @product.Name - @product.Price.ToString("N0") VNĐ
                                         </option>
                                     }
                                 </select>
                                 <span asp-validation-for="ProductId" class="text-danger"></span>
+                                <div id="stock-alert" class="mt-2" style="display: none;">
+                                    <!-- Stock info will be displayed here -->
+                                </div>
                             </div>
 
                             <div class="col-md-6">
@@ -156,15 +165,82 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
-        // Auto-fill price when product is selected
-        document.getElementById('ProductId').addEventListener('change', function() {
+        // Auto-fill price and check stock when product is selected
+        document.getElementById('product-select').addEventListener('change', function() {
             var selectedOption = this.options[this.selectedIndex];
             var price = selectedOption.getAttribute('data-price');
+            var productId = this.value;
+            
             if (price) {
                 document.getElementById('price-input').value = price;
                 updateFinalAmount();
             }
+
+            // Check stock availability for dealer
+            if (productId) {
+                checkProductStock(productId);
+            } else {
+                document.getElementById('stock-alert').style.display = 'none';
+                document.getElementById('global-stock-alert').style.display = 'none';
+            }
         });
+
+        // Function to check product stock via AJAX
+        function checkProductStock(productId) {
+            var stockAlert = document.getElementById('stock-alert');
+            var globalStockAlert = document.getElementById('global-stock-alert');
+            var globalStockMessage = document.getElementById('global-stock-message');
+            
+            // Show loading in both places
+            stockAlert.innerHTML = '<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">Loading...</span></div> Đang kiểm tra tồn kho...';
+            stockAlert.style.display = 'block';
+            
+            globalStockMessage.innerHTML = 'Đang kiểm tra tồn kho...';
+            globalStockAlert.style.display = 'block';
+            globalStockAlert.className = 'alert alert-info mb-4';
+            
+            fetch('@Url.Action("GetProductStock", "Order")?productId=' + productId)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        stockAlert.innerHTML = '<div class="alert alert-danger mb-0"><i class="fas fa-exclamation-circle"></i> ' + data.message + '</div>';
+                        globalStockMessage.innerHTML = '<i class="fas fa-exclamation-circle"></i> ' + data.message;
+                        globalStockAlert.className = 'alert alert-danger mb-4';
+                        return;
+                    }
+
+                    if (!data.hasStock) {
+                        stockAlert.innerHTML = `
+                            <div class="alert alert-warning mb-0">
+                                <i class="fas fa-exclamation-triangle"></i> ${data.message}
+                                <br><small>Bạn có thể đặt hàng từ hãng tại menu <strong>"Đặt xe từ hãng"</strong></small>
+                            </div>`;
+                        globalStockMessage.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${data.message}<br><small>Bạn có thể đặt hàng từ hãng tại menu <strong>"Đặt xe từ hãng"</strong></small>`;
+                        globalStockAlert.className = 'alert alert-warning mb-4';
+                    } else if (data.availableQuantity <= data.minimumStock) {
+                        stockAlert.innerHTML = `
+                            <div class="alert alert-warning mb-0">
+                                <i class="fas fa-warehouse"></i> ${data.message}
+                                <br><small class="text-danger">⚠️ Tồn kho thấp (tối thiểu: ${data.minimumStock} xe). Nên đặt hàng thêm!</small>
+                            </div>`;
+                        globalStockMessage.innerHTML = `<i class="fas fa-warehouse"></i> ${data.message}<br><small class="text-danger">⚠️ Tồn kho thấp (tối thiểu: ${data.minimumStock} xe). Nên đặt hàng thêm!</small>`;
+                        globalStockAlert.className = 'alert alert-warning mb-4';
+                    } else {
+                        stockAlert.innerHTML = `
+                            <div class="alert alert-success mb-0">
+                                <i class="fas fa-check-circle"></i> ${data.message}
+                                <br><small>Đã phân bổ: ${data.allocatedQuantity} | Đã đặt: ${data.reservedQuantity}</small>
+                            </div>`;
+                        globalStockMessage.innerHTML = `<i class="fas fa-check-circle"></i> ${data.message}<br><small>Đã phân bổ: ${data.allocatedQuantity} | Đã đặt: ${data.reservedQuantity}</small>`;
+                        globalStockAlert.className = 'alert alert-success mb-4';
+                    }
+                })
+                .catch(error => {
+                    stockAlert.innerHTML = '<div class="alert alert-danger mb-0"><i class="fas fa-times-circle"></i> Không thể kiểm tra tồn kho</div>';
+                    globalStockMessage.innerHTML = '<i class="fas fa-times-circle"></i> Không thể kiểm tra tồn kho';
+                    globalStockAlert.className = 'alert alert-danger mb-4';
+                });
+        }
 
         // Calculate final amount
         function updateFinalAmount() {

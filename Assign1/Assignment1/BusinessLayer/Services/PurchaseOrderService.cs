@@ -4,6 +4,8 @@ using System.Threading.Tasks;
 using DataAccessLayer.Entities;
 using DataAccessLayer.Repository;
 using DataAccessLayer.Enum;
+using DataAccessLayer.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace BusinessLayer.Services
 {
@@ -11,11 +13,13 @@ namespace BusinessLayer.Services
     {
         private readonly IPurchaseOrderRepository _repo;
         private readonly IProductService _productService;
+        private readonly AppDbContext _dbContext;
 
-        public PurchaseOrderService(IPurchaseOrderRepository repo, IProductService productService)
+        public PurchaseOrderService(IPurchaseOrderRepository repo, IProductService productService, AppDbContext dbContext)
         {
             _repo = repo;
             _productService = productService;
+            _dbContext = dbContext;
         }
 
         public async Task<(bool Success, string Error, PurchaseOrder Data)> GetAsync(Guid id)
@@ -209,6 +213,63 @@ namespace BusinessLayer.Services
                     else
                     {
                         purchaseOrder.ActualDeliveryDate = DateTime.UtcNow;
+                    }
+
+                    // 🔥 CẬP NHẬT TỒN KHO ĐẠI LÝ KHI GIAO HÀNG
+                    try
+                    {
+                        Console.WriteLine($"[PurchaseOrder Delivered] Updating inventory for Dealer={purchaseOrder.DealerId}, Product={purchaseOrder.ProductId}, Quantity={purchaseOrder.RequestedQuantity}");
+                        
+                        var inventory = await _dbContext.InventoryAllocation
+                            .FirstOrDefaultAsync(i => i.DealerId == purchaseOrder.DealerId 
+                                                   && i.ProductId == purchaseOrder.ProductId 
+                                                   && i.IsActive);
+
+                        if (inventory == null)
+                        {
+                            // Tạo mới InventoryAllocation nếu chưa có
+                            inventory = new InventoryAllocation
+                            {
+                                Id = Guid.NewGuid(),
+                                DealerId = purchaseOrder.DealerId,
+                                ProductId = purchaseOrder.ProductId,
+                                AllocatedQuantity = purchaseOrder.RequestedQuantity,
+                                ReservedQuantity = 0,
+                                AvailableQuantity = purchaseOrder.RequestedQuantity,
+                                MinimumStock = 5,
+                                MaximumStock = 50,
+                                LastRestockDate = DateTime.UtcNow,
+                                Status = "Active",
+                                Priority = "Normal",
+                                Notes = $"Tạo tự động từ PurchaseOrder #{purchaseOrder.OrderNumber}",
+                                IsActive = true,
+                                CreatedAt = DateTime.UtcNow,
+                                UpdatedAt = DateTime.UtcNow
+                            };
+                            await _dbContext.InventoryAllocation.AddAsync(inventory);
+                            Console.WriteLine($"[PurchaseOrder Delivered] Created new InventoryAllocation: {inventory.Id}");
+                        }
+                        else
+                        {
+                            // Cập nhật tồn kho hiện có
+                            inventory.AllocatedQuantity += purchaseOrder.RequestedQuantity;
+                            inventory.AvailableQuantity += purchaseOrder.RequestedQuantity;
+                            inventory.LastRestockDate = DateTime.UtcNow;
+                            inventory.UpdatedAt = DateTime.UtcNow;
+                            inventory.Notes = string.IsNullOrWhiteSpace(inventory.Notes)
+                                ? $"Nhập hàng từ PurchaseOrder #{purchaseOrder.OrderNumber}"
+                                : $"{inventory.Notes}\n[{DateTime.Now:dd/MM/yyyy HH:mm}] Nhập {purchaseOrder.RequestedQuantity} xe từ PO #{purchaseOrder.OrderNumber}";
+                            _dbContext.InventoryAllocation.Update(inventory);
+                            Console.WriteLine($"[PurchaseOrder Delivered] Updated InventoryAllocation: AllocatedQty={inventory.AllocatedQuantity}, AvailableQty={inventory.AvailableQuantity}");
+                        }
+
+                        await _dbContext.SaveChangesAsync();
+                        Console.WriteLine($"[PurchaseOrder Delivered] Inventory updated successfully!");
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"[PurchaseOrder Delivered] ERROR updating inventory: {ex.Message}");
+                        return (false, $"Lỗi cập nhật tồn kho: {ex.Message}", null);
                     }
                     break;
 
