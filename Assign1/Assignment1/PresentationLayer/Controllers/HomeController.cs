@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using PresentationLayer.Models;
+using BusinessLayer.ViewModels;
 using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 

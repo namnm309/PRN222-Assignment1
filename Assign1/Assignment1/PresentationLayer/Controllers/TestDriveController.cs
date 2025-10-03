@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using BusinessLayer.Services;
-using PresentationLayer.Models;
+using BusinessLayer.ViewModels;
 using System.Linq;
 
 namespace PresentationLayer.Controllers
@@ -10,11 +10,13 @@ namespace PresentationLayer.Controllers
     {
         private readonly ITestDriveService _service;
         private readonly IEVMReportService _evmService;
+        private readonly IMappingService _mappingService;
         
-        public TestDriveController(ITestDriveService service, IEVMReportService evmService)
+        public TestDriveController(ITestDriveService service, IEVMReportService evmService, IMappingService mappingService)
         {
             _service = service;
             _evmService = evmService;
+            _mappingService = mappingService;
         }
 
         // Danh sách lịch hẹn cho Dealer Staff/Manager
@@ -29,10 +31,12 @@ namespace PresentationLayer.Controllers
             if (!ok)
             {
                 TempData["Error"] = err;
-                return View(new List<DataAccessLayer.Entities.TestDrive>());
+                return View(new List<TestDriveViewModel>());
             }
 
-            return View(testDrives);
+            // Map entities to ViewModels
+            var testDriveViewModels = _mappingService.MapToTestDriveViewModels(testDrives);
+            return View(testDriveViewModels);
         }
 
         // Lịch hẹn của Customer
@@ -43,9 +47,12 @@ namespace PresentationLayer.Controllers
             if (!ok)
             {
                 TempData["Error"] = err;
-                return View(new List<DataAccessLayer.Entities.TestDrive>());
+                return View(new List<TestDriveViewModel>());
             }
-            return View(testDrives);
+            
+            // Map entities to ViewModels
+            var testDriveViewModels = _mappingService.MapToTestDriveViewModels(testDrives);
+            return View(testDriveViewModels);
         }
 
         [HttpGet]
