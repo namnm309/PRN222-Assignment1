@@ -20,7 +20,6 @@ namespace PresentationLayer.Controllers
         [HttpGet]
         public async Task<IActionResult> Index(Guid? dealerId = null, string? status = null)
         {
-            // Lấy danh sách dealers cho filter
             ViewBag.Dealers = await _evmService.GetAllDealersAsync();
             ViewBag.SelectedDealerId = dealerId;
             ViewBag.SelectedStatus = status;
