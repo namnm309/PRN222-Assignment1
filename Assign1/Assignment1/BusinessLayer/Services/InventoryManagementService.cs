@@ -41,7 +41,6 @@ namespace BusinessLayer.Services
 
         public async Task<bool> CreateInventoryAllocationAsync(InventoryAllocation allocation)
         {
-            // Validate business rules
             if (allocation.AllocatedQuantity < 0 || allocation.AvailableQuantity < 0)
                 return false;
 
@@ -53,7 +52,6 @@ namespace BusinessLayer.Services
 
         public async Task<bool> UpdateInventoryAllocationAsync(InventoryAllocation allocation)
         {
-            // Validate business rules
             if (allocation.AllocatedQuantity < 0 || allocation.AvailableQuantity < 0)
                 return false;
 
@@ -95,7 +93,6 @@ namespace BusinessLayer.Services
 
         public async Task<bool> TransferStockAsync(Guid productId, Guid fromDealerId, Guid toDealerId, int quantity, string reason, Guid processedByUserId)
         {
-            // Validate business rules
             if (quantity <= 0) return false;
             if (fromDealerId == toDealerId) return false;
 
@@ -104,7 +101,6 @@ namespace BusinessLayer.Services
 
         public async Task<bool> AdjustStockAsync(Guid productId, Guid dealerId, int quantity, string reason, Guid processedByUserId)
         {
-            // Validate business rules
             if (quantity == 0) return false;
 
             return await _inventoryRepository.AdjustStockAsync(productId, dealerId, quantity, reason, processedByUserId);
