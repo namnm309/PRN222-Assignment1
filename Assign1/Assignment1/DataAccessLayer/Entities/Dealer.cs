@@ -24,7 +24,7 @@ namespace DataAccessLayer.Entities
         
         public decimal CreditLimit { get; set; }
         public decimal OutstandingDebt { get; set; }
-        public string Status { get; set; } = "Active"; // Active, Suspended, Inactive
+        public string Status { get; set; } = "Active"; 
         
         public bool IsActive { get; set; } = true;
     }

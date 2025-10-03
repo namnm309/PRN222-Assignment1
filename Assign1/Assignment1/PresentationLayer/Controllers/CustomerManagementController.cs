@@ -25,7 +25,7 @@ namespace PresentationLayer.Controllers
 
             List<Customer> customers;
 
-            // Admin và EVM Staff xem tất cả khách hàng
+            
             if (userRole == "Admin" || userRole == "EVMStaff")
             {
                 var (ok, err, data) = await _customerService.GetAllAsync();
@@ -36,7 +36,7 @@ namespace PresentationLayer.Controllers
                 }
                 customers = data;
             }
-            // Dealer chỉ xem khách hàng của mình
+            
             else if ((userRole == "DealerManager" || userRole == "DealerStaff") && !string.IsNullOrEmpty(dealerIdStr))
             {
                 var dealerId = Guid.Parse(dealerIdStr);
@@ -54,7 +54,7 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction("Index", "Dashboard");
             }
 
-            // Search filter
+            
             if (!string.IsNullOrWhiteSpace(search))
             {
                 var searchLower = search.ToLower();
@@ -79,7 +79,7 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Lấy lịch sử đơn hàng
+            
             var orders = await _context.Order
                 .Include(o => o.Product)
                 .Include(o => o.Dealer)
@@ -87,7 +87,7 @@ namespace PresentationLayer.Controllers
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
 
-            // Lấy lịch sử lái thử
+            
             var testDrives = await _context.TestDrive
                 .Include(td => td.Product)
                 .Include(td => td.Dealer)

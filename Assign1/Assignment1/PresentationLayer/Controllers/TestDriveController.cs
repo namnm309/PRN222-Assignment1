@@ -17,7 +17,6 @@ namespace PresentationLayer.Controllers
             _evmService = evmService;
         }
 
-        // Danh sách lịch hẹn cho Dealer Staff/Manager
         [HttpGet]
         public async Task<IActionResult> Index(Guid? dealerId = null, string? status = null)
         {
@@ -35,8 +34,6 @@ namespace PresentationLayer.Controllers
 
             return View(testDrives);
         }
-
-        // Lịch hẹn của Customer
         [HttpGet]
         public async Task<IActionResult> MyTestDrives(Guid customerId)
         {
@@ -53,7 +50,6 @@ namespace PresentationLayer.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Create(Guid productId, Guid? dealerId = null)
         {
-            // Nếu không có dealerId, tự động chọn dealer đầu tiên
             if (!dealerId.HasValue)
             {
                 var dealers = await _evmService.GetAllDealersAsync();
@@ -78,7 +74,6 @@ namespace PresentationLayer.Controllers
         {
             if (vm.ScheduledDate == default)
             {
-                // Nếu view không truyền lên (ẩn), đặt mặc định sau 2 giờ kể từ hiện tại (UTC)
                 vm.ScheduledDate = DateTime.UtcNow.AddHours(2);
             }
 

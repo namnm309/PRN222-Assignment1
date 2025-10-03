@@ -147,7 +147,7 @@ namespace DataAccessLayer.Repository
                 if (regionPolicy != null) return regionPolicy;
             }
 
-            // General policy
+            
             return await query
                 .Where(pp => pp.DealerId == null && pp.RegionId == null)
                 .OrderByDescending(pp => pp.EffectiveDate)
@@ -187,12 +187,12 @@ namespace DataAccessLayer.Repository
             
             if (policy == null)
             {
-                // Fallback to product base price
+                
                 var product = await _context.Product.FindAsync(productId);
                 return product?.Price ?? 0;
             }
 
-            // Check quantity-based pricing
+            
             if (quantity >= policy.MinimumQuantity && quantity <= policy.MaximumQuantity)
             {
                 var discountedPrice = policy.WholesalePrice * (1 - policy.DiscountRate / 100);
@@ -208,7 +208,7 @@ namespace DataAccessLayer.Repository
             
             if (policy == null)
             {
-                // Fallback to product base price
+                
                 var product = await _context.Product.FindAsync(productId);
                 return product?.Price ?? 0;
             }
@@ -222,7 +222,7 @@ namespace DataAccessLayer.Repository
             
             if (policy == null) return 0;
 
-            // Check quantity-based discount
+            
             if (quantity >= policy.MinimumQuantity && quantity <= policy.MaximumQuantity)
             {
                 return policy.DiscountRate;

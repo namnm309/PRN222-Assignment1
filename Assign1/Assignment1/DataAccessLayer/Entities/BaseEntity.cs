@@ -11,7 +11,7 @@ namespace DataAccessLayer.Entities
     public class BaseEntity
     {
         [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]// Tự động sinh giá trị khi thêm bản ghi mới
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public Guid Id { get; set; }
 
         public DateTime CreatedAt { get; set; }
