@@ -27,6 +27,7 @@ public class ProductsController : Controller
         var (ok, err, product) = await _service.GetAsync(id);
         if (!ok) return NotFound();
         
+        // Load dealers cho form đặt lịch lái thử
         ViewBag.Dealers = await _evmService.GetAllDealersAsync();
         
         return View(product); 

@@ -19,7 +19,7 @@ namespace DataAccessLayer.Entities
         public decimal ActualAmount { get; set; }
         public decimal AchievementRate { get; set; }
         
-        public string Status { get; set; } = "Active"; 
+        public string Status { get; set; } = "Active"; // Active, Completed, Overdue
         public string Notes { get; set; }
     }
 }

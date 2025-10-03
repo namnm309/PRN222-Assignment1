@@ -17,19 +17,19 @@ namespace DataAccessLayer.Entities
         public Guid? OrderId { get; set; }
         public virtual Order Order { get; set; }
 
-        public string TransactionType { get; set; } 
+        public string TransactionType { get; set; } // IN, OUT, TRANSFER, ADJUSTMENT
         public int Quantity { get; set; }
         public int QuantityBefore { get; set; }
         public int QuantityAfter { get; set; }
         
-        public string Reason { get; set; } 
+        public string Reason { get; set; } // Sale, Purchase, Transfer, Damage, Return
         public string ReferenceNumber { get; set; }
         public DateTime TransactionDate { get; set; }
         
         public Guid? ProcessedByUserId { get; set; }
         public virtual Users ProcessedByUser { get; set; }
         
-        public string Status { get; set; } = "Completed"; 
+        public string Status { get; set; } = "Completed"; // Pending, Completed, Cancelled
         public string Notes { get; set; }
     }
 }

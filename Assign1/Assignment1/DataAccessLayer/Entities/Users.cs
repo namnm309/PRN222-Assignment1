@@ -23,6 +23,7 @@ namespace DataAccessLayer.Entities
 
         public bool IsActive { get; set; } = true;
 
+        // Dealer relationship for Dealer Staff/Manager
         public Guid? DealerId { get; set; }
         public virtual Dealer? Dealer { get; set; }
 
