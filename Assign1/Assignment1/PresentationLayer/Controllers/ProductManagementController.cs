@@ -92,6 +92,7 @@ namespace PresentationLayer.Controllers
                 return View(model);
             }
 
+            // Xử lý upload hình ảnh
             string? imageUrl = null;
             if (model.ImageFile != null && model.ImageFile.Length > 0)
             {
@@ -182,8 +183,8 @@ namespace PresentationLayer.Controllers
                 return View(model);
             }
 
-          
-            string? imageUrl = model.CurrentImageUrl; 
+            // Xử lý upload hình ảnh
+            string? imageUrl = model.CurrentImageUrl; // Giữ hình cũ nếu không upload mới
             if (model.ImageFile != null && model.ImageFile.Length > 0)
             {
                 var newImageUrl = await SaveImageAsync(model.ImageFile);
@@ -194,7 +195,7 @@ namespace PresentationLayer.Controllers
                     return View(model);
                 }
                 
-                
+                // Xóa hình cũ nếu có
                 if (!string.IsNullOrWhiteSpace(model.CurrentImageUrl))
                 {
                     DeleteImage(model.CurrentImageUrl);
@@ -265,7 +266,7 @@ namespace PresentationLayer.Controllers
         {
             try
             {
-                
+                // Kiểm tra định dạng file
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
                 var extension = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
                 
@@ -274,17 +275,17 @@ namespace PresentationLayer.Controllers
                     return null;
                 }
 
-                
+                // Kiểm tra kích thước file (tối đa 5MB)
                 if (imageFile.Length > 5 * 1024 * 1024)
                 {
                     return null;
                 }
 
-                
+                // Tạo tên file unique
                 var fileName = $"{Guid.NewGuid()}{extension}";
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products");
                 
-                
+                // Tạo thư mục nếu chưa có
                 if (!Directory.Exists(uploadsFolder))
                 {
                     Directory.CreateDirectory(uploadsFolder);
@@ -292,13 +293,13 @@ namespace PresentationLayer.Controllers
 
                 var filePath = Path.Combine(uploadsFolder, fileName);
 
-                
+                // Lưu file
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await imageFile.CopyToAsync(fileStream);
                 }
 
-                
+                // Trả về relative path
                 return $"/images/products/{fileName}";
             }
             catch
@@ -322,7 +323,7 @@ namespace PresentationLayer.Controllers
             }
             catch
             {
-                
+                // Log error if needed but don't throw
             }
         }
     }

@@ -37,6 +37,7 @@ namespace DataAccessLayer.Repository
             }
         }
 
+        // Legacy signatures, kept for compatibility
         public bool Login(string username, string password)
         {
             var user = GetByEmailAsync(username).GetAwaiter().GetResult();

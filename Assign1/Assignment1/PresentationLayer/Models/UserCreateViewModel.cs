@@ -32,6 +32,7 @@ namespace PresentationLayer.Models
         [Display(Name = "Địa chỉ")]
         public string Address { get; set; }
 
+        // Chỉ dùng khi Admin tạo Dealer Manager
         [Display(Name = "Đại lý")]
         public Guid? DealerId { get; set; }
     }

@@ -20,6 +20,7 @@ namespace PresentationLayer.Controllers
             _evmService = evmService;
         }
 
+        // GET: UserManagement/Index - Danh sách user (Admin/Dealer Manager)
         [HttpGet]
         public async Task<IActionResult> Index()
         {
@@ -30,10 +31,12 @@ namespace PresentationLayer.Controllers
 
             if (userRole == "Admin")
             {
+                // Admin xem tất cả users
                 users = await _evmService.GetAllUsersAsync();
             }
             else if (userRole == "DealerManager" && !string.IsNullOrEmpty(dealerIdString) && Guid.TryParse(dealerIdString, out Guid dealerId))
             {
+                // Dealer Manager chỉ xem staff của chính dealer mình
                 users = await _evmService.GetUsersByDealerAsync(dealerId);
             }
             else
@@ -45,6 +48,7 @@ namespace PresentationLayer.Controllers
             return View(users);
         }
 
+        // GET: UserManagement/CreateDealerManager - Admin tạo Dealer Manager
         [HttpGet]
         public async Task<IActionResult> CreateDealerManager()
         {
@@ -74,7 +78,7 @@ namespace PresentationLayer.Controllers
                 return View(model);
             }
 
-            
+            // Kiểm tra email đã tồn tại chưa
             var (existingUser, _) = await _authenService.GetUserByEmailAsync(model.Email);
             if (existingUser != null)
             {
@@ -104,7 +108,7 @@ namespace PresentationLayer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        
+        // GET: UserManagement/CreateDealerStaff - Dealer Manager tạo Dealer Staff
         [HttpGet]
         public IActionResult CreateDealerStaff()
         {
@@ -143,7 +147,7 @@ namespace PresentationLayer.Controllers
                 return View(model);
             }
 
-            
+            // Kiểm tra email đã tồn tại chưa
             var (existingUser, _) = await _authenService.GetUserByEmailAsync(model.Email);
             if (existingUser != null)
             {
@@ -151,7 +155,7 @@ namespace PresentationLayer.Controllers
                 return View(model);
             }
 
-            
+            // Tạo Dealer Staff với DealerId của Dealer Manager
             var (success, error, user) = await _authenService.RegisterAsync(
                 model.FullName, 
                 model.Email, 
@@ -159,7 +163,7 @@ namespace PresentationLayer.Controllers
                 model.PhoneNumber, 
                 model.Address, 
                 UserRole.DealerStaff,
-                dealerId 
+                dealerId // Gán cùng dealer với Dealer Manager
             );
 
             if (!success)
@@ -172,7 +176,7 @@ namespace PresentationLayer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        
+        // GET: UserManagement/Edit/{id}
         [HttpGet]
         public async Task<IActionResult> Edit(Guid id)
         {
@@ -186,10 +190,10 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            
+            // Admin có thể edit tất cả
             if (userRole != "Admin")
             {
-                
+                // Dealer Manager chỉ edit staff của chính dealer mình
                 if (userRole == "DealerManager" && Guid.TryParse(dealerIdString, out Guid dealerId))
                 {
                     if (user.DealerId != dealerId || user.Role != UserRole.DealerStaff)
@@ -246,10 +250,10 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            
+            // Admin có thể edit tất cả
             if (userRole != "Admin")
             {
-                
+                // Dealer Manager chỉ edit staff của chính dealer mình
                 if (userRole == "DealerManager" && Guid.TryParse(dealerIdString, out Guid dealerId))
                 {
                     if (user.DealerId != dealerId || user.Role != UserRole.DealerStaff)
@@ -265,7 +269,7 @@ namespace PresentationLayer.Controllers
                 }
             }
 
-            
+            // Update user info
             user.FullName = model.FullName;
             user.PhoneNumber = model.PhoneNumber;
             user.Address = model.Address;
@@ -283,7 +287,7 @@ namespace PresentationLayer.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        
+        // POST: UserManagement/Delete/{id}
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(Guid id)
@@ -298,7 +302,7 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            
+            // Admin có thể xóa (deactivate) tất cả trừ chính mình
             if (userRole == "Admin")
             {
                 var currentUserEmail = HttpContext.Session.GetString("UserEmail");
@@ -308,7 +312,7 @@ namespace PresentationLayer.Controllers
                     return RedirectToAction(nameof(Index));
                 }
             }
-            
+            // Dealer Manager chỉ xóa staff của chính dealer mình
             else if (userRole == "DealerManager" && Guid.TryParse(dealerIdString, out Guid dealerId))
             {
                 if (user.DealerId != dealerId || user.Role != UserRole.DealerStaff)
@@ -323,7 +327,7 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            
+            // Soft delete - chỉ set IsActive = false
             user.IsActive = false;
             user.UpdatedAt = DateTime.UtcNow;
 

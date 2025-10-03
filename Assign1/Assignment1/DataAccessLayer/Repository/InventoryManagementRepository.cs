@@ -180,10 +180,12 @@ namespace DataAccessLayer.Repository
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
+                // Get source allocation
                 var fromAllocation = await GetInventoryAllocationAsync(productId, fromDealerId);
                 if (fromAllocation == null || fromAllocation.AvailableQuantity < quantity)
                     return false;
 
+                // Get or create destination allocation
                 var toAllocation = await GetInventoryAllocationAsync(productId, toDealerId);
                 if (toAllocation == null)
                 {
@@ -205,6 +207,7 @@ namespace DataAccessLayer.Repository
                     await CreateInventoryAllocationAsync(toAllocation);
                 }
 
+                // Update allocations
                 fromAllocation.AvailableQuantity -= quantity;
                 fromAllocation.AllocatedQuantity -= quantity;
                 await UpdateInventoryAllocationAsync(fromAllocation);
@@ -214,6 +217,7 @@ namespace DataAccessLayer.Repository
                 toAllocation.LastRestockDate = DateTime.UtcNow;
                 await UpdateInventoryAllocationAsync(toAllocation);
 
+                // Create transactions
                 var outTransaction = new InventoryTransaction
                 {
                     Id = Guid.NewGuid(),

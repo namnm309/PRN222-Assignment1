@@ -48,6 +48,7 @@ namespace PresentationLayer.Controllers
             ViewBag.RegionId = regionId;
             ViewBag.Status = status;
 
+            // Get dropdown data
             ViewBag.Products = await _pricingService.GetAllProductsAsync();
             ViewBag.Dealers = await _pricingService.GetAllDealersAsync();
             ViewBag.Regions = await _pricingService.GetAllRegionsAsync();
@@ -204,7 +205,7 @@ namespace PresentationLayer.Controllers
             ViewBag.DealerId = dealerId;
             ViewBag.RegionId = regionId;
 
-            
+            // Get dropdown data
             ViewBag.Dealers = await _pricingService.GetAllDealersAsync();
             ViewBag.Regions = await _pricingService.GetAllRegionsAsync();
 
@@ -225,7 +226,7 @@ namespace PresentationLayer.Controllers
             ViewBag.DealerId = dealerId;
             ViewBag.PolicyType = policyType;
 
-            
+            // Get dropdown data
             ViewBag.Dealers = await _pricingService.GetAllDealersAsync();
 
             return View(policies);
@@ -288,7 +289,7 @@ namespace PresentationLayer.Controllers
             return View();
         }
 
-        
+        // API endpoints for AJAX calls
         [HttpGet]
         public async Task<JsonResult> GetPricingSummary()
         {

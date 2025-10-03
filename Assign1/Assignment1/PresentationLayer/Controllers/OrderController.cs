@@ -34,6 +34,7 @@ namespace PresentationLayer.Controllers
             _dbContext = dbContext;
         }
 
+        // GET: Order/Index
         [HttpGet]
         public async Task<IActionResult> Index(Guid? dealerId = null, string? status = null)
         {
@@ -43,13 +44,14 @@ namespace PresentationLayer.Controllers
             
             Console.WriteLine($"[DEBUG] Order Index - UserRole: {userRole}, DealerId: {dealerIdString}, Email: {userEmail}");
 
+            // Xác định dealerIdFilter dựa trên role
             Guid? dealerIdFilter = null;
             
             if (userRole == "DealerManager" || userRole == "DealerStaff")
             {
                 if (!string.IsNullOrEmpty(dealerIdString) && Guid.TryParse(dealerIdString, out var dealerIdParsed))
                 {
-                    dealerIdFilter = dealerIdParsed;
+                    dealerIdFilter = dealerIdParsed; // Dealer chỉ thấy đơn hàng của mình
                 }
                 else
                 {
@@ -59,6 +61,7 @@ namespace PresentationLayer.Controllers
             }
             else
             {
+                // Admin/EVM có thể xem tất cả đơn hàng hoặc filter theo dealerId parameter
                 dealerIdFilter = dealerId;
             }
 
@@ -77,18 +80,20 @@ namespace PresentationLayer.Controllers
         }
 
 
+        // GET: Order/CreateQuotation
         [HttpGet]
         public async Task<IActionResult> CreateQuotation()
         {
             var userRole = HttpContext.Session.GetString("UserRole");
             
+            // Chỉ cho phép Dealer Manager/Staff tạo báo giá
             if (userRole != "DealerManager" && userRole != "DealerStaff")
             {
                 TempData["Error"] = "Chỉ Dealer Manager và Dealer Staff mới được tạo báo giá.";
                 return RedirectToAction("Index");
             }
 
-            
+            // Load danh sách sản phẩm và khách hàng từ EVM service
             ViewBag.Products = await _evmService.GetAllProductsAsync();
             ViewBag.Customers = await _evmService.GetAllCustomersAsync();
             ViewBag.SalesStaff = await _evmService.GetAllSalesStaffAsync();
@@ -96,7 +101,7 @@ namespace PresentationLayer.Controllers
             return View(new OrderCreateViewModel());
         }
 
-        
+        // POST: Order/CreateQuotation
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateQuotation(OrderCreateViewModel vm)
@@ -109,14 +114,14 @@ namespace PresentationLayer.Controllers
                 return View(vm);
             }
 
-            
+            // Xác định dealerId dựa trên role của user
             Guid dealerId = Guid.Empty;
             var userRole = HttpContext.Session.GetString("UserRole");
             var dealerIdString = HttpContext.Session.GetString("DealerId");
             
             Console.WriteLine($"[DEBUG] CreateQuotation - UserRole: {userRole}, Session DealerId: {dealerIdString}");
             
-            
+            // Nếu là Dealer Manager/Staff - lấy từ session
             if (userRole == "DealerManager" || userRole == "DealerStaff")
             {
                 if (string.IsNullOrEmpty(dealerIdString) || !Guid.TryParse(dealerIdString, out dealerId))
@@ -126,7 +131,7 @@ namespace PresentationLayer.Controllers
                     return RedirectToAction("Index");
                 }
             }
-            
+            // Admin/EVM Staff không được tạo báo giá trực tiếp
             else if (userRole == "Admin" || userRole == "EVMStaff")
             {
                 TempData["Error"] = "Admin và EVM Staff không được tạo báo giá trực tiếp. Chỉ Dealer Manager/Staff mới có quyền này.";
@@ -138,7 +143,7 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction("Index");
             }
 
-            
+            // KIỂM TRA TỒN KHO TRƯỚC KHI TẠO BÁO GIÁ
             var inventory = await _dbContext.InventoryAllocation
                 .FirstOrDefaultAsync(i => i.ProductId == vm.ProductId && i.DealerId == dealerId && i.IsActive);
             
@@ -168,7 +173,7 @@ namespace PresentationLayer.Controllers
             return RedirectToAction(nameof(Detail), new { id = order.Id });
         }
 
-        
+        // GET: Order/Detail/id
         [HttpGet]
         public async Task<IActionResult> Detail(Guid id)
         {
@@ -177,7 +182,7 @@ namespace PresentationLayer.Controllers
             return View(order);
         }
 
-        
+        // POST: Order/Confirm/id
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Confirm(Guid id)
@@ -193,7 +198,7 @@ namespace PresentationLayer.Controllers
             return RedirectToAction(nameof(Detail), new { id });
         }
 
-        
+        // POST: Order/UpdatePayment
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdatePayment(Guid id, string paymentStatus, string paymentMethod, DateTime? paymentDueDate)
@@ -209,7 +214,7 @@ namespace PresentationLayer.Controllers
             return RedirectToAction(nameof(Detail), new { id });
         }
 
-        
+        // POST: Order/Deliver
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Deliver(Guid id, DateTime deliveryDate)
@@ -225,7 +230,7 @@ namespace PresentationLayer.Controllers
             return RedirectToAction(nameof(Detail), new { id });
         }
 
-        
+        // POST: Order/Cancel
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Cancel(Guid id)
@@ -241,7 +246,7 @@ namespace PresentationLayer.Controllers
             return RedirectToAction(nameof(Detail), new { id });
         }
 
-        
+        // GET: Order/CreateContract/orderId
         [HttpGet]
         public async Task<IActionResult> CreateContract(Guid orderId)
         {
@@ -256,7 +261,7 @@ namespace PresentationLayer.Controllers
             return View(new ContractCreateViewModel { OrderId = orderId });
         }
 
-        
+        // POST: Order/CreateContract
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateContract(ContractCreateViewModel vm)
@@ -283,7 +288,7 @@ namespace PresentationLayer.Controllers
             return RedirectToAction(nameof(ContractDetail), new { id = contract.Id });
         }
 
-        
+        // GET: Order/ContractDetail/id
         [HttpGet]
         public async Task<IActionResult> ContractDetail(Guid id)
         {
@@ -292,7 +297,7 @@ namespace PresentationLayer.Controllers
             return View(contract);
         }
 
-        
+        // GET: Order/GetProductStock - Lấy tồn kho của sản phẩm theo dealer (AJAX)
         [HttpGet]
         public async Task<IActionResult> GetProductStock(Guid productId)
         {
@@ -303,12 +308,12 @@ namespace PresentationLayer.Controllers
                 
                 Console.WriteLine($"[GetProductStock] ProductId={productId}, DealerId={dealerIdString}, Role={userRole}");
 
-                
+                // Nếu không có DealerId hoặc không phải dealer role -> trả về thông báo chung
                 if (string.IsNullOrEmpty(dealerIdString) || !Guid.TryParse(dealerIdString, out Guid dealerId))
                 {
                     Console.WriteLine("[GetProductStock] No DealerId in session - returning generic stock info");
                     
-                    
+                    // Với Admin/EVM hoặc user chưa có DealerId -> chỉ hiển thị thông tin chung
                     var product = await _dbContext.Product.FindAsync(productId);
                     if (product == null)
                     {
@@ -326,7 +331,7 @@ namespace PresentationLayer.Controllers
                     });
                 }
 
-                
+                // Dealer role -> kiểm tra tồn kho của dealer
                 var inventory = await _dbContext.InventoryAllocation
                     .Include(i => i.Product)
                     .FirstOrDefaultAsync(i => i.ProductId == productId && i.DealerId == dealerId && i.IsActive);
@@ -365,7 +370,7 @@ namespace PresentationLayer.Controllers
             }
         }
 
-        
+        // POST: Order/CreateCustomer (AJAX)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> CreateCustomer(string fullName, string email, string phoneNumber, string address)

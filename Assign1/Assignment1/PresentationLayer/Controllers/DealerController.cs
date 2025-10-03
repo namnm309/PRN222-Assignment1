@@ -1,7 +1,6 @@
+using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
 using DataAccessLayer.Entities;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 
 namespace PresentationLayer.Controllers
 {
@@ -147,6 +146,5 @@ namespace PresentationLayer.Controllers
             return RedirectToAction(nameof(Index));
         }
     }
-    
 }
 
