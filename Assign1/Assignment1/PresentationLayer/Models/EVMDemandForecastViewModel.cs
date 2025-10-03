@@ -11,13 +11,13 @@ namespace PresentationLayer.Models
         public string RegionName { get; set; }
         public int CurrentDemand { get; set; }
         public int PredictedDemand { get; set; }
-        public decimal ConfidenceLevel { get; set; } // Mức độ tin cậy của dự đoán
-        public string Trend { get; set; } // Increasing, Decreasing, Stable
+        public decimal ConfidenceLevel { get; set; } 
+        public string Trend { get; set; } 
         public decimal GrowthRate { get; set; }
         public int RecommendedProduction { get; set; }
         public int RecommendedDistribution { get; set; }
         public DateTime ForecastDate { get; set; }
-        public string Priority { get; set; } // High, Medium, Low
+        public string Priority { get; set; } 
     }
 
     public class EVMDemandForecastFilterViewModel
@@ -26,7 +26,7 @@ namespace PresentationLayer.Models
         public string BrandId { get; set; }
         public string RegionId { get; set; }
         public string Priority { get; set; }
-        public int ForecastPeriod { get; set; } // Số tháng dự đoán
+        public int ForecastPeriod { get; set; } 
         public string Trend { get; set; }
     }
 }

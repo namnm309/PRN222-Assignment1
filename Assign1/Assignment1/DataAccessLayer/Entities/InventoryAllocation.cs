@@ -23,8 +23,8 @@ namespace DataAccessLayer.Entities
         public DateTime LastRestockDate { get; set; }
         public DateTime? NextRestockDate { get; set; }
         
-        public string Status { get; set; } = "Active"; // Active, Suspended, OutOfStock
-        public string Priority { get; set; } = "Normal"; // High, Normal, Low
+        public string Status { get; set; } = "Active"; 
+        public string Priority { get; set; } = "Normal"; 
         public string Notes { get; set; }
         
         public bool IsActive { get; set; } = true;

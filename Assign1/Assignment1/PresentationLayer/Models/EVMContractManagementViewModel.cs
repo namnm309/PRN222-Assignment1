@@ -15,12 +15,12 @@ namespace PresentationLayer.Models
         public decimal CommissionRate { get; set; }
         public decimal CreditLimit { get; set; }
         public decimal OutstandingDebt { get; set; }
-        public decimal CreditUtilization { get; set; } // Tỷ lệ sử dụng hạn mức
+        public decimal CreditUtilization { get; set; } 
         public decimal SalesTarget { get; set; }
         public decimal ActualSales { get; set; }
         public decimal AchievementRate { get; set; }
         public int DaysToExpiry { get; set; }
-        public string RiskLevel { get; set; } // Low, Medium, High
+        public string RiskLevel { get; set; } 
         public DateTime LastUpdated { get; set; }
     }
 

@@ -20,10 +20,10 @@ namespace PresentationLayer.Models
     {
         public string RegionId { get; set; }
         public string DealerId { get; set; }
-        public string Period { get; set; } // Monthly, Quarterly, Yearly
+        public string Period { get; set; } 
         public int Year { get; set; }
         public int? Month { get; set; }
         public int? Quarter { get; set; }
-        public string Priority { get; set; } // High, Medium, Low
+        public string Priority { get; set; } 
     }
 }

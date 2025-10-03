@@ -32,7 +32,6 @@ namespace PresentationLayer.Models
         [DataType(DataType.Date)]
         public DateTime? ExpectedDeliveryDate { get; set; }
 
-        // Computed property
         public decimal TotalAmount => RequestedQuantity * UnitPrice;
     }
 }

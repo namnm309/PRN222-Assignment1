@@ -17,7 +17,7 @@ namespace BusinessLayer.Services
             if (customerId == Guid.Empty || productId == Guid.Empty || dealerId == Guid.Empty)
                 return (false, "Thiếu thông tin", null);
 
-            // Chuẩn hóa thời gian sang UTC để tương thích PostgreSQL (timestamp with time zone)
+            
             var scheduledUtc = scheduledDate.Kind switch
             {
                 DateTimeKind.Utc => scheduledDate,
@@ -55,7 +55,7 @@ namespace BusinessLayer.Services
             if (productId == Guid.Empty || dealerId == Guid.Empty)
                 return (false, "Thiếu thông tin", null);
 
-            // Chuẩn hóa thời gian sang UTC để tương thích PostgreSQL (timestamp with time zone)
+            
             var scheduledUtc = scheduledDate.Kind switch
             {
                 DateTimeKind.Utc => scheduledDate,
@@ -72,7 +72,7 @@ namespace BusinessLayer.Services
 
             var td = new TestDrive
             {
-                CustomerId = null, // Public registration doesn't have customer account
+                CustomerId = null, 
                 CustomerName = customerName,
                 CustomerPhone = customerPhone,
                 CustomerEmail = customerEmail,

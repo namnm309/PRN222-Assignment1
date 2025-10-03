@@ -16,12 +16,12 @@ namespace DataAccessLayer.Entities
         public DateTime EndDate { get; set; }
         public DateTime? RenewalDate { get; set; }
         
-        public decimal CommissionRate { get; set; } // Tỷ lệ hoa hồng
-        public decimal CreditLimit { get; set; } // Hạn mức tín dụng
-        public decimal OutstandingDebt { get; set; } // Công nợ hiện tại
+        public decimal CommissionRate { get; set; } 
+        public decimal CreditLimit { get; set; } 
+        public decimal OutstandingDebt { get; set; } 
         
-        public string Status { get; set; } = "Active"; // Active, Suspended, Terminated
-        public string Terms { get; set; } // Điều khoản hợp đồng
+        public string Status { get; set; } = "Active"; 
+        public string Terms { get; set; } 
         public string Notes { get; set; }
         
         public bool IsActive { get; set; } = true;

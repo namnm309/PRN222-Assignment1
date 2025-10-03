@@ -29,7 +29,7 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction("Index", "Dashboard");
             }
 
-            // Set default values if not provided
+            
             if (year == 0)
                 year = DateTime.Now.Year;
             if (month == null && period == "monthly")
@@ -46,7 +46,6 @@ namespace PresentationLayer.Controllers
             ViewBag.Month = month;
             ViewBag.Quarter = quarter;
 
-            // Get dropdown data
             ViewBag.Regions = await _evmReportService.GetAllRegionsAsync();
             ViewBag.Dealers = await _evmReportService.GetAllDealersAsync();
 
@@ -67,7 +66,6 @@ namespace PresentationLayer.Controllers
             ViewBag.BrandId = brandId;
             ViewBag.Priority = priority;
 
-            // Get dropdown data
             ViewBag.Brands = await _evmReportService.GetAllBrandsAsync();
 
             return View(inventoryReport);
@@ -88,7 +86,6 @@ namespace PresentationLayer.Controllers
             ViewBag.ProductId = productId;
             ViewBag.Priority = priority;
 
-            // Get dropdown data
             ViewBag.Products = await _evmReportService.GetAllProductsAsync();
 
             return View(demandForecast);
@@ -109,13 +106,11 @@ namespace PresentationLayer.Controllers
             ViewBag.Status = status;
             ViewBag.RiskLevel = riskLevel;
 
-            // Get dropdown data
             ViewBag.Dealers = await _evmReportService.GetAllDealersAsync();
 
             return View(contractReport);
         }
 
-        // API endpoints for AJAX calls
         [HttpGet]
         public async Task<JsonResult> GetSalesData(Guid? regionId = null, Guid? dealerId = null, string period = "monthly", int year = 0, int? month = null, int? quarter = null)
         {
@@ -165,7 +160,6 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction("Index", "Dashboard");
             }
 
-            // Set default values if not provided
             if (year == 0)
                 year = DateTime.Now.Year;
             if (month == null && period == "monthly")
@@ -182,7 +176,6 @@ namespace PresentationLayer.Controllers
             ViewBag.Month = month;
             ViewBag.Quarter = quarter;
 
-            // Get dropdown data
             ViewBag.SalesStaff = await _evmReportService.GetAllSalesStaffAsync();
             ViewBag.Dealers = await _evmReportService.GetAllDealersAsync();
 
@@ -205,7 +198,6 @@ namespace PresentationLayer.Controllers
             ViewBag.CustomerId = customerId;
             ViewBag.PaymentStatus = paymentStatus;
 
-            // Get dropdown data
             ViewBag.Customers = await _evmReportService.GetAllCustomersAsync();
 
             return View(debtReport);

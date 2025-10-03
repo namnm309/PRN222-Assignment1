@@ -28,14 +28,12 @@ namespace DataAccessLayer.Repository
                 .Include(o => o.Customer)
                 .AsQueryable();
 
-            // Apply filters
             if (regionId.HasValue)
                 query = query.Where(o => o.RegionId == regionId.Value);
 
             if (dealerId.HasValue)
                 query = query.Where(o => o.DealerId == dealerId.Value);
 
-            // Apply date filters based on period
             if (year == 0) year = DateTime.Now.Year;
 
             switch (period?.ToLower())
@@ -85,7 +83,7 @@ namespace DataAccessLayer.Repository
         {
             return await _context.Product
                 .Include(p => p.Brand)
-                .Where(p => p.StockQuantity <= 10) // Assuming low stock threshold is 10
+                .Where(p => p.StockQuantity <= 10) 
                 .ToListAsync();
         }
 
@@ -93,7 +91,7 @@ namespace DataAccessLayer.Repository
         {
             return await _context.Product
                 .Include(p => p.Brand)
-                .Where(p => p.StockQuantity <= 5) // Assuming critical stock threshold is 5
+                .Where(p => p.StockQuantity <= 5) 
                 .ToListAsync();
         }
 
@@ -113,7 +111,7 @@ namespace DataAccessLayer.Repository
         {
             return await _context.Product
                 .Include(p => p.Brand)
-                .Where(p => p.StockQuantity <= 20) // High priority based on stock level
+                .Where(p => p.StockQuantity <= 20) 
                 .ToListAsync();
         }
 
@@ -148,7 +146,7 @@ namespace DataAccessLayer.Repository
             return await _context.DealerContract
                 .Include(dc => dc.Dealer)
                 .ThenInclude(d => d.Region)
-                .Where(dc => dc.OutstandingDebt > dc.CreditLimit * 0.8m) // High risk if debt > 80% of credit limit
+                .Where(dc => dc.OutstandingDebt > dc.CreditLimit * 0.8m) 
                 .ToListAsync();
         }
 
