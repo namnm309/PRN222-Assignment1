@@ -11,7 +11,10 @@ namespace PresentationLayer.Controllers
         private readonly IBrandService _brandService;
         private readonly IMappingService _mappingService;
 
-        public ProductManagementController(IProductService productService, IEVMReportService evmService, IBrandService brandService, IMappingService mappingService)
+        public ProductManagementController(IProductService productService,
+            IEVMReportService evmService
+            , IBrandService brandService,
+            IMappingService mappingService)
         {
             _productService = productService;
             _evmService = evmService;
