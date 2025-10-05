@@ -25,6 +25,13 @@ namespace PresentationLayer.Controllers
             ViewBag.SelectedDealerId = dealerId;
             ViewBag.SelectedStatus = status;
 
+            // Nếu là DealerManager hoặc DealerStaff, chỉ hiển thị test drive của đại lý mình
+            if (ViewBag.UserRole == DataAccessLayer.Enum.UserRole.DealerManager || 
+                ViewBag.UserRole == DataAccessLayer.Enum.UserRole.DealerStaff)
+            {
+                dealerId = ViewBag.DealerId;
+            }
+
             var (ok, err, testDrives) = await _service.GetAllAsync(dealerId, status);
             if (!ok)
             {
