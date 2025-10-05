@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
-using PresentationLayer.Models;
-using DataAccessLayer.Entities;
+using BusinessLayer.ViewModels;
 
 namespace PresentationLayer.Controllers
 {
@@ -10,12 +9,17 @@ namespace PresentationLayer.Controllers
         private readonly IProductService _productService;
         private readonly IEVMReportService _evmService;
         private readonly IBrandService _brandService;
+        private readonly IMappingService _mappingService;
 
-        public ProductManagementController(IProductService productService, IEVMReportService evmService, IBrandService brandService)
+        public ProductManagementController(IProductService productService,
+            IEVMReportService evmService
+            , IBrandService brandService,
+            IMappingService mappingService)
         {
             _productService = productService;
             _evmService = evmService;
             _brandService = brandService;
+            _mappingService = mappingService;
         }
 
         [HttpGet]
@@ -33,11 +37,14 @@ namespace PresentationLayer.Controllers
                 TempData["Error"] = err;
             }
 
+            // Map entities to ViewModels
+            var productViewModels = products != null ? _mappingService.MapToProductViewModels(products) : new List<ProductViewModel>();
+
             ViewBag.Brands = await _evmService.GetAllBrandsAsync();
             ViewBag.SearchQuery = q;
             ViewBag.SelectedBrandId = brandId;
 
-            return View(products ?? new List<DataAccessLayer.Entities.Product>());
+            return View(productViewModels);
         }
 
         [HttpPost]
@@ -92,6 +99,7 @@ namespace PresentationLayer.Controllers
                 return View(model);
             }
 
+            // Xử lý upload hình ảnh
             string? imageUrl = null;
             if (model.ImageFile != null && model.ImageFile.Length > 0)
             {
@@ -108,17 +116,9 @@ namespace PresentationLayer.Controllers
                 imageUrl = model.ImageUrl;
             }
 
-            var product = new Product
-            {
-                Sku = model.Sku,
-                Name = model.Name,
-                Description = model.Description,
-                Price = model.Price,
-                StockQuantity = model.StockQuantity,
-                IsActive = model.IsActive,
-                BrandId = model.BrandId,
-                ImageUrl = imageUrl
-            };
+            // Map view model to entity using AutoMapper
+            var product = _mappingService.MapToProduct(model);
+            product.ImageUrl = imageUrl;
 
             var (ok, err) = await _productService.CreateAsync(product);
             if (!ok)
@@ -182,8 +182,8 @@ namespace PresentationLayer.Controllers
                 return View(model);
             }
 
-          
-            string? imageUrl = model.CurrentImageUrl; 
+            // Xử lý upload hình ảnh
+            string? imageUrl = model.CurrentImageUrl; // Giữ hình cũ nếu không upload mới
             if (model.ImageFile != null && model.ImageFile.Length > 0)
             {
                 var newImageUrl = await SaveImageAsync(model.ImageFile);
@@ -194,7 +194,7 @@ namespace PresentationLayer.Controllers
                     return View(model);
                 }
                 
-                
+                // Xóa hình cũ nếu có
                 if (!string.IsNullOrWhiteSpace(model.CurrentImageUrl))
                 {
                     DeleteImage(model.CurrentImageUrl);
@@ -207,18 +207,9 @@ namespace PresentationLayer.Controllers
                 imageUrl = model.ImageUrl;
             }
 
-            var product = new Product
-            {
-                Id = model.Id,
-                Sku = model.Sku,
-                Name = model.Name,
-                Description = model.Description,
-                Price = model.Price,
-                StockQuantity = model.StockQuantity,
-                IsActive = model.IsActive,
-                BrandId = model.BrandId,
-                ImageUrl = imageUrl
-            };
+            // Map view model to entity using AutoMapper
+            var product = _mappingService.MapToProduct(model);
+            product.ImageUrl = imageUrl;
 
             var (ok, err) = await _productService.UpdateAsync(product);
             if (!ok)
@@ -258,14 +249,14 @@ namespace PresentationLayer.Controllers
         private async Task LoadBrandsToViewBag()
         {
             var (ok, err, brands) = await _brandService.GetAllAsync();
-            ViewBag.Brands = ok ? brands : new List<Brand>();
+            ViewBag.Brands = ok ? _mappingService.MapToBrandViewModels(brands) : new List<BrandViewModel>();
         }
 
         private async Task<string?> SaveImageAsync(IFormFile imageFile)
         {
             try
             {
-                
+                // Kiểm tra định dạng file
                 var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
                 var extension = Path.GetExtension(imageFile.FileName).ToLowerInvariant();
                 
@@ -274,17 +265,17 @@ namespace PresentationLayer.Controllers
                     return null;
                 }
 
-                
+                // Kiểm tra kích thước file (tối đa 5MB)
                 if (imageFile.Length > 5 * 1024 * 1024)
                 {
                     return null;
                 }
 
-                
+                // Tạo tên file unique
                 var fileName = $"{Guid.NewGuid()}{extension}";
                 var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images", "products");
                 
-                
+                // Tạo thư mục nếu chưa có
                 if (!Directory.Exists(uploadsFolder))
                 {
                     Directory.CreateDirectory(uploadsFolder);
@@ -292,13 +283,13 @@ namespace PresentationLayer.Controllers
 
                 var filePath = Path.Combine(uploadsFolder, fileName);
 
-                
+                // Lưu file
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
                     await imageFile.CopyToAsync(fileStream);
                 }
 
-                
+                // Trả về relative path
                 return $"/images/products/{fileName}";
             }
             catch
@@ -322,7 +313,7 @@ namespace PresentationLayer.Controllers
             }
             catch
             {
-                
+                // Log error if needed but don't throw
             }
         }
     }

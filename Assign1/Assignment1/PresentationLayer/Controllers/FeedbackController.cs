@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
-using PresentationLayer.Models;
+using BusinessLayer.ViewModels;
 
 namespace PresentationLayer.Controllers
 {

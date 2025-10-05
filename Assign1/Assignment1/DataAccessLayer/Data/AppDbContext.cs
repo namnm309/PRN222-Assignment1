@@ -12,13 +12,13 @@ namespace DataAccessLayer.Data
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
         {
-            
+            // Database migration sẽ được gọi ở Program.cs để tránh lỗi lúc design-time
         }
-        
+        // Constructor mặc định cho testing/migration
         public AppDbContext()
         {
         }
-         
+        // Khai báo các DbSet Entity - mỗi DbSet đại diện cho một bảng trong cơ sở dữ liệu 
         public DbSet<Users> Users { get; set; }
         
         public DbSet<Product> Product { get; set; }
@@ -38,7 +38,7 @@ namespace DataAccessLayer.Data
         public DbSet<Promotion> Promotion { get; set; }
         
         public DbSet<TestDrive> TestDrive { get; set; }
-    public DbSet<PurchaseOrder> PurchaseOrder { get; set; }
+        public DbSet<PurchaseOrder> PurchaseOrder { get; set; }
         
         public DbSet<Region> Region { get; set; }
         

@@ -24,6 +24,7 @@ namespace PresentationLayer.Controllers
 
             ViewBag.Title = "Quản lý tồn kho";
             
+            // Get summary data
             var summary = await _inventoryService.GetStockSummaryAsync();
             ViewBag.Summary = summary;
 
@@ -46,6 +47,7 @@ namespace PresentationLayer.Controllers
             ViewBag.ProductId = productId;
             ViewBag.Status = status;
 
+            // Get dropdown data
             ViewBag.Dealers = await _inventoryService.GetAllDealersAsync();
             ViewBag.Products = await _inventoryService.GetAllProductsAsync();
 
@@ -260,6 +262,7 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction("Index", "Dashboard");
             }
 
+            // Set default date range if not provided
             if (!fromDate.HasValue)
                 fromDate = DateTime.Now.AddDays(-30);
             if (!toDate.HasValue)
@@ -273,12 +276,14 @@ namespace PresentationLayer.Controllers
             ViewBag.FromDate = fromDate;
             ViewBag.ToDate = toDate;
 
+            // Get dropdown data
             ViewBag.Dealers = await _inventoryService.GetAllDealersAsync();
             ViewBag.Products = await _inventoryService.GetAllProductsAsync();
 
             return View(transactions);
         }
 
+        // API endpoints for AJAX calls
         [HttpGet]
         public async Task<JsonResult> GetStockSummary()
         {

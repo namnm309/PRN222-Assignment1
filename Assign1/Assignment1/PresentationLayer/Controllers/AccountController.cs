@@ -1,14 +1,15 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
-using PresentationLayer.Models;
+using BusinessLayer.ViewModels;
 
 namespace PresentationLayer.Controllers
 {
     public class AccountController : Controller
     {
-        
+        //gọi từ BusinessLayer để sử dụng 
         private readonly IAuthenService _authenService;
 
+        //constructor
         public AccountController(IAuthenService authenService)
         {
             _authenService = authenService;
@@ -35,14 +36,16 @@ namespace PresentationLayer.Controllers
                 return View(model);
             }
 
-            
+            // Lưu thông tin user vào session
             HttpContext.Session.SetString("UserId", result.User.Id.ToString());
             HttpContext.Session.SetString("UserFullName", result.User.FullName);
             HttpContext.Session.SetString("UserEmail", result.User.Email);
             HttpContext.Session.SetString("UserRole", result.User.Role.ToString());
             
+            // Debug log để kiểm tra
             Console.WriteLine($"[DEBUG] User logged in: {result.User.Email}, Role: {result.User.Role}, DealerId: {result.User.DealerId}");
- 
+            
+            // Lưu DealerId nếu user là Dealer Manager/Staff
             if (result.User.Role == DataAccessLayer.Enum.UserRole.DealerManager || 
                 result.User.Role == DataAccessLayer.Enum.UserRole.DealerStaff)
             {
@@ -59,7 +62,7 @@ namespace PresentationLayer.Controllers
             
             TempData["LoginMessage"] = "Đăng nhập thành công";
             
-            
+            // Redirect vào Dashboard thay vì Homepage
             return RedirectToAction("Index", "Dashboard");
         }
 

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
-using PresentationLayer.Models;
+using BusinessLayer.ViewModels;
 using DataAccessLayer.Enum;
 using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
@@ -16,12 +16,14 @@ namespace PresentationLayer.Controllers
         private readonly IPurchaseOrderService _purchaseOrderService;
         private readonly IEVMReportService _evmService;
         private readonly AppDbContext _dbContext;
+        private readonly IMappingService _mappingService;
 
-        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IEVMReportService evmService, AppDbContext dbContext)
+        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IEVMReportService evmService, AppDbContext dbContext, IMappingService mappingService)
         {
             _purchaseOrderService = purchaseOrderService;
             _evmService = evmService;
             _dbContext = dbContext;
+            _mappingService = mappingService;
         }
 
         [HttpGet]
@@ -33,6 +35,7 @@ namespace PresentationLayer.Controllers
 
             Guid? dealerIdFilter = null;
 
+            // Dealer chỉ xem đơn của mình, Admin/EVM xem tất cả
             if (userRole == "DealerManager" || userRole == "DealerStaff")
             {
                 if (string.IsNullOrEmpty(dealerIdString) || !Guid.TryParse(dealerIdString, out Guid dealerId))
@@ -51,7 +54,9 @@ namespace PresentationLayer.Controllers
             }
 
             ViewBag.Status = status;
-            return View(purchaseOrders ?? new List<DataAccessLayer.Entities.PurchaseOrder>());
+            // Map entities to ViewModels
+            var purchaseOrderViewModels = purchaseOrders != null ? _mappingService.MapToPurchaseOrderViewModels(purchaseOrders) : new List<PurchaseOrderViewModel>();
+            return View(purchaseOrderViewModels);
         }
 
         [HttpGet]
@@ -65,6 +70,7 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
+            // Kiểm tra quyền truy cập
             var userRole = HttpContext.Session.GetString("UserRole");
             var dealerIdString = HttpContext.Session.GetString("DealerId");
 
@@ -92,6 +98,7 @@ namespace PresentationLayer.Controllers
             var userRole = HttpContext.Session.GetString("UserRole");
             var dealerIdString = HttpContext.Session.GetString("DealerId");
 
+            // Chỉ Dealer mới được tạo đơn đặt hàng
             if (userRole != "DealerManager" && userRole != "DealerStaff")
             {
                 TempData["Error"] = "Chỉ Dealer Manager/Staff mới có quyền đặt xe từ hãng.";
@@ -116,7 +123,7 @@ namespace PresentationLayer.Controllers
             var dealerIdString = HttpContext.Session.GetString("DealerId");
             var userIdString = HttpContext.Session.GetString("UserId");
 
-            
+            // Kiểm tra quyền
             if (userRole != "DealerManager" && userRole != "DealerStaff")
             {
                 TempData["Error"] = "Chỉ Dealer Manager/Staff mới có quyền đặt xe từ hãng.";
@@ -164,7 +171,7 @@ namespace PresentationLayer.Controllers
             var userRole = HttpContext.Session.GetString("UserRole");
             var dealerIdString = HttpContext.Session.GetString("DealerId");
 
-            
+            // Kiểm tra quyền hủy đơn
             var (exists, err, purchaseOrder) = await _purchaseOrderService.GetAsync(id);
             if (!exists)
             {
@@ -172,7 +179,7 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            
+            // Dealer chỉ được hủy đơn của mình
             if (userRole == "DealerManager" || userRole == "DealerStaff")
             {
                 if (string.IsNullOrEmpty(dealerIdString) || !Guid.TryParse(dealerIdString, out Guid dealerId))
@@ -201,7 +208,7 @@ namespace PresentationLayer.Controllers
             return RedirectToAction(nameof(Detail), new { id });
         }
 
-        
+        // Admin/EVM actions
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(Guid id, DateTime? expectedDeliveryDate = null, string notes = "")

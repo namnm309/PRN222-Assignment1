@@ -1,9 +1,11 @@
 ﻿using DataAccessLayer.Data;
 using DataAccessLayer.Repository;
 using BusinessLayer.Services;
+using BusinessLayer.Profiles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Builder;
 using System;
+using AutoMapper;
 
 namespace PresentationLayer
 {
@@ -17,6 +19,12 @@ namespace PresentationLayer
             builder.Services.AddControllersWithViews();
             builder.Services.AddHttpContextAccessor();
 
+            // Cấu hình AutoMapper
+            builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+            
+            // Đăng ký MappingService
+            builder.Services.AddScoped<IMappingService, MappingService>();
+
             // Cấu hình DbContext (đăng ký DI trước khi build app)
             builder.Services.AddDbContext<AppDbContext>(options =>
                 options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -24,41 +32,28 @@ namespace PresentationLayer
             // Đăng ký Repository và Services
             builder.Services.AddScoped<IAuthen, Authen>();
             builder.Services.AddScoped<IAuthenService, AuthenService>();
-
             builder.Services.AddScoped<IFeedbackRepository, FeedbackRepository>();
             builder.Services.AddScoped<IFeedbackService, FeedbackService>();
             builder.Services.AddScoped<ITestDriveRepository, TestDriveRepository>();
             builder.Services.AddScoped<ITestDriveService, TestDriveService>();
-
-            // PurchaseOrder services
             builder.Services.AddScoped<IPurchaseOrderService, PurchaseOrderService>();
             builder.Services.AddScoped<IPurchaseOrderRepository, PurchaseOrderRepository>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
             builder.Services.AddScoped<IProductService, ProductService>();
             builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
             builder.Services.AddScoped<ICustomerService, CustomerService>();
-
             builder.Services.AddScoped<IBrandRepository, BrandRepository>();
-            builder.Services.AddScoped<IBrandService, BrandService>();
-            
+            builder.Services.AddScoped<IBrandService, BrandService>();            
             builder.Services.AddScoped<IDealerRepository, DealerRepository>();
-            builder.Services.AddScoped<IDealerService, DealerService>();
-            
+            builder.Services.AddScoped<IDealerService, DealerService>();            
             builder.Services.AddScoped<IOrderRepository, OrderRepository>();
-            builder.Services.AddScoped<IOrderService, OrderService>();
-            
+            builder.Services.AddScoped<IOrderService, OrderService>();            
             builder.Services.AddScoped<IDealerContractRepository, DealerContractRepository>();
             builder.Services.AddScoped<IDealerContractService, DealerContractService>();
-            
-            // Đăng ký EVM Repository và Services
             builder.Services.AddScoped<IEVMRepository, EVMRepository>();
             builder.Services.AddScoped<IEVMReportService, EVMReportService>();
-
-            // Đăng ký Inventory Management Repository và Services
             builder.Services.AddScoped<IInventoryManagementRepository, InventoryManagementRepository>();
             builder.Services.AddScoped<IInventoryManagementService, InventoryManagementService>();
-
-            // Đăng ký Pricing Management Repository và Services
             builder.Services.AddScoped<IPricingManagementRepository, PricingManagementRepository>();
             builder.Services.AddScoped<IPricingManagementService, PricingManagementService>();
 

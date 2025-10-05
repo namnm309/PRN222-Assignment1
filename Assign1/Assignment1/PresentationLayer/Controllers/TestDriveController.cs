@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using BusinessLayer.Services;
-using PresentationLayer.Models;
+using BusinessLayer.ViewModels;
 using System.Linq;
 
 namespace PresentationLayer.Controllers
@@ -10,13 +10,16 @@ namespace PresentationLayer.Controllers
     {
         private readonly ITestDriveService _service;
         private readonly IEVMReportService _evmService;
+        private readonly IMappingService _mappingService;
         
-        public TestDriveController(ITestDriveService service, IEVMReportService evmService)
+        public TestDriveController(ITestDriveService service, IEVMReportService evmService, IMappingService mappingService)
         {
             _service = service;
             _evmService = evmService;
+            _mappingService = mappingService;
         }
 
+        // Danh sách lịch hẹn cho Dealer Staff/Manager
         [HttpGet]
         public async Task<IActionResult> Index(Guid? dealerId = null, string? status = null)
         {
@@ -28,11 +31,15 @@ namespace PresentationLayer.Controllers
             if (!ok)
             {
                 TempData["Error"] = err;
-                return View(new List<DataAccessLayer.Entities.TestDrive>());
+                return View(new List<TestDriveViewModel>());
             }
 
-            return View(testDrives);
+            // Map entities to ViewModels
+            var testDriveViewModels = _mappingService.MapToTestDriveViewModels(testDrives);
+            return View(testDriveViewModels);
         }
+
+        // Lịch hẹn của Customer
         [HttpGet]
         public async Task<IActionResult> MyTestDrives(Guid customerId)
         {
@@ -40,30 +47,29 @@ namespace PresentationLayer.Controllers
             if (!ok)
             {
                 TempData["Error"] = err;
-                return View(new List<DataAccessLayer.Entities.TestDrive>());
+                return View(new List<TestDriveViewModel>());
             }
-            return View(testDrives);
+            
+            // Map entities to ViewModels
+            var testDriveViewModels = _mappingService.MapToTestDriveViewModels(testDrives);
+            return View(testDriveViewModels);
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Create(Guid productId, Guid? dealerId = null)
         {
-            if (!dealerId.HasValue)
+            // Load danh sách dealers để khách hàng chọn
+            var dealers = await _evmService.GetAllDealersAsync();
+            if (!dealers.Any())
             {
-                var dealers = await _evmService.GetAllDealersAsync();
-                if (dealers.Any())
-                {
-                    dealerId = dealers.First().Id;
-                }
-                else
-                {
-                    TempData["Error"] = "Hiện tại chưa có đại lý nào có sẵn. Vui lòng liên hệ trực tiếp.";
-                    return RedirectToAction("Index", "Home");
-                }
+                TempData["Error"] = "Hiện tại chưa có đại lý nào có sẵn. Vui lòng liên hệ trực tiếp.";
+                return RedirectToAction("Index", "Home");
             }
 
-            return View(new TestDriveViewModel { ProductId = productId, DealerId = dealerId.Value });
+            ViewBag.Dealers = dealers;
+            
+            return View(new TestDriveViewModel { ProductId = productId, DealerId = dealerId ?? Guid.Empty });
         }
 
         [HttpPost]
@@ -73,7 +79,16 @@ namespace PresentationLayer.Controllers
         {
             if (vm.ScheduledDate == default)
             {
+                // Nếu view không truyền lên (ẩn), đặt mặc định sau 2 giờ kể từ hiện tại (UTC)
                 vm.ScheduledDate = DateTime.UtcNow.AddHours(2);
+            }
+
+            // Validate DealerId
+            if (vm.DealerId == Guid.Empty)
+            {
+                ModelState.AddModelError("DealerId", "Vui lòng chọn đại lý");
+                ViewBag.Dealers = await _evmService.GetAllDealersAsync();
+                return View(vm);
             }
 
             var (ok, err, td) = await _service.CreatePublicAsync(
@@ -88,7 +103,8 @@ namespace PresentationLayer.Controllers
             
             if (!ok) 
             { 
-                ModelState.AddModelError("", err); 
+                ModelState.AddModelError("", err);
+                ViewBag.Dealers = await _evmService.GetAllDealersAsync();
                 return View(vm); 
             }
 

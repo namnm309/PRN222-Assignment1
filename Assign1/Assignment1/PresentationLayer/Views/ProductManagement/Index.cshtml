@@ -1,4 +1,4 @@
-@model List<DataAccessLayer.Entities.Product>
+@model List<BusinessLayer.ViewModels.ProductViewModel>
 
 @{
     ViewData["Title"] = "Quản lý Tồn kho Sản phẩm";
@@ -102,7 +102,7 @@
                                 </td>
                                 <td>@product.Sku</td>
                                 <td>@product.Name</td>
-                                <td>@product.Brand?.Name</td>
+                                <td>@product.BrandName</td>
                                 <td>@product.Price.ToString("N0") VNĐ</td>
                                 <td>
                                     @if (product.StockQuantity <= 5)

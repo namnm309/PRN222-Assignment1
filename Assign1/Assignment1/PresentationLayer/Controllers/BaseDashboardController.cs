@@ -15,7 +15,7 @@ namespace PresentationLayer.Controllers
         {
             base.OnActionExecuting(context);
 
-            
+            // Cho phép bỏ qua kiểm tra đăng nhập với các action có [AllowAnonymous]
             var isAnonymous = context.ActionDescriptor.EndpointMetadata
                 .OfType<AllowAnonymousAttribute>()
                 .Any();
@@ -24,12 +24,12 @@ namespace PresentationLayer.Controllers
                 return;
             }
 
-            
+            // Lấy thông tin user từ session
             var roleString = HttpContext.Session.GetString("UserRole");
             var userName = HttpContext.Session.GetString("UserFullName");
             var userEmail = HttpContext.Session.GetString("UserEmail");
 
-            
+            // Kiểm tra đăng nhập
             if (string.IsNullOrEmpty(roleString) || string.IsNullOrEmpty(userName))
             {
                 TempData["Error"] = "Vui lòng đăng nhập để truy cập Dashboard.";
@@ -37,7 +37,7 @@ namespace PresentationLayer.Controllers
                 return;
             }
 
-            
+            // Parse role
             if (System.Enum.TryParse<UserRole>(roleString, out var role))
             {
                 CurrentUserRole = role;
@@ -46,7 +46,7 @@ namespace PresentationLayer.Controllers
             CurrentUserName = userName;
             CurrentUserEmail = userEmail ?? "";
 
-            
+            // Set ViewBag cho tất cả views
             ViewBag.UserRole = CurrentUserRole;
             ViewBag.UserRoleName = CurrentUserRole.ToString();
             ViewBag.UserName = CurrentUserName;

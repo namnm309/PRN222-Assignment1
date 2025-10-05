@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using PresentationLayer.Models;
+using BusinessLayer.ViewModels;
 using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -86,6 +86,7 @@ namespace PresentationLayer.Controllers
 
         public async Task<IActionResult> TestDrive()
         {
+            // Lấy tất cả sản phẩm active để khách hàng chọn lái thử
             var products = await _dbContext.Product
                 .Include(p => p.Brand)
                 .Where(p => p.IsActive)

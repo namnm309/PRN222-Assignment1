@@ -5,6 +5,7 @@ namespace PresentationLayer.Models
 {
     public class TestDriveViewModel
     {
+        // For public registration (no login required)
         [Required(ErrorMessage = "Vui lòng nhập họ tên")]
         [Display(Name = "Họ và tên")]
         public string CustomerName { get; set; } = string.Empty;
@@ -25,11 +26,14 @@ namespace PresentationLayer.Models
         [Required] 
         public Guid ProductId { get; set; }
         
-        [Required] 
+        [Required(ErrorMessage = "Vui lòng chọn đại lý")]
+        [Display(Name = "Đại lý")]
         public Guid DealerId { get; set; }
         
         [Display(Name = "Thời gian hẹn")]
         public DateTime ScheduledDate { get; set; }
+
+        // Optional - for logged in customers
         public Guid? CustomerId { get; set; }
     }
 }
