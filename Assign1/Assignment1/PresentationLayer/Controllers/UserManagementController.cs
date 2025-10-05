@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
 using DataAccessLayer.Entities;
 using DataAccessLayer.Enum;
-using PresentationLayer.Models;
+using BusinessLayer.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -13,11 +13,13 @@ namespace PresentationLayer.Controllers
     {
         private readonly IAuthenService _authenService;
         private readonly IEVMReportService _evmService;
+        private readonly IMappingService _mappingService;
 
-        public UserManagementController(IAuthenService authenService, IEVMReportService evmService)
+        public UserManagementController(IAuthenService authenService, IEVMReportService evmService, IMappingService mappingService)
         {
             _authenService = authenService;
             _evmService = evmService;
+            _mappingService = mappingService;
         }
 
         // GET: UserManagement/Index - Danh sách user (Admin/Dealer Manager)
@@ -209,15 +211,8 @@ namespace PresentationLayer.Controllers
                 }
             }
 
-            var viewModel = new UserEditViewModel
-            {
-                Id = user.Id,
-                FullName = user.FullName,
-                Email = user.Email,
-                PhoneNumber = user.PhoneNumber,
-                Address = user.Address,
-                IsActive = user.IsActive
-            };
+            // Map entity to view model using AutoMapper
+            var viewModel = _mappingService.MapToUserEditViewModel(user);
 
             if (IsAdmin())
             {

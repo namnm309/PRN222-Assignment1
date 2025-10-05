@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
-using PresentationLayer.Models;
-using DataAccessLayer.Entities;
+using BusinessLayer.ViewModels;
 
 namespace PresentationLayer.Controllers
 {
@@ -10,12 +9,17 @@ namespace PresentationLayer.Controllers
         private readonly IProductService _productService;
         private readonly IEVMReportService _evmService;
         private readonly IBrandService _brandService;
+        private readonly IMappingService _mappingService;
 
-        public ProductManagementController(IProductService productService, IEVMReportService evmService, IBrandService brandService)
+        public ProductManagementController(IProductService productService,
+            IEVMReportService evmService
+            , IBrandService brandService,
+            IMappingService mappingService)
         {
             _productService = productService;
             _evmService = evmService;
             _brandService = brandService;
+            _mappingService = mappingService;
         }
 
         [HttpGet]
@@ -33,11 +37,14 @@ namespace PresentationLayer.Controllers
                 TempData["Error"] = err;
             }
 
+            // Map entities to ViewModels
+            var productViewModels = products != null ? _mappingService.MapToProductViewModels(products) : new List<ProductViewModel>();
+
             ViewBag.Brands = await _evmService.GetAllBrandsAsync();
             ViewBag.SearchQuery = q;
             ViewBag.SelectedBrandId = brandId;
 
-            return View(products ?? new List<DataAccessLayer.Entities.Product>());
+            return View(productViewModels);
         }
 
         [HttpPost]
@@ -109,17 +116,9 @@ namespace PresentationLayer.Controllers
                 imageUrl = model.ImageUrl;
             }
 
-            var product = new Product
-            {
-                Sku = model.Sku,
-                Name = model.Name,
-                Description = model.Description,
-                Price = model.Price,
-                StockQuantity = model.StockQuantity,
-                IsActive = model.IsActive,
-                BrandId = model.BrandId,
-                ImageUrl = imageUrl
-            };
+            // Map view model to entity using AutoMapper
+            var product = _mappingService.MapToProduct(model);
+            product.ImageUrl = imageUrl;
 
             var (ok, err) = await _productService.CreateAsync(product);
             if (!ok)
@@ -208,18 +207,9 @@ namespace PresentationLayer.Controllers
                 imageUrl = model.ImageUrl;
             }
 
-            var product = new Product
-            {
-                Id = model.Id,
-                Sku = model.Sku,
-                Name = model.Name,
-                Description = model.Description,
-                Price = model.Price,
-                StockQuantity = model.StockQuantity,
-                IsActive = model.IsActive,
-                BrandId = model.BrandId,
-                ImageUrl = imageUrl
-            };
+            // Map view model to entity using AutoMapper
+            var product = _mappingService.MapToProduct(model);
+            product.ImageUrl = imageUrl;
 
             var (ok, err) = await _productService.UpdateAsync(product);
             if (!ok)
@@ -259,7 +249,7 @@ namespace PresentationLayer.Controllers
         private async Task LoadBrandsToViewBag()
         {
             var (ok, err, brands) = await _brandService.GetAllAsync();
-            ViewBag.Brands = ok ? brands : new List<Brand>();
+            ViewBag.Brands = ok ? _mappingService.MapToBrandViewModels(brands) : new List<BrandViewModel>();
         }
 
         private async Task<string?> SaveImageAsync(IFormFile imageFile)

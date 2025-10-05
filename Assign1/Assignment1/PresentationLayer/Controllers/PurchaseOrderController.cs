@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
-using PresentationLayer.Models;
+using BusinessLayer.ViewModels;
 using DataAccessLayer.Enum;
 using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
@@ -16,12 +16,14 @@ namespace PresentationLayer.Controllers
         private readonly IPurchaseOrderService _purchaseOrderService;
         private readonly IEVMReportService _evmService;
         private readonly AppDbContext _dbContext;
+        private readonly IMappingService _mappingService;
 
-        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IEVMReportService evmService, AppDbContext dbContext)
+        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IEVMReportService evmService, AppDbContext dbContext, IMappingService mappingService)
         {
             _purchaseOrderService = purchaseOrderService;
             _evmService = evmService;
             _dbContext = dbContext;
+            _mappingService = mappingService;
         }
 
         [HttpGet]
@@ -52,7 +54,9 @@ namespace PresentationLayer.Controllers
             }
 
             ViewBag.Status = status;
-            return View(purchaseOrders ?? new List<DataAccessLayer.Entities.PurchaseOrder>());
+            // Map entities to ViewModels
+            var purchaseOrderViewModels = purchaseOrders != null ? _mappingService.MapToPurchaseOrderViewModels(purchaseOrders) : new List<PurchaseOrderViewModel>();
+            return View(purchaseOrderViewModels);
         }
 
         [HttpGet]
