@@ -27,6 +27,16 @@ namespace PresentationLayer.Controllers
             ViewBag.SelectedDealerId = dealerId;
             ViewBag.SelectedStatus = status;
 
+<<<<<<< HEAD
+            // Nếu là DealerManager hoặc DealerStaff, chỉ hiển thị test drive của đại lý mình
+            if (ViewBag.UserRole == DataAccessLayer.Enum.UserRole.DealerManager || 
+                ViewBag.UserRole == DataAccessLayer.Enum.UserRole.DealerStaff)
+            {
+                dealerId = ViewBag.DealerId;
+            }
+
+            var (ok, err, testDrives) = await _service.GetAllAsync(dealerId, status);
+=======
             // Xác định dealerIdFilter dựa trên role
             Guid? dealerIdFilter = null;
             var userRole = HttpContext.Session.GetString("UserRole");
@@ -51,6 +61,7 @@ namespace PresentationLayer.Controllers
             }
 
             var (ok, err, testDrives) = await _service.GetAllAsync(dealerIdFilter, status);
+>>>>>>> e14b0d29325e3bf85a5f8a5ea4afaaa88a7584b8
             if (!ok)
             {
                 TempData["Error"] = err;

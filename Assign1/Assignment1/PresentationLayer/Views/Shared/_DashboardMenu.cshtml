@@ -43,11 +43,11 @@
     
     <div class="menu-section">
         <div class="menu-title">HỖ TRỢ</div>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("Index", "VehicleLookup")" class="menu-item @(currentController == "VehicleLookup" ? "active" : "")">
             <i class="fas fa-search"></i>
             <span>Tra cứu xe</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="@Url.Action("Index", "CustomerFeedback")" class="menu-item @(currentController == "CustomerFeedback" ? "active" : "")">
             <i class="fas fa-comments"></i>
             <span>Phản hồi KH</span>
         </a>
