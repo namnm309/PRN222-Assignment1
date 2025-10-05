@@ -1,0 +1,346 @@
+@model IEnumerable<BusinessLayer.ViewModels.FeedbackViewModel>
+@{
+    ViewData["Title"] = "Phản hồi khách hàng";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="card-title">
+                            <i class="fas fa-comments"></i>
+                            Phản hồi khách hàng
+                        </h3>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false">
+                                <i class="fas fa-filter"></i> Bộ lọc
+                            </button>
+                            <a href="@Url.Action("Index", "Feedback")" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-refresh"></i> Làm mới
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    @if (TempData["Msg"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["Msg"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <!-- Filter Section -->
+                    <div class="collapse" id="filterCollapse">
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <form method="get" action="@Url.Action("Index", "Feedback")" class="row g-3">
+                                    <div class="col-md-3">
+                                        <label for="searchTerm" class="form-label">Tìm kiếm</label>
+                                        <input type="text" class="form-control" id="searchTerm" name="searchTerm" 
+                                               value="@ViewBag.SearchTerm" placeholder="Tên khách hàng, sản phẩm, bình luận...">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="rating" class="form-label">Đánh giá</label>
+                                        <select class="form-select" id="rating" name="rating">
+                                            <option value="">Tất cả</option>
+                                            <option value="1" selected="@(ViewBag.SelectedRating == 1)">1 sao</option>
+                                            <option value="2" selected="@(ViewBag.SelectedRating == 2)">2 sao</option>
+                                            <option value="3" selected="@(ViewBag.SelectedRating == 3)">3 sao</option>
+                                            <option value="4" selected="@(ViewBag.SelectedRating == 4)">4 sao</option>
+                                            <option value="5" selected="@(ViewBag.SelectedRating == 5)">5 sao</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label for="productId" class="form-label">Sản phẩm</label>
+                                        <select class="form-select" id="productId" name="productId">
+                                            <option value="">Tất cả sản phẩm</option>
+                                            @if (ViewBag.Products != null)
+                                            {
+                                                @foreach (var product in ViewBag.Products)
+                                                {
+                                                    <option value="@product.Id" selected="@(ViewBag.SelectedProductId == product.Id)">
+                                                        @product.Name
+                                                    </option>
+                                                }
+                                            }
+                                        </select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="fromDate" class="form-label">Từ ngày</label>
+                                        <input type="date" class="form-control" id="fromDate" name="fromDate" value="@ViewBag.FromDate">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <label for="toDate" class="form-label">Đến ngày</label>
+                                        <input type="date" class="form-control" id="toDate" name="toDate" value="@ViewBag.ToDate">
+                                    </div>
+                                    <div class="col-12">
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-search"></i> Lọc
+                                        </button>
+                                        <a href="@Url.Action("Index", "Feedback")" class="btn btn-outline-secondary">
+                                            <i class="fas fa-times"></i> Xóa bộ lọc
+                                        </a>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div class="text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                Hiển thị @Model.Count() phản hồi
+                                @if (!string.IsNullOrEmpty(ViewBag.SearchTerm as string) || ViewBag.SelectedRating != null || ViewBag.SelectedProductId != null || !string.IsNullOrEmpty(ViewBag.FromDate as string) || !string.IsNullOrEmpty(ViewBag.ToDate as string))
+                                {
+                                    <span class="badge bg-primary ms-2">Đã lọc</span>
+                                }
+                            </div>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="exportToExcel()">
+                                    <i class="fas fa-file-excel"></i> Xuất Excel
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="printTable()">
+                                    <i class="fas fa-print"></i> In
+                                </button>
+                            </div>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>Khách hàng</th>
+                                        <th>Sản phẩm</th>
+                                        <th>Đánh giá</th>
+                                        <th>Bình luận</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Thao tác</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var feedback in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    <strong>@feedback.CustomerName</strong>
+                                                    @if (!string.IsNullOrEmpty(feedback.CustomerEmail))
+                                                    {
+                                                        <br><small class="text-muted">@feedback.CustomerEmail</small>
+                                                    }
+                                                    @if (!string.IsNullOrEmpty(feedback.CustomerPhone))
+                                                    {
+                                                        <br><small class="text-muted">@feedback.CustomerPhone</small>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <strong>@feedback.ProductName</strong>
+                                            </td>
+                                            <td>
+                                                <div class="rating">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        if (i <= feedback.Rating)
+                                                        {
+                                                            <i class="fas fa-star text-warning"></i>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="far fa-star text-muted"></i>
+                                                        }
+                                                    }
+                                                    <span class="ms-1">(@feedback.Rating/5)</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(feedback.Comment))
+                                                {
+                                                    <div class="comment-text">
+                                                        @if (feedback.Comment.Length > 100)
+                                                        {
+                                                            <span class="comment-preview">@feedback.Comment.Substring(0, 100)...</span>
+                                                            <button class="btn btn-link btn-sm" onclick="toggleComment(this)">Xem thêm</button>
+                                                            <span class="comment-full" style="display: none;">@feedback.Comment</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            @feedback.Comment
+                                                        }
+                                                    </div>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Không có bình luận</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <small>@feedback.CreatedAt.ToString("dd/MM/yyyy HH:mm")</small>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="@Url.Action("ByProduct", "Feedback", new { productId = feedback.ProductId })" 
+                                                       class="btn btn-info btn-sm" title="Xem theo sản phẩm">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <form method="post" action="@Url.Action("Delete", "Feedback")" 
+                                                          onsubmit="return confirm('Bạn có chắc chắn muốn xóa phản hồi này?')" 
+                                                          style="display: inline;">
+                                                        <input type="hidden" name="id" value="@feedback.Id" />
+                                                        <input type="hidden" name="productId" value="@feedback.ProductId" />
+                                                        <button type="submit" class="btn btn-danger btn-sm" title="Xóa">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-comments fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Chưa có phản hồi nào</h5>
+                            <p class="text-muted">Khách hàng chưa có phản hồi nào trong hệ thống.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleComment(button) {
+    const preview = button.previousElementSibling;
+    const full = button.nextElementSibling;
+    
+    if (full.style.display === 'none') {
+        preview.style.display = 'none';
+        full.style.display = 'inline';
+        button.textContent = 'Thu gọn';
+    } else {
+        preview.style.display = 'inline';
+        full.style.display = 'none';
+        button.textContent = 'Xem thêm';
+    }
+}
+
+function exportToExcel() {
+    // Simple Excel export functionality
+    const table = document.querySelector('.table');
+    const rows = Array.from(table.querySelectorAll('tr'));
+    let csvContent = '';
+    
+    rows.forEach(row => {
+        const cells = Array.from(row.querySelectorAll('th, td'));
+        const rowData = cells.map(cell => {
+            // Clean up the cell content
+            let text = cell.textContent.trim();
+            // Remove rating stars and other HTML artifacts
+            text = text.replace(/★/g, '').replace(/\s+/g, ' ').trim();
+            return `"${text}"`;
+        });
+        csvContent += rowData.join(',') + '\n';
+    });
+    
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'feedback_' + new Date().toISOString().split('T')[0] + '.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+}
+
+function printTable() {
+    const printWindow = window.open('', '_blank');
+    const table = document.querySelector('.table').outerHTML;
+    const title = 'Phản hồi khách hàng - ' + new Date().toLocaleDateString('vi-VN');
+    
+    const htmlContent = '<html>' +
+        '<head>' +
+        '<title>' + title + '</title>' +
+        '<style>' +
+        'body { font-family: Arial, sans-serif; margin: 20px; }' +
+        'table { border-collapse: collapse; width: 100%; }' +
+        'th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }' +
+        'th { background-color: #f2f2f2; }' +
+        '.rating { color: #ffc107; }' +
+        '</style>' +
+        '</head>' +
+        '<body>' +
+        '<h2>' + title + '</h2>' +
+        table +
+        '</body>' +
+        '</html>';
+    
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.print();
+}
+
+// Auto-expand filter if there are active filters
+document.addEventListener('DOMContentLoaded', function() {
+    const hasActiveFilters = @(ViewBag.SearchTerm != null || ViewBag.SelectedRating != null || ViewBag.SelectedProductId != null || ViewBag.FromDate != null || ViewBag.ToDate != null ? "true" : "false");
+    if (hasActiveFilters) {
+        const filterCollapse = document.getElementById('filterCollapse');
+        if (filterCollapse) {
+            filterCollapse.classList.add('show');
+        }
+    }
+});
+</script>
+
+<style>
+.rating {
+    display: flex;
+    align-items: center;
+}
+
+.comment-text {
+    max-width: 300px;
+}
+
+.comment-preview, .comment-full {
+    word-wrap: break-word;
+}
+
+.table th {
+    background-color: #343a40;
+    color: white;
+    border: none;
+}
+
+.btn-group .btn {
+    margin-right: 2px;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.card-title {
+    margin: 0;
+    color: #495057;
+}
+</style>

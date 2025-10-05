@@ -1,0 +1,198 @@
+@model BusinessLayer.ViewModels.FeedbackViewModel
+@{
+    ViewData["Title"] = "Thêm phản hồi";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-comment-plus"></i>
+                        Thêm phản hồi mới
+                    </h3>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form asp-action="Create" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="CustomerId" class="form-label">Khách hàng *</label>
+                                    <select asp-for="CustomerId" class="form-select" required>
+                                        <option value="">-- Chọn khách hàng --</option>
+                                        <!-- Options sẽ được load bằng JavaScript hoặc từ ViewBag -->
+                                    </select>
+                                    <span asp-validation-for="CustomerId" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label asp-for="ProductId" class="form-label">Sản phẩm *</label>
+                                    <select asp-for="ProductId" class="form-select" required>
+                                        <option value="">-- Chọn sản phẩm --</option>
+                                        <!-- Options sẽ được load bằng JavaScript hoặc từ ViewBag -->
+                                    </select>
+                                    <span asp-validation-for="ProductId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Rating" class="form-label">Đánh giá *</label>
+                            <div class="rating-input">
+                                <div class="star-rating">
+                                    <input type="radio" id="star5" name="Rating" value="5" />
+                                    <label for="star5" title="5 sao">★</label>
+                                    <input type="radio" id="star4" name="Rating" value="4" />
+                                    <label for="star4" title="4 sao">★</label>
+                                    <input type="radio" id="star3" name="Rating" value="3" />
+                                    <label for="star3" title="3 sao">★</label>
+                                    <input type="radio" id="star2" name="Rating" value="2" />
+                                    <label for="star2" title="2 sao">★</label>
+                                    <input type="radio" id="star1" name="Rating" value="1" />
+                                    <label for="star1" title="1 sao">★</label>
+                                </div>
+                                <span class="rating-text text-muted">Chọn số sao đánh giá</span>
+                            </div>
+                            <span asp-validation-for="Rating" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Comment" class="form-label">Bình luận</label>
+                            <textarea asp-for="Comment" class="form-control" rows="4" 
+                                      placeholder="Nhập bình luận của bạn về sản phẩm..."></textarea>
+                            <span asp-validation-for="Comment" class="text-danger"></span>
+                            <div class="form-text">Bình luận là tùy chọn, bạn có thể để trống.</div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a href="@Url.Action("Index", "Feedback")" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Quay lại
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Lưu phản hồi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Star rating functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const stars = document.querySelectorAll('.star-rating input[type="radio"]');
+    const labels = document.querySelectorAll('.star-rating label');
+    const ratingText = document.querySelector('.rating-text');
+    
+    stars.forEach((star, index) => {
+        star.addEventListener('change', function() {
+            const rating = this.value;
+            const ratingLabels = ['Rất tệ', 'Tệ', 'Bình thường', 'Tốt', 'Rất tốt'];
+            ratingText.textContent = ratingLabels[rating - 1];
+        });
+    });
+    
+    labels.forEach((label, index) => {
+        label.addEventListener('mouseenter', function() {
+            const starIndex = Array.from(labels).indexOf(this);
+            for (let i = 0; i <= starIndex; i++) {
+                labels[i].style.color = '#ffc107';
+            }
+        });
+    });
+    
+    document.querySelector('.star-rating').addEventListener('mouseleave', function() {
+        const checkedStar = document.querySelector('.star-rating input[type="radio"]:checked');
+        if (checkedStar) {
+            const checkedIndex = Array.from(stars).indexOf(checkedStar);
+            labels.forEach((label, index) => {
+                label.style.color = index <= checkedIndex ? '#ffc107' : '#ddd';
+            });
+        } else {
+            labels.forEach(label => label.style.color = '#ddd');
+        }
+    });
+});
+</script>
+
+<style>
+.rating-input {
+    margin-bottom: 1rem;
+}
+
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 5px;
+}
+
+.star-rating input[type="radio"] {
+    display: none;
+}
+
+.star-rating label {
+    font-size: 2rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.star-rating label:hover,
+.star-rating label:hover ~ label {
+    color: #ffc107;
+}
+
+.star-rating input[type="radio"]:checked ~ label {
+    color: #ffc107;
+}
+
+.rating-text {
+    margin-left: 10px;
+    font-size: 0.9rem;
+}
+
+.card-header {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.card-title {
+    margin: 0;
+    color: #495057;
+}
+
+.form-label {
+    font-weight: 600;
+    color: #495057;
+}
+
+.btn {
+    border-radius: 0.375rem;
+}
+
+.btn-primary {
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    border-color: #6c757d;
+}
+</style>
