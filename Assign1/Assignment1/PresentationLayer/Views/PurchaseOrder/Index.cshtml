@@ -1,4 +1,4 @@
-@model List<DataAccessLayer.Entities.PurchaseOrder>
+@model List<BusinessLayer.ViewModels.PurchaseOrderViewModel>
 @using DataAccessLayer.Enum
 
 @{
@@ -102,15 +102,15 @@
                                 </td>
                                 <td>
                                     <div>
-                                        <strong>@order.Product.Name</strong>
-                                        <div class="small text-muted">@order.Product.Brand?.Name - @order.Product.Sku</div>
+                                        <strong>@order.ProductName</strong>
+                                        <div class="small text-muted">@order.DealerName - @order.OrderNumber</div>
                                     </div>
                                 </td>
                                 @if (ViewBag.UserRole.ToString() == "Admin" || ViewBag.UserRole.ToString() == "EVMStaff")
                                 {
-                                    <td>@order.Dealer?.Name</td>
+                                    <td>@order.DealerName</td>
                                 }
-                                <td>@order.RequestedBy?.FullName</td>
+                                <td>@order.RequestedByName</td>
                                 <td>@order.RequestedQuantity.ToString("N0")</td>
                                 <td>@order.TotalAmount.ToString("N0") VNĐ</td>
                                 <td>

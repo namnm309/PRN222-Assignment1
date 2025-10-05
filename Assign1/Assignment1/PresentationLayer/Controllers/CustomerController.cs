@@ -1,27 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
-using PresentationLayer.Models;
-using DataAccessLayer.Entities;
+using BusinessLayer.ViewModels;
 
 public class CustomersController : Controller
 {
     private readonly ICustomerService _service;
-    public CustomersController(ICustomerService service) => _service = service;
+    private readonly IMappingService _mappingService;
+    public CustomersController(ICustomerService service, IMappingService mappingService)
+    {
+        _service = service;
+        _mappingService = mappingService;
+    }
 
     [HttpGet]
     public async Task<IActionResult> Profile(Guid id)
     {
         var (ok, err, c) = await _service.GetAsync(id);
         if (!ok) return NotFound();
-        var vm = new CustomerViewModel
-        {
-            Id = c.Id,
-            FullName = c.FullName,
-            Email = c.Email,
-            PhoneNumber = c.PhoneNumber,
-            Address = c.Address,
-            IsActive = c.IsActive
-        };
+        
+        // Map entity to view model using MappingService
+        var vm = _mappingService.MapToCustomerViewModel(c);
         return View(vm);
     }
 
@@ -30,16 +28,11 @@ public class CustomersController : Controller
     public async Task<IActionResult> Profile(CustomerViewModel vm)
     {
         if (!ModelState.IsValid) return View(vm);
-        var entity = new Customer
-        {
-            Id = vm.Id,
-            FullName = vm.FullName,
-            Email = vm.Email,
-            PhoneNumber = vm.PhoneNumber,
-            Address = vm.Address,
-            IsActive = vm.IsActive,
-            UpdatedAt = DateTime.UtcNow
-        };
+        
+        // Map view model to entity using MappingService
+        var entity = _mappingService.MapToCustomer(vm);
+        entity.UpdatedAt = DateTime.UtcNow;
+        
         var (ok, err, _) = await _service.UpdateProfileAsync(entity);
         if (!ok) { ModelState.AddModelError("", err); return View(vm); }
         TempData["Msg"] = "Cập nhật thành công.";

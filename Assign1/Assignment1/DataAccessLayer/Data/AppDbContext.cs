@@ -38,7 +38,7 @@ namespace DataAccessLayer.Data
         public DbSet<Promotion> Promotion { get; set; }
         
         public DbSet<TestDrive> TestDrive { get; set; }
-    public DbSet<PurchaseOrder> PurchaseOrder { get; set; }
+        public DbSet<PurchaseOrder> PurchaseOrder { get; set; }
         
         public DbSet<Region> Region { get; set; }
         
@@ -52,7 +52,7 @@ namespace DataAccessLayer.Data
         
         public DbSet<InventoryTransaction> InventoryTransaction { get; set; }
 
-        // Cấu hình chi tiết Entity - sử dụng khi cần cấu hình phức tạp ngoài Data Annotations 
+        
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

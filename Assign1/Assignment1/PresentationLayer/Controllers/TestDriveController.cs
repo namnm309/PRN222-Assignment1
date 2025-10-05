@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using BusinessLayer.Services;
-using PresentationLayer.Models;
+using BusinessLayer.ViewModels;
 using System.Linq;
 
 namespace PresentationLayer.Controllers
@@ -10,11 +10,13 @@ namespace PresentationLayer.Controllers
     {
         private readonly ITestDriveService _service;
         private readonly IEVMReportService _evmService;
+        private readonly IMappingService _mappingService;
         
-        public TestDriveController(ITestDriveService service, IEVMReportService evmService)
+        public TestDriveController(ITestDriveService service, IEVMReportService evmService, IMappingService mappingService)
         {
             _service = service;
             _evmService = evmService;
+            _mappingService = mappingService;
         }
 
         // Danh sách lịch hẹn cho Dealer Staff/Manager
@@ -25,6 +27,7 @@ namespace PresentationLayer.Controllers
             ViewBag.SelectedDealerId = dealerId;
             ViewBag.SelectedStatus = status;
 
+<<<<<<< HEAD
             // Nếu là DealerManager hoặc DealerStaff, chỉ hiển thị test drive của đại lý mình
             if (ViewBag.UserRole == DataAccessLayer.Enum.UserRole.DealerManager || 
                 ViewBag.UserRole == DataAccessLayer.Enum.UserRole.DealerStaff)
@@ -33,13 +36,41 @@ namespace PresentationLayer.Controllers
             }
 
             var (ok, err, testDrives) = await _service.GetAllAsync(dealerId, status);
+=======
+            // Xác định dealerIdFilter dựa trên role
+            Guid? dealerIdFilter = null;
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var dealerIdString = HttpContext.Session.GetString("DealerId");
+            
+            if (userRole == "DealerManager" || userRole == "DealerStaff")
+            {
+                if (!string.IsNullOrEmpty(dealerIdString) && Guid.TryParse(dealerIdString, out var dealerIdParsed))
+                {
+                    dealerIdFilter = dealerIdParsed; // Dealer chỉ thấy lịch hẹn của mình
+                }
+                else
+                {
+                    TempData["Error"] = "Tài khoản chưa được gán đại lý. Vui lòng liên hệ Admin.";
+                    return View(new List<TestDriveViewModel>());
+                }
+            }
+            else
+            {
+                // Admin/EVM có thể xem tất cả lịch hẹn hoặc filter theo dealerId parameter
+                dealerIdFilter = dealerId;
+            }
+
+            var (ok, err, testDrives) = await _service.GetAllAsync(dealerIdFilter, status);
+>>>>>>> e14b0d29325e3bf85a5f8a5ea4afaaa88a7584b8
             if (!ok)
             {
                 TempData["Error"] = err;
-                return View(new List<DataAccessLayer.Entities.TestDrive>());
+                return View(new List<TestDriveViewModel>());
             }
 
-            return View(testDrives);
+            // Map entities to ViewModels
+            var testDriveViewModels = _mappingService.MapToTestDriveViewModels(testDrives);
+            return View(testDriveViewModels);
         }
 
         // Lịch hẹn của Customer
@@ -50,31 +81,29 @@ namespace PresentationLayer.Controllers
             if (!ok)
             {
                 TempData["Error"] = err;
-                return View(new List<DataAccessLayer.Entities.TestDrive>());
+                return View(new List<TestDriveViewModel>());
             }
-            return View(testDrives);
+            
+            // Map entities to ViewModels
+            var testDriveViewModels = _mappingService.MapToTestDriveViewModels(testDrives);
+            return View(testDriveViewModels);
         }
 
         [HttpGet]
         [AllowAnonymous]
         public async Task<IActionResult> Create(Guid productId, Guid? dealerId = null)
         {
-            // Nếu không có dealerId, tự động chọn dealer đầu tiên
-            if (!dealerId.HasValue)
+            // Load danh sách dealers để khách hàng chọn
+            var dealers = await _evmService.GetAllDealersAsync();
+            if (!dealers.Any())
             {
-                var dealers = await _evmService.GetAllDealersAsync();
-                if (dealers.Any())
-                {
-                    dealerId = dealers.First().Id;
-                }
-                else
-                {
-                    TempData["Error"] = "Hiện tại chưa có đại lý nào có sẵn. Vui lòng liên hệ trực tiếp.";
-                    return RedirectToAction("Index", "Home");
-                }
+                TempData["Error"] = "Hiện tại chưa có đại lý nào có sẵn. Vui lòng liên hệ trực tiếp.";
+                return RedirectToAction("Index", "Home");
             }
 
-            return View(new TestDriveViewModel { ProductId = productId, DealerId = dealerId.Value });
+            ViewBag.Dealers = dealers;
+            
+            return View(new TestDriveViewModel { ProductId = productId, DealerId = dealerId ?? Guid.Empty });
         }
 
         [HttpPost]
@@ -86,6 +115,14 @@ namespace PresentationLayer.Controllers
             {
                 // Nếu view không truyền lên (ẩn), đặt mặc định sau 2 giờ kể từ hiện tại (UTC)
                 vm.ScheduledDate = DateTime.UtcNow.AddHours(2);
+            }
+
+            // Validate DealerId
+            if (vm.DealerId == Guid.Empty)
+            {
+                ModelState.AddModelError("DealerId", "Vui lòng chọn đại lý");
+                ViewBag.Dealers = await _evmService.GetAllDealersAsync();
+                return View(vm);
             }
 
             var (ok, err, td) = await _service.CreatePublicAsync(
@@ -100,7 +137,8 @@ namespace PresentationLayer.Controllers
             
             if (!ok) 
             { 
-                ModelState.AddModelError("", err); 
+                ModelState.AddModelError("", err);
+                ViewBag.Dealers = await _evmService.GetAllDealersAsync();
                 return View(vm); 
             }
 

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
-using PresentationLayer.Models;
+using BusinessLayer.ViewModels;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
@@ -17,6 +17,7 @@ namespace PresentationLayer.Controllers
         private readonly IDealerContractService _contractService;
         private readonly IEVMReportService _evmService;
         private readonly AppDbContext _dbContext;
+        private readonly IMappingService _mappingService;
 
         public OrderController(
             IOrderService orderService,
@@ -24,7 +25,8 @@ namespace PresentationLayer.Controllers
             ICustomerService customerService,
             IDealerContractService contractService,
             IEVMReportService evmService,
-            AppDbContext dbContext)
+            AppDbContext dbContext,
+            IMappingService mappingService)
         {
             _orderService = orderService;
             _productService = productService;
@@ -32,6 +34,7 @@ namespace PresentationLayer.Controllers
             _contractService = contractService;
             _evmService = evmService;
             _dbContext = dbContext;
+            _mappingService = mappingService;
         }
 
         // GET: Order/Index
@@ -56,7 +59,7 @@ namespace PresentationLayer.Controllers
                 else
                 {
                     TempData["Error"] = "Tài khoản chưa được gán đại lý. Vui lòng liên hệ Admin.";
-                    return View(new System.Collections.Generic.List<DataAccessLayer.Entities.Order>());
+                    return View(new List<OrderCreateViewModel>());
                 }
             }
             else
@@ -73,10 +76,12 @@ namespace PresentationLayer.Controllers
             if (!ok)
             {
                 TempData["Error"] = err;
-                return View(new System.Collections.Generic.List<DataAccessLayer.Entities.Order>());
+                return View(new List<OrderCreateViewModel>());
             }
 
-            return View(orders);
+            // Map entities to ViewModels
+            var orderViewModels = _mappingService.MapToOrderCreateViewModels(orders);
+            return View(orderViewModels);
         }
 
 

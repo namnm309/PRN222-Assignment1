@@ -61,23 +61,10 @@ namespace BusinessLayer.Services
         {
             try
             {
-                // Lấy khách hàng từ Orders và TestDrives của dealer này
-                var customersFromOrders = await _context.Order
-                    .Where(o => o.DealerId == dealerId)
-                    .Select(o => o.CustomerId)
-                    .Distinct()
-                    .ToListAsync();
-
-                var customersFromTestDrives = await _context.TestDrive
-                    .Where(td => td.DealerId == dealerId)
-                    .Where(td => !string.IsNullOrEmpty(td.CustomerEmail))
-                    .Select(td => new { td.CustomerName, td.CustomerPhone, td.CustomerEmail })
-                    .Distinct()
-                    .ToListAsync();
-
-                // Lấy thông tin đầy đủ của customers từ Orders
+                // Dealer có thể xem tất cả khách hàng trong hệ thống
+                // Vì khách hàng mới tạo chưa có Order/TestDrive thì sẽ không hiển thị
+                // Giải pháp: Hiển thị tất cả khách hàng active
                 var customers = await _context.Customer
-                    .Where(c => customersFromOrders.Contains(c.Id))
                     .Where(c => c.IsActive)
                     .OrderByDescending(c => c.CreatedAt)
                     .ToListAsync();

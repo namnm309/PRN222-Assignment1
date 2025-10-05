@@ -1,4 +1,4 @@
-@model List<DataAccessLayer.Entities.TestDrive>
+@model List<BusinessLayer.ViewModels.TestDriveViewModel>
 
 @{
     ViewData["Title"] = "Quản lý Lịch hẹn Lái thử";
@@ -93,7 +93,7 @@
                                     <small class="text-muted">Đăng ký: @td.CreatedAt.ToString("dd/MM/yyyy")</small>
                                 </td>
                                 <td>
-                                    <div><strong>@(td.Customer?.FullName ?? td.CustomerName)</strong></div>
+                                    <div><strong>@(td.CustomerFullName ?? td.CustomerName)</strong></div>
                                     @if (!string.IsNullOrEmpty(td.Notes))
                                     {
                                         <small class="text-muted" title="@td.Notes">
@@ -103,14 +103,14 @@
                                 </td>
                                 <td>
                                     <div>
-                                        <i class="fas fa-phone"></i> @(td.Customer?.PhoneNumber ?? td.CustomerPhone)
+                                        <i class="fas fa-phone"></i> @(td.CustomerPhoneNumber ?? td.CustomerPhone)
                                     </div>
                                     <small class="text-muted">
-                                        <i class="fas fa-envelope"></i> @(td.Customer?.Email ?? td.CustomerEmail)
+                                        <i class="fas fa-envelope"></i> @(td.CustomerEmailAddress ?? td.CustomerEmail)
                                     </small>
                                 </td>
-                                <td>@td.Product?.Name</td>
-                                <td>@td.Dealer?.Name</td>
+                                <td>@td.ProductName</td>
+                                <td>@td.DealerName</td>
                                 <td>
                                     @switch (td.Status)
                                     {
