@@ -5,6 +5,11 @@ namespace BusinessLayer.ViewModels
 {
     public class OrderCreateViewModel
     {
+        // Basic properties
+        public Guid Id { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+
         [Required(ErrorMessage = "Vui lòng chọn sản phẩm")]
         [Display(Name = "Sản phẩm")]
         public Guid ProductId { get; set; }
@@ -35,5 +40,21 @@ namespace BusinessLayer.ViewModels
         [Display(Name = "Ghi chú")]
         [MaxLength(1000)]
         public string Notes { get; set; } = string.Empty;
+
+        // Additional properties for display
+        public string OrderNumber { get; set; } = string.Empty;
+        public decimal FinalAmount { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public string PaymentStatus { get; set; } = string.Empty;
+        public string PaymentMethod { get; set; } = string.Empty;
+        public DateTime? OrderDate { get; set; }
+        public DateTime? DeliveryDate { get; set; }
+        public DateTime? PaymentDueDate { get; set; }
+
+        // Navigation properties for display
+        public string? CustomerName { get; set; }
+        public string? ProductName { get; set; }
+        public string? DealerName { get; set; }
+        public string? SalesPersonName { get; set; }
     }
 }

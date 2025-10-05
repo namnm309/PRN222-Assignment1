@@ -1,10 +1,16 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using DataAccessLayer.Enum;
 
 namespace BusinessLayer.ViewModels
 {
     public class TestDriveViewModel
     {
+        // Basic properties
+        public Guid Id { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+
         // For public registration (no login required)
         [Required(ErrorMessage = "Vui lòng nhập họ tên")]
         [Display(Name = "Họ và tên")]
@@ -35,5 +41,15 @@ namespace BusinessLayer.ViewModels
 
         // Optional - for logged in customers
         public Guid? CustomerId { get; set; }
+
+        // Status
+        public TestDriveStatus Status { get; set; }
+
+        // Navigation properties for display
+        public string? ProductName { get; set; }
+        public string? DealerName { get; set; }
+        public string? CustomerFullName { get; set; }
+        public string? CustomerPhoneNumber { get; set; }
+        public string? CustomerEmailAddress { get; set; }
     }
 }

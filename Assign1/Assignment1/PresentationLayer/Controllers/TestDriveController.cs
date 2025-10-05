@@ -27,7 +27,30 @@ namespace PresentationLayer.Controllers
             ViewBag.SelectedDealerId = dealerId;
             ViewBag.SelectedStatus = status;
 
-            var (ok, err, testDrives) = await _service.GetAllAsync(dealerId, status);
+            // Xác định dealerIdFilter dựa trên role
+            Guid? dealerIdFilter = null;
+            var userRole = HttpContext.Session.GetString("UserRole");
+            var dealerIdString = HttpContext.Session.GetString("DealerId");
+            
+            if (userRole == "DealerManager" || userRole == "DealerStaff")
+            {
+                if (!string.IsNullOrEmpty(dealerIdString) && Guid.TryParse(dealerIdString, out var dealerIdParsed))
+                {
+                    dealerIdFilter = dealerIdParsed; // Dealer chỉ thấy lịch hẹn của mình
+                }
+                else
+                {
+                    TempData["Error"] = "Tài khoản chưa được gán đại lý. Vui lòng liên hệ Admin.";
+                    return View(new List<TestDriveViewModel>());
+                }
+            }
+            else
+            {
+                // Admin/EVM có thể xem tất cả lịch hẹn hoặc filter theo dealerId parameter
+                dealerIdFilter = dealerId;
+            }
+
+            var (ok, err, testDrives) = await _service.GetAllAsync(dealerIdFilter, status);
             if (!ok)
             {
                 TempData["Error"] = err;

@@ -94,7 +94,19 @@ namespace BusinessLayer.Profiles
                 .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
                 .ForMember(dest => dest.Price, opt => opt.MapFrom(src => src.Price))
                 .ForMember(dest => dest.Discount, opt => opt.MapFrom(src => src.Discount))
-                .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes));
+                .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
+                .ForMember(dest => dest.OrderNumber, opt => opt.MapFrom(src => src.OrderNumber))
+                .ForMember(dest => dest.FinalAmount, opt => opt.MapFrom(src => src.FinalAmount))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.PaymentStatus, opt => opt.MapFrom(src => src.PaymentStatus))
+                .ForMember(dest => dest.PaymentMethod, opt => opt.MapFrom(src => src.PaymentMethod))
+                .ForMember(dest => dest.OrderDate, opt => opt.MapFrom(src => src.OrderDate))
+                .ForMember(dest => dest.DeliveryDate, opt => opt.MapFrom(src => src.DeliveryDate))
+                .ForMember(dest => dest.PaymentDueDate, opt => opt.MapFrom(src => src.PaymentDueDate))
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.FullName : string.Empty))
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : string.Empty))
+                .ForMember(dest => dest.DealerName, opt => opt.MapFrom(src => src.Dealer != null ? src.Dealer.Name : string.Empty))
+                .ForMember(dest => dest.SalesPersonName, opt => opt.MapFrom(src => src.SalesPerson != null ? src.SalesPerson.FullName : string.Empty));
 
             CreateMap<OrderCreateViewModel, Order>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
@@ -136,9 +148,15 @@ namespace BusinessLayer.Profiles
                 .ForMember(dest => dest.DealerId, opt => opt.MapFrom(src => src.DealerId))
                 .ForMember(dest => dest.ScheduledDate, opt => opt.MapFrom(src => src.ScheduledDate))
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
-                .ForMember(dest => dest.CustomerName, opt => opt.Ignore())
-                .ForMember(dest => dest.CustomerPhone, opt => opt.Ignore())
-                .ForMember(dest => dest.CustomerEmail, opt => opt.Ignore());
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.CustomerName))
+                .ForMember(dest => dest.CustomerPhone, opt => opt.MapFrom(src => src.CustomerPhone))
+                .ForMember(dest => dest.CustomerEmail, opt => opt.MapFrom(src => src.CustomerEmail))
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : string.Empty))
+                .ForMember(dest => dest.DealerName, opt => opt.MapFrom(src => src.Dealer != null ? src.Dealer.Name : string.Empty))
+                .ForMember(dest => dest.CustomerFullName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.FullName : src.CustomerName))
+                .ForMember(dest => dest.CustomerPhoneNumber, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.PhoneNumber : src.CustomerPhone))
+                .ForMember(dest => dest.CustomerEmailAddress, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Email : src.CustomerEmail));
 
             CreateMap<TestDriveViewModel, TestDrive>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
