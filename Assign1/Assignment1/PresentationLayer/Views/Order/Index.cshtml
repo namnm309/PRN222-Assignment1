@@ -1,4 +1,4 @@
-@model List<DataAccessLayer.Entities.Order>
+@model List<BusinessLayer.ViewModels.OrderCreateViewModel>
 
 @{
     ViewData["Title"] = "Quản lý Đơn hàng";
@@ -102,8 +102,8 @@
                         {
                             <tr>
                                 <td><strong>@order.OrderNumber</strong></td>
-                                <td>@order.Customer?.FullName</td>
-                                <td>@order.Product?.Name</td>
+                                <td>@order.CustomerName</td>
+                                <td>@order.ProductName</td>
                                 <td>@order.Price.ToString("N0") VNĐ</td>
                                 <td>@order.Discount.ToString("N0") VNĐ</td>
                                 <td><strong>@order.FinalAmount.ToString("N0") VNĐ</strong></td>
