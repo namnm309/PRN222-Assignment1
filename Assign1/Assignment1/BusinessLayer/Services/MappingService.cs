@@ -101,6 +101,11 @@ namespace BusinessLayer.Services
             return _mapper.Map<FeedbackViewModel>(feedback);
         }
 
+        public List<FeedbackViewModel> MapToFeedbackViewModels(List<Feedback> feedbacks)
+        {
+            return _mapper.Map<List<FeedbackViewModel>>(feedbacks);
+        }
+
         public Feedback MapToFeedback(FeedbackViewModel viewModel)
         {
             return _mapper.Map<Feedback>(viewModel);

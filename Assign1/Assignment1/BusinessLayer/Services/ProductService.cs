@@ -18,7 +18,7 @@ namespace BusinessLayer.Services
         }
 
         public Task<(bool Success, string Error, List<Product> Data)> SearchAsync(string? q, Guid? brandId, decimal? minPrice, decimal? maxPrice, bool? inStock, bool? isActive = true)
-            => Execute();
+            => Execute(q, brandId, minPrice, maxPrice, inStock, isActive);
 
         private async Task<(bool Success, string Error, List<Product> Data)> Execute(string? q = null, Guid? brandId = null, decimal? minPrice = null, decimal? maxPrice = null, bool? inStock = null, bool? isActive = true)
         {

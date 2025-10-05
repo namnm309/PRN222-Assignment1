@@ -1,0 +1,199 @@
+@model List<BusinessLayer.ViewModels.FeedbackViewModel>
+@{
+    ViewData["Title"] = "Phản hồi khách hàng";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-comments mr-2"></i>Phản hồi khách hàng
+                    </h3>
+                    <div class="card-tools">
+                        <a href="@Url.Action("Statistics")" class="btn btn-info">
+                            <i class="fas fa-chart-bar"></i> Thống kê
+                        </a>
+                        <a href="@Url.Action("Export")" class="btn btn-success">
+                            <i class="fas fa-download"></i> Xuất báo cáo
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <!-- Filter Form -->
+                    <form method="get" class="mb-4">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="search">Tìm kiếm</label>
+                                    <input type="text" class="form-control" id="search" name="search" 
+                                           value="@ViewBag.SearchTerm" placeholder="Tên KH, nội dung...">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label for="productId">Sản phẩm</label>
+                                    <select class="form-control" id="productId" name="productId">
+                                        <option value="">Tất cả sản phẩm</option>
+                                        @if (ViewBag.Products != null)
+                                        {
+                                            @foreach (var product in ViewBag.Products)
+                                            {
+                                                <option value="@product.Id" 
+                                                        selected="@(ViewBag.SelectedProductId == product.Id)">
+                                                    @product.Name
+                                                </option>
+                                            }
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label for="status">Trạng thái</label>
+                                    <select class="form-control" id="status" name="status">
+                                        <option value="">Tất cả</option>
+                                        <option value="new" selected="@(ViewBag.SelectedStatus == "new")">Mới</option>
+                                        <option value="replied" selected="@(ViewBag.SelectedStatus == "replied")">Đã trả lời</option>
+                                        <option value="closed" selected="@(ViewBag.SelectedStatus == "closed")">Đã đóng</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-2">
+                                <div class="form-group">
+                                    <label>&nbsp;</label>
+                                    <div>
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-search"></i> Lọc
+                                        </button>
+                                        <a href="@Url.Action("Index")" class="btn btn-secondary">
+                                            <i class="fas fa-refresh"></i> Làm mới
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Results -->
+                    @if (Model != null && Model.Any())
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Khách hàng</th>
+                                        <th>Sản phẩm</th>
+                                        <th>Đánh giá</th>
+                                        <th>Nội dung</th>
+                                        <th>Ngày tạo</th>
+                                        <th>Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var feedback in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <div>
+                                                    <strong>@feedback.CustomerName</strong>
+                                                    @if (!string.IsNullOrEmpty(feedback.CustomerEmail))
+                                                    {
+                                                        <br><small class="text-muted">@feedback.CustomerEmail</small>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <strong>@feedback.ProductName</strong>
+                                                    <br><small class="text-muted">ID: @feedback.ProductId</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="rating">
+                                                    @for (int i = 1; i <= 5; i++)
+                                                    {
+                                                        if (i <= feedback.Rating)
+                                                        {
+                                                            <i class="fas fa-star text-warning"></i>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="far fa-star text-muted"></i>
+                                                        }
+                                                    }
+                                                    <br><small class="text-muted">@feedback.Rating/5 sao</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="feedback-content">
+                                                    @if (feedback.Comment.Length > 100)
+                                                    {
+                                                        <span class="comment-preview">@feedback.Comment.Substring(0, 100)...</span>
+                                                        <button class="btn btn-link btn-sm" onclick="toggleComment('@feedback.Id')">
+                                                            Xem thêm
+                                                        </button>
+                                                        <span class="comment-full" style="display: none;">@feedback.Comment</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        @feedback.Comment
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    @feedback.CreatedAt.ToString("dd/MM/yyyy")
+                                                    <br><small class="text-muted">@feedback.CreatedAt.ToString("HH:mm")</small>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a href="@Url.Action("Detail", new { id = feedback.Id })" 
+                                                       class="btn btn-info btn-sm" title="Xem chi tiết">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    <a href="@Url.Action("Reply", new { id = feedback.Id })" 
+                                                       class="btn btn-primary btn-sm" title="Trả lời">
+                                                        <i class="fas fa-reply"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="alert alert-info text-center">
+                            <i class="fas fa-info-circle fa-2x mb-3"></i>
+                            <h5>Không có phản hồi nào</h5>
+                            <p>Chưa có phản hồi nào từ khách hàng hoặc không tìm thấy kết quả phù hợp.</p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function toggleComment(feedbackId) {
+            var preview = $('.comment-preview[data-feedback-id="' + feedbackId + '"]');
+            var full = $('.comment-full[data-feedback-id="' + feedbackId + '"]');
+            
+            if (preview.is(':visible')) {
+                preview.hide();
+                full.show();
+            } else {
+                preview.show();
+                full.hide();
+            }
+        }
+    </script>
+}

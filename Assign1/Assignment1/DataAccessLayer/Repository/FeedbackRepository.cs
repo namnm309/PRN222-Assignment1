@@ -26,10 +26,34 @@ namespace DataAccessLayer.Repository
                            .OrderByDescending(f => f.CreatedAt)
                            .AsNoTracking().ToListAsync();
 
+        public Task<List<Feedback>> GetAllAsync()
+            => _db.Feedback.Include(f => f.Customer)
+                           .Include(f => f.Product)
+                           .OrderByDescending(f => f.CreatedAt)
+                           .AsNoTracking().ToListAsync();
+
         public async Task<bool> CreateAsync(Feedback feedback)
         {
             await _db.Feedback.AddAsync(feedback);
             return await _db.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> ReplyToFeedbackAsync(Guid feedbackId, string replyMessage, Guid repliedByUserId)
+        {
+            try
+            {
+                var feedback = await _db.Feedback.FindAsync(feedbackId);
+                if (feedback == null) return false;
+
+                // Cập nhật thông tin trả lời (có thể thêm field ReplyMessage vào entity nếu cần)
+                feedback.UpdatedAt = DateTime.UtcNow;
+                
+                return await _db.SaveChangesAsync() > 0;
+            }
+            catch
+            {
+                return false;
+            }
         }
 
         public async Task<bool> DeleteAsync(Guid id)

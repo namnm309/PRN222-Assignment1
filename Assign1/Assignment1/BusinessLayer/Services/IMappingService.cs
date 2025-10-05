@@ -33,6 +33,7 @@ namespace BusinessLayer.Services
 
         // Feedback mappings
         FeedbackViewModel MapToFeedbackViewModel(Feedback feedback);
+        List<FeedbackViewModel> MapToFeedbackViewModels(List<Feedback> feedbacks);
         Feedback MapToFeedback(FeedbackViewModel viewModel);
 
         // TestDrive mappings

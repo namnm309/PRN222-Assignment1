@@ -129,13 +129,15 @@ namespace BusinessLayer.Profiles
 
             // Feedback mappings
             CreateMap<Feedback, FeedbackViewModel>()
-                .ForMember(dest => dest.CustomerId, opt => opt.MapFrom(src => src.CustomerId))
-                .ForMember(dest => dest.ProductId, opt => opt.MapFrom(src => src.ProductId))
-                .ForMember(dest => dest.Rating, opt => opt.MapFrom(src => src.Rating))
-                .ForMember(dest => dest.Comment, opt => opt.MapFrom(src => src.Comment));
+                .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.FullName : string.Empty))
+                .ForMember(dest => dest.CustomerEmail, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.Email : string.Empty))
+                .ForMember(dest => dest.CustomerPhone, opt => opt.MapFrom(src => src.Customer != null ? src.Customer.PhoneNumber : string.Empty))
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : string.Empty))
+                .ForMember(dest => dest.ReplyMessage, opt => opt.Ignore())
+                .ForMember(dest => dest.RepliedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.RepliedByName, opt => opt.Ignore());
 
             CreateMap<FeedbackViewModel, Feedback>()
-                .ForMember(dest => dest.Id, opt => opt.Ignore())
                 .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
                 .ForMember(dest => dest.Customer, opt => opt.Ignore())
