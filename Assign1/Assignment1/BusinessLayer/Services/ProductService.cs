@@ -116,9 +116,7 @@ namespace BusinessLayer.Services
 
         public async Task<bool> IsSkuExistsAsync(string sku, Guid? excludeId = null)
         {
-            var products = await _repo.SearchAsync(sku, null, null, null, null, null);
-            return products.Any(p => p.Sku.Equals(sku, StringComparison.OrdinalIgnoreCase) && 
-                                   (!excludeId.HasValue || p.Id != excludeId.Value));
+            return await _repo.ExistsBySkuAsync(sku, excludeId);
         }
     }
 }

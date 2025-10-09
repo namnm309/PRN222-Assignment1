@@ -69,8 +69,7 @@ namespace DataAccessLayer.Repository
                 var dealer = await GetByIdAsync(id);
                 if (dealer == null) return false;
                 
-                dealer.IsActive = false;
-                dealer.UpdatedAt = DateTime.UtcNow;
+                _context.Dealer.Remove(dealer);
                 return await _context.SaveChangesAsync() > 0;
             }
             catch

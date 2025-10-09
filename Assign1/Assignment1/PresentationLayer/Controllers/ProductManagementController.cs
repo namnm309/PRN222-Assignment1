@@ -249,7 +249,7 @@ namespace PresentationLayer.Controllers
         private async Task LoadBrandsToViewBag()
         {
             var (ok, err, brands) = await _brandService.GetAllAsync();
-            ViewBag.Brands = ok ? _mappingService.MapToBrandViewModels(brands) : new List<BrandViewModel>();
+            ViewBag.Brands = ok ? brands : new List<DataAccessLayer.Entities.Brand>();
         }
 
         private async Task<string?> SaveImageAsync(IFormFile imageFile)

@@ -81,6 +81,42 @@
         document.getElementById('sidebarToggle').addEventListener('click', function() {
             document.getElementById('wrapper').classList.toggle('toggled');
         });
+
+        // Prevent default behavior for menu items with submenu
+        document.addEventListener('DOMContentLoaded', function() {
+            const submenuItems = document.querySelectorAll('.menu-item[data-bs-toggle="collapse"]');
+            submenuItems.forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const targetId = this.getAttribute('href');
+                    const target = document.querySelector(targetId);
+                    
+                    if (target) {
+                        const isExpanded = this.getAttribute('aria-expanded') === 'true';
+                        this.setAttribute('aria-expanded', !isExpanded);
+                        
+                        if (isExpanded) {
+                            target.classList.remove('show');
+                        } else {
+                            target.classList.add('show');
+                        }
+                    }
+                });
+            });
+
+            // Prevent page refresh for all menu items
+            const allMenuItems = document.querySelectorAll('.menu-item:not([data-bs-toggle="collapse"])');
+            allMenuItems.forEach(function(item) {
+                item.addEventListener('click', function(e) {
+                    // Only prevent default if it's a hash link or empty href
+                    if (this.getAttribute('href') === '#' || this.getAttribute('href') === '') {
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
     </script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>

@@ -91,6 +91,14 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction("Index", "Dashboard");
             }
 
+            // Validation
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                TempData["Error"] = "Tên thương hiệu không được để trống.";
+                var (_, __, brand) = await _brandService.GetByIdAsync(id);
+                return View(brand);
+            }
+
             var (ok, err) = await _brandService.UpdateAsync(id, name, country, description, isActive);
             if (!ok)
             {

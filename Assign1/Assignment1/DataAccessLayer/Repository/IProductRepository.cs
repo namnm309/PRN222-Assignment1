@@ -13,5 +13,6 @@ namespace DataAccessLayer.Repository
         Task<bool> CreateAsync(Product product);
         Task<bool> UpdateAsync(Product product);
         Task<bool> DeleteAsync(Guid id);
+        Task<bool> ExistsBySkuAsync(string sku, Guid? excludeId = null);
     }
 }

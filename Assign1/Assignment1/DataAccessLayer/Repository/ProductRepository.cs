@@ -109,5 +109,13 @@ namespace DataAccessLayer.Repository
                 return false;
             }
         }
+
+        public async Task<bool> ExistsBySkuAsync(string sku, Guid? excludeId = null)
+        {
+            var query = _db.Product.Where(p => p.Sku == sku);
+            if (excludeId.HasValue)
+                query = query.Where(p => p.Id != excludeId.Value);
+            return await query.AnyAsync();
+        }
     }
 }

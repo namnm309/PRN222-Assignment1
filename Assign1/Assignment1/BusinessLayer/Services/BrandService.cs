@@ -58,10 +58,12 @@ namespace BusinessLayer.Services
             if (brand == null)
                 return (false, "Không tìm thấy thương hiệu");
 
+            // Update properties
             brand.Name = name;
             brand.Country = country ?? "";
             brand.Description = description ?? "";
             brand.IsActive = isActive;
+            brand.UpdatedAt = DateTime.UtcNow;
 
             var success = await _repository.UpdateAsync(brand);
             if (!success)

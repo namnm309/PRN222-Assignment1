@@ -322,11 +322,8 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Soft delete - chỉ set IsActive = false
-            user.IsActive = false;
-            user.UpdatedAt = DateTime.UtcNow;
-
-            var success = await _evmService.UpdateUserAsync(user);
+            // Hard delete - xóa thật sự khỏi database
+            var success = await _evmService.DeleteUserAsync(id);
             if (!success)
             {
                 TempData["Error"] = "Không thể xóa người dùng.";
