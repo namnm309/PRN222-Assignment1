@@ -124,5 +124,10 @@ namespace BusinessLayer.Services
         {
             return await _evmRepository.UpdateUserAsync(user);
         }
+
+        public async Task<bool> DeleteUserAsync(Guid userId)
+        {
+            return await _evmRepository.DeleteUserAsync(userId);
+        }
     }
 }

@@ -50,6 +50,7 @@ namespace PresentationLayer.Controllers
             ViewBag.Regions = await _evmReportService.GetAllRegionsAsync();
             ViewBag.Dealers = await _evmReportService.GetAllDealersAsync();
 
+
             return View(salesReport);
         }
 
@@ -69,6 +70,7 @@ namespace PresentationLayer.Controllers
 
             // Get dropdown data
             ViewBag.Brands = await _evmReportService.GetAllBrandsAsync();
+
 
             return View(inventoryReport);
         }
@@ -91,6 +93,7 @@ namespace PresentationLayer.Controllers
             // Get dropdown data
             ViewBag.Products = await _evmReportService.GetAllProductsAsync();
 
+
             return View(demandForecast);
         }
 
@@ -111,6 +114,7 @@ namespace PresentationLayer.Controllers
 
             // Get dropdown data
             ViewBag.Dealers = await _evmReportService.GetAllDealersAsync();
+
 
             return View(contractReport);
         }
@@ -186,6 +190,7 @@ namespace PresentationLayer.Controllers
             ViewBag.SalesStaff = await _evmReportService.GetAllSalesStaffAsync();
             ViewBag.Dealers = await _evmReportService.GetAllDealersAsync();
 
+
             return View(salesReport);
         }
 
@@ -207,6 +212,7 @@ namespace PresentationLayer.Controllers
 
             // Get dropdown data
             ViewBag.Customers = await _evmReportService.GetAllCustomersAsync();
+
 
             return View(debtReport);
         }

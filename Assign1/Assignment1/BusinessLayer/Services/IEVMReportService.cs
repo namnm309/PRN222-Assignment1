@@ -44,5 +44,6 @@ namespace BusinessLayer.Services
         Task<List<Users>> GetUsersByDealerAsync(Guid dealerId);
         Task<Users> GetUserByIdAsync(Guid userId);
         Task<bool> UpdateUserAsync(Users user);
+        Task<bool> DeleteUserAsync(Guid userId);
     }
 }

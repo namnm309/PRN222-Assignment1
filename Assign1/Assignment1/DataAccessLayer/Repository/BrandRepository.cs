@@ -49,7 +49,6 @@ namespace DataAccessLayer.Repository
         {
             try
             {
-                brand.UpdatedAt = DateTime.UtcNow;
                 _context.Brand.Update(brand);
                 return await _context.SaveChangesAsync() > 0;
             }
@@ -66,8 +65,7 @@ namespace DataAccessLayer.Repository
                 var brand = await GetByIdAsync(id);
                 if (brand == null) return false;
                 
-                brand.IsActive = false;
-                brand.UpdatedAt = DateTime.UtcNow;
+                _context.Brand.Remove(brand);
                 return await _context.SaveChangesAsync() > 0;
             }
             catch

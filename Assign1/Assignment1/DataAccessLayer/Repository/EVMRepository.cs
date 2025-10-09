@@ -297,5 +297,22 @@ namespace DataAccessLayer.Repository
                 return false;
             }
         }
+
+        public async Task<bool> DeleteUserAsync(Guid userId)
+        {
+            try
+            {
+                var user = await _context.Users.FindAsync(userId);
+                if (user == null) return false;
+
+                _context.Users.Remove(user);
+                var result = await _context.SaveChangesAsync();
+                return result > 0;
+            }
+            catch
+            {
+                return false;
+            }
+        }
     }
 }

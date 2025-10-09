@@ -32,6 +32,32 @@
   bottom: 0;
   z-index: 1000;
   transition: transform 0.3s ease;
+  overflow-y: auto;
+}
+
+/* Custom scrollbar for entire sidebar */
+.sidebar-modern::-webkit-scrollbar {
+  width: 6px;
+}
+
+.sidebar-modern::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.sidebar-modern::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.sidebar-modern::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Firefox scrollbar for sidebar */
+.sidebar-modern {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) rgba(255, 255, 255, 0.1);
 }
 
 /* Sidebar Brand */
@@ -142,6 +168,13 @@
   background: rgba(0, 0, 0, 0.2);
   margin: 0.25rem 0;
   border-radius: 4px;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+.submenu.show {
+  max-height: 500px;
 }
 
 .submenu-item {

@@ -21,7 +21,7 @@ namespace BusinessLayer.ViewModels
         public string Description { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "Giá không được để trống")]
-        [Range(0.01, double.MaxValue, ErrorMessage = "Giá phải lớn hơn 0")]
+        [Range(0.01, 999999999999.99, ErrorMessage = "Giá phải lớn hơn 0")]
         public decimal Price { get; set; }
 
         [Required(ErrorMessage = "Số lượng tồn kho không được để trống")]
