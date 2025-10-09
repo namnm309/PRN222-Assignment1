@@ -56,6 +56,7 @@ namespace PresentationLayer
             builder.Services.AddScoped<IInventoryManagementService, InventoryManagementService>();
             builder.Services.AddScoped<IPricingManagementRepository, PricingManagementRepository>();
             builder.Services.AddScoped<IPricingManagementService, PricingManagementService>();
+            builder.Services.AddScoped<IDealerDebtService, DealerDebtService>();
 
 
             // Session
