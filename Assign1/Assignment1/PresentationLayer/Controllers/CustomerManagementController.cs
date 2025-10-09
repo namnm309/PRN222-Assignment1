@@ -109,9 +109,24 @@ namespace PresentationLayer.Controllers
             return View();
         }
 
+        [HttpGet]
+        public IActionResult CreateFromTestDrive(string fullName = null, string email = null, string phoneNumber = null, string address = null)
+        {
+            // Pre-fill form với dữ liệu từ TestDrive nếu có
+            ViewBag.PreFillData = new
+            {
+                FullName = fullName ?? "",
+                Email = email ?? "",
+                PhoneNumber = phoneNumber ?? "",
+                Address = address ?? ""
+            };
+            
+            return View("Create");
+        }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(string fullName, string email, string phoneNumber, string address)
+        public async Task<IActionResult> Create(string fullName, string email, string phoneNumber, string address = null)
         {
             if (!ModelState.IsValid)
             {
@@ -126,6 +141,14 @@ namespace PresentationLayer.Controllers
             }
 
             TempData["Msg"] = "Thêm khách hàng thành công!";
+            
+            // Nếu đến từ TestDrive, redirect về TestDrive thay vì Detail
+            if (Request.Headers["Referer"].ToString().Contains("TestDrive"))
+            {
+                TempData["Success"] = "Khách hàng đã được tạo thành công từ lịch lái thử!";
+                return RedirectToAction("Index", "TestDrive");
+            }
+            
             return RedirectToAction(nameof(Detail), new { id = customer.Id });
         }
     }

@@ -164,6 +164,21 @@
                                     </button>
                                 </form>
                             }
+                            else if (Model.Status == DataAccessLayer.Enum.TestDriveStatus.Successfully || Model.Status == DataAccessLayer.Enum.TestDriveStatus.Failed)
+                            {
+                                <!-- Nút tạo khách hàng chỉ hiển thị cho Dealer Staff/Manager -->
+                                @if (ViewBag.UserRole == DataAccessLayer.Enum.UserRole.DealerStaff || ViewBag.UserRole == DataAccessLayer.Enum.UserRole.DealerManager)
+                                {
+                                    <a href="@Url.Action("CreateFromTestDrive", "CustomerManagement", new { 
+                                        fullName = Model.Customer?.FullName ?? Model.CustomerName,
+                                        email = Model.Customer?.Email ?? Model.CustomerEmail,
+                                        phoneNumber = Model.Customer?.PhoneNumber ?? Model.CustomerPhone,
+                                        address = ""
+                                    })" class="btn btn-primary">
+                                        <i class="fas fa-user-plus"></i> Tạo khách hàng từ đây
+                                    </a>
+                                }
+                            }
                         </div>
                     </div>
                 </div>

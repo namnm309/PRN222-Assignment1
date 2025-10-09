@@ -8,6 +8,10 @@
     <nav aria-label="breadcrumb" class="mb-3">
         <ol class="breadcrumb">
             <li class="breadcrumb-item"><a asp-action="Index">Khách hàng</a></li>
+            @if (ViewBag.PreFillData != null && !string.IsNullOrEmpty(ViewBag.PreFillData.FullName))
+            {
+                <li class="breadcrumb-item"><a asp-controller="TestDrive" asp-action="Index">Lịch lái thử</a></li>
+            }
             <li class="breadcrumb-item active">Thêm mới</li>
         </ol>
     </nav>
@@ -26,17 +30,27 @@
                         
                         <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
 
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            Điền đầy đủ thông tin khách hàng. Các trường có dấu <span class="text-danger">*</span> là bắt buộc.
-                        </div>
+                        @if (ViewBag.PreFillData != null && !string.IsNullOrEmpty(ViewBag.PreFillData.FullName))
+                        {
+                            <div class="alert alert-success">
+                                <i class="fas fa-user-check me-2"></i>
+                                <strong>Thông tin đã được điền sẵn từ lịch lái thử!</strong> Vui lòng kiểm tra và bổ sung thông tin còn thiếu.
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Điền đầy đủ thông tin khách hàng. Các trường có dấu <span class="text-danger">*</span> là bắt buộc.
+                            </div>
+                        }
 
                         <div class="mb-3">
                             <label class="form-label">
                                 Họ và tên <span class="text-danger">*</span>
                             </label>
                             <input type="text" class="form-control" name="fullName" required 
-                                   placeholder="Nguyễn Văn A">
+                                   placeholder="Nguyễn Văn A" value="@(ViewBag.PreFillData?.FullName ?? "")">
                         </div>
 
                         <div class="mb-3">
@@ -44,7 +58,7 @@
                                 Số điện thoại <span class="text-danger">*</span>
                             </label>
                             <input type="tel" class="form-control" name="phoneNumber" required 
-                                   placeholder="0912345678" pattern="[0-9]{10,11}">
+                                   placeholder="0912345678" pattern="[0-9]{10,11}" value="@(ViewBag.PreFillData?.PhoneNumber ?? "")">
                             <small class="text-muted">Nhập 10-11 chữ số</small>
                         </div>
 
@@ -53,7 +67,7 @@
                                 Email <span class="text-danger">*</span>
                             </label>
                             <input type="email" class="form-control" name="email" required 
-                                   placeholder="example@email.com">
+                                   placeholder="example@email.com" value="@(ViewBag.PreFillData?.Email ?? "")">
                         </div>
 
                         <div class="mb-3">
@@ -61,7 +75,7 @@
                                 Địa chỉ
                             </label>
                             <textarea class="form-control" name="address" rows="3" 
-                                      placeholder="123 Đường ABC, Phường XYZ, Quận 1, TP.HCM"></textarea>
+                                      placeholder="123 Đường ABC, Phường XYZ, Quận 1, TP.HCM">@(ViewBag.PreFillData?.Address ?? "")</textarea>
                         </div>
 
                         <hr class="my-4">
@@ -70,6 +84,12 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="fas fa-save me-2"></i>Lưu khách hàng
                             </button>
+                            @if (ViewBag.PreFillData != null && !string.IsNullOrEmpty(ViewBag.PreFillData.FullName))
+                            {
+                                <a asp-controller="TestDrive" asp-action="Index" class="btn btn-outline-info">
+                                    <i class="fas fa-arrow-left me-2"></i>Quay lại Lịch lái thử
+                                </a>
+                            }
                             <a asp-action="Index" class="btn btn-outline-secondary">
                                 <i class="fas fa-times me-2"></i>Hủy
                             </a>
