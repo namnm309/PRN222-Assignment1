@@ -91,7 +91,7 @@
                                         <i class="fas fa-eye"></i> Chi tiết
                                     </a>
                                     
-                                    @if (td.Status == DataAccessLayer.Enum.TestDriveStatus.Pending || td.Status == DataAccessLayer.Enum.TestDriveStatus.Confirmed)
+                                    @if (td.Status == TestDriveStatus.Pending || td.Status == TestDriveStatus.Confirmed)
                                     {
                                         <form asp-action="Cancel" asp-route-id="@td.Id" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc muốn hủy lịch hẹn này?');">
                                             @Html.AntiForgeryToken()
