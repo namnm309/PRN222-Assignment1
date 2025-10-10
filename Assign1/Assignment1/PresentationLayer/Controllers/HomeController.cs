@@ -41,7 +41,7 @@ namespace PresentationLayer.Controllers
                     Sku = p.Sku,
                     Description = p.Description,
                     Price = p.Price,
-                    BrandName = p.BrandName,
+                    BrandName = p.Brand.Name,
                     IsActive = p.IsActive,
                     ImageUrl = p.ImageUrl
                 })
@@ -73,7 +73,7 @@ namespace PresentationLayer.Controllers
                     Sku = p.Sku,
                     Description = p.Description,
                     Price = p.Price,
-                    BrandName = p.BrandName,
+                    BrandName = p.Brand.Name,
                     IsActive = p.IsActive,
                     ImageUrl = p.ImageUrl
                 })
@@ -96,7 +96,7 @@ namespace PresentationLayer.Controllers
                     Sku = p.Sku,
                     Description = p.Description,
                     Price = p.Price,
-                    BrandName = p.BrandName,
+                    BrandName = p.Brand.Name,
                     IsActive = p.IsActive,
                     ImageUrl = p.ImageUrl
                 })

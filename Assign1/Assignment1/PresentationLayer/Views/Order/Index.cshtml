@@ -34,7 +34,7 @@
         <div class="card-body">
             <form method="get" asp-action="Index">
                 <div class="row">
-                    @if (ViewBag.UserRole == DataAccessLayer.Enum.UserRole.Admin || ViewBag.UserRole == DataAccessLayer.Enum.UserRole.EVMStaff)
+                    @if (ViewBag.UserRole != null && (ViewBag.UserRole.ToString() == "Admin" || ViewBag.UserRole.ToString() == "EVMStaff"))
                     {
                         <div class="col-md-4 mb-3">
                             <label class="form-label">Đại lý</label>

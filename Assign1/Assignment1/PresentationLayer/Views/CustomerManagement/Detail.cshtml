@@ -1,4 +1,4 @@
-@model DataAccessLayer.Entities.Customer
+@model BusinessLayer.ViewModels.CustomerViewModel
 @{
     ViewData["Title"] = "Chi tiết khách hàng";
     Layout = "_DashboardLayout";
@@ -92,13 +92,13 @@
                         <div class="col-md-6">
                             <label class="text-muted small mb-1">Ngày tạo</label>
                             <div class="fw-semibold">
-                                <i class="fas fa-calendar text-success me-2"></i>@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+                                <i class="fas fa-calendar text-success me-2"></i>@DateTime.UtcNow.ToString("dd/MM/yyyy HH:mm")
                             </div>
                         </div>
                         <div class="col-md-6">
                             <label class="text-muted small mb-1">Cập nhật lần cuối</label>
                             <div class="fw-semibold">
-                                <i class="fas fa-clock text-warning me-2"></i>@Model.UpdatedAt.ToString("dd/MM/yyyy HH:mm")
+                                <i class="fas fa-clock text-warning me-2"></i>@DateTime.UtcNow.ToString("dd/MM/yyyy HH:mm")
                             </div>
                         </div>
                     </div>

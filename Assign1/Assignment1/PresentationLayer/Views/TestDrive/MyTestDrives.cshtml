@@ -1,4 +1,5 @@
-@model List<DataAccessLayer.Entities.TestDrive>
+@model List<BusinessLayer.ViewModels.TestDriveViewModel>
+@using BusinessLayer.Enums
 
 @{
     ViewData["Title"] = "Lịch hẹn Lái thử của tôi";
@@ -58,29 +59,29 @@
                                     <small class="text-muted">Đặt ngày: @td.CreatedAt.ToString("dd/MM/yyyy")</small>
                                 </td>
                                 <td>
-                                    <div><strong>@td.Product?.Name</strong></div>
-                                    <small class="text-muted">SKU: @td.Product?.Sku</small>
+                                    <div><strong>@td.ProductName</strong></div>
+                                    <small class="text-muted">ID: @td.ProductId</small>
                                 </td>
                                 <td>
-                                    <div>@td.Dealer?.Name</div>
-                                    <small class="text-muted">@td.Dealer?.Address</small>
+                                    <div>@td.DealerName</div>
+                                    <small class="text-muted">ID: @td.DealerId</small>
                                 </td>
                                 <td>
                                     @switch (td.Status)
                                     {
-                                        case DataAccessLayer.Enum.TestDriveStatus.Pending:
+                                        case TestDriveStatus.Pending:
                                             <span class="badge bg-warning">Chờ xác nhận</span>
                                             break;
-                                        case DataAccessLayer.Enum.TestDriveStatus.Confirmed:
+                                        case TestDriveStatus.Confirmed:
                                             <span class="badge bg-info">Đã xác nhận</span>
                                             break;
-                                        case DataAccessLayer.Enum.TestDriveStatus.Successfully:
+                                        case TestDriveStatus.Successfully:
                                             <span class="badge bg-success">Thành công</span>
                                             break;
-                                        case DataAccessLayer.Enum.TestDriveStatus.Failed:
+                                        case TestDriveStatus.Failed:
                                             <span class="badge bg-danger">Thất bại</span>
                                             break;
-                                        case DataAccessLayer.Enum.TestDriveStatus.Canceled:
+                                        case TestDriveStatus.Canceled:
                                             <span class="badge bg-secondary">Đã hủy</span>
                                             break;
                                     }

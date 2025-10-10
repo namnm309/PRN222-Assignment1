@@ -39,7 +39,7 @@
                         <label class="form-label">Đại lý</label>
                         <select name="dealerId" class="form-select">
                             <option value="">-- Tất cả đại lý --</option>
-                            @foreach (var dealer in ViewBag.Dealers as List<BusinessLayer.ViewModels.DealerViewModel>)
+                            @foreach (var dealer in ViewBag.Dealers as List<DataAccessLayer.Entities.Dealer>)
                             {
                                 <option value="@dealer.Id" selected="@(ViewBag.SelectedDealerId == dealer.Id)">
                                     @dealer.Name

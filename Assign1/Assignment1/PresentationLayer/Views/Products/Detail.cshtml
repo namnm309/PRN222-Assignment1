@@ -1,4 +1,4 @@
-@model DataAccessLayer.Entities.Product
+@model BusinessLayer.ViewModels.ProductViewModel
 
 @{
     ViewData["Title"] = Model.Name;
@@ -33,9 +33,9 @@
                             <h2 class="mb-3">@Model.Name</h2>
                             <p class="text-muted">SKU: @Model.Sku</p>
                             
-                            @if (Model.Brand != null)
+                            @if (!string.IsNullOrEmpty(Model.BrandName))
                             {
-                                <p><strong>Hãng:</strong> @Model.Brand.Name</p>
+                                <p><strong>Hãng:</strong> @Model.BrandName</p>
                             }
                             
                             <h3 class="text-primary my-3">@Model.Price.ToString("N0") VNĐ</h3>

@@ -2,6 +2,7 @@
 using BusinessLayer.Services;
 using BusinessLayer.Profiles;
 using Microsoft.EntityFrameworkCore;
+using DataAccessLayer.Data;
 using Microsoft.AspNetCore.Builder;
 using System;
 using AutoMapper;
@@ -24,7 +25,10 @@ namespace PresentationLayer
             // Đăng ký MappingService
             builder.Services.AddScoped<IMappingService, MappingService>();
 
-            // DbContext không được inject trực tiếp vào Presentation theo yêu cầu kiến trúc
+            // Đăng ký DbContext (cần cho các Repository ở DAL)
+            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseNpgsql(connectionString));
 
             // Đăng ký Repository và Services
             builder.Services.AddScoped<IAuthen, Authen>();

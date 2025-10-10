@@ -334,10 +334,10 @@ namespace PresentationLayer.Controllers
                 }
 
                 // Dealer role -> kiểm tra tồn kho của dealer
-                var inventories = await _evmService.GetInventoryReportAsync(dealerId);
-                var inventory = inventories.FirstOrDefault(i => i.ProductId == productId);
+                var inventories = await _evmService.GetInventoryReportAsync();
+                var inventory = inventories.FirstOrDefault(i => i.Id == productId);
 
-                Console.WriteLine($"[GetProductStock] Inventory found: {inventory != null}, Available: {inventory?.AvailableQuantity}");
+                Console.WriteLine($"[GetProductStock] Inventory found: {inventory != null}, Available: {inventory?.StockQuantity}");
 
                 if (inventory == null)
                 {

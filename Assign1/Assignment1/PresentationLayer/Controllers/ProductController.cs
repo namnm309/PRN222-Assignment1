@@ -2,7 +2,9 @@
 using BusinessLayer.Services;
 using BusinessLayer.ViewModels;
 
-public class ProductsController : Controller
+namespace PresentationLayer.Controllers
+{
+    public class ProductsController : Controller
 {
     private readonly IProductService _service;
     private readonly IEVMReportService _evmService;
@@ -38,5 +40,6 @@ public class ProductsController : Controller
         // Map entity to view model
         var productViewModel = _mappingService.MapToProductViewModel(product);
         return View(productViewModel); 
+    }
     }
 }

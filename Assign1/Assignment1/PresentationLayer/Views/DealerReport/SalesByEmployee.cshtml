@@ -40,7 +40,7 @@
                         <label class="form-label">Nhân viên</label>
                         <select name="employeeId" class="form-select">
                             <option value="">-- Tất cả nhân viên --</option>
-                            @foreach (var employee in ViewBag.Employees as List<DataAccessLayer.Entities.Users>)
+                            @foreach (var employee in ViewBag.Employees as List<BusinessLayer.ViewModels.UserViewModel>)
                             {
                                 <option value="@employee.Id" selected="@(ViewBag.EmployeeId == employee.Id)">
                                     @employee.FullName
