@@ -1,5 +1,5 @@
 using System;
-using DataAccessLayer.Enum;
+using BusinessLayer.Enums;
 
 namespace BusinessLayer.ViewModels
 {

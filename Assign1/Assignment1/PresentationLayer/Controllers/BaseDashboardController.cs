@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Authorization;
-using DataAccessLayer.Enum;
+using BusinessLayer.Enums;
 
 namespace PresentationLayer.Controllers
 {

@@ -3,6 +3,7 @@ using DataAccessLayer.Entities;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using BusinessLayer.ViewModels;
 
 namespace BusinessLayer.Services
 {
@@ -10,47 +11,43 @@ namespace BusinessLayer.Services
     {
         private readonly IInventoryManagementRepository _inventoryRepository;
         private readonly IEVMRepository _evmRepository;
+        private readonly IMappingService _mappingService;
 
         public InventoryManagementService(
             IInventoryManagementRepository inventoryRepository,
-            IEVMRepository evmRepository)
+            IEVMRepository evmRepository,
+            IMappingService mappingService)
         {
             _inventoryRepository = inventoryRepository;
             _evmRepository = evmRepository;
+            _mappingService = mappingService;
         }
 
-        public async Task<List<InventoryAllocation>> GetAllInventoryAllocationsAsync()
+        public async Task<List<InventoryAllocationViewModel>> GetAllInventoryAllocationsAsync()
         {
-            return await _inventoryRepository.GetAllInventoryAllocationsAsync();
+            var list = await _inventoryRepository.GetAllInventoryAllocationsAsync();
+            return _mappingService.MapToInventoryAllocationViewModels(list);
         }
 
-        public async Task<List<InventoryAllocation>> GetInventoryAllocationsByDealerAsync(Guid dealerId)
+        public async Task<List<InventoryAllocationViewModel>> GetInventoryAllocationsByDealerAsync(Guid dealerId)
         {
-            return await _inventoryRepository.GetInventoryAllocationsByDealerAsync(dealerId);
+            var list = await _inventoryRepository.GetInventoryAllocationsByDealerAsync(dealerId);
+            return _mappingService.MapToInventoryAllocationViewModels(list);
         }
 
-        public async Task<List<InventoryAllocation>> GetInventoryAllocationsByProductAsync(Guid productId)
+        public async Task<List<InventoryAllocationViewModel>> GetInventoryAllocationsByProductAsync(Guid productId)
         {
-            return await _inventoryRepository.GetInventoryAllocationsByProductAsync(productId);
+            var list = await _inventoryRepository.GetInventoryAllocationsByProductAsync(productId);
+            return _mappingService.MapToInventoryAllocationViewModels(list);
         }
 
-        public async Task<InventoryAllocation> GetInventoryAllocationAsync(Guid productId, Guid dealerId)
+        public async Task<InventoryAllocationViewModel?> GetInventoryAllocationAsync(Guid productId, Guid dealerId)
         {
-            return await _inventoryRepository.GetInventoryAllocationAsync(productId, dealerId);
+            var entity = await _inventoryRepository.GetInventoryAllocationAsync(productId, dealerId);
+            return entity == null ? null : _mappingService.MapToInventoryAllocationViewModel(entity);
         }
 
-        public async Task<bool> CreateInventoryAllocationAsync(InventoryAllocation allocation)
-        {
-            if (allocation.AllocatedQuantity < 0 || allocation.AvailableQuantity < 0)
-                return false;
-
-            if (allocation.MinimumStock < 0 || allocation.MaximumStock <= allocation.MinimumStock)
-                return false;
-
-            return await _inventoryRepository.CreateInventoryAllocationAsync(allocation);
-        }
-
-        public async Task<bool> UpdateInventoryAllocationAsync(InventoryAllocation allocation)
+        public async Task<bool> CreateInventoryAllocationAsync(InventoryAllocationViewModel allocation)
         {
             if (allocation.AllocatedQuantity < 0 || allocation.AvailableQuantity < 0)
                 return false;
@@ -58,7 +55,56 @@ namespace BusinessLayer.Services
             if (allocation.MinimumStock < 0 || allocation.MaximumStock <= allocation.MinimumStock)
                 return false;
 
-            return await _inventoryRepository.UpdateInventoryAllocationAsync(allocation);
+            var entity = new InventoryAllocation
+            {
+                Id = allocation.Id,
+                ProductId = allocation.ProductId,
+                DealerId = allocation.DealerId,
+                AllocatedQuantity = allocation.AllocatedQuantity,
+                AvailableQuantity = allocation.AvailableQuantity,
+                ReservedQuantity = allocation.ReservedQuantity,
+                MinimumStock = allocation.MinimumStock,
+                MaximumStock = allocation.MaximumStock,
+                LastRestockDate = allocation.LastRestockDate == default ? DateTime.UtcNow : allocation.LastRestockDate,
+                NextRestockDate = allocation.NextRestockDate,
+                Status = allocation.Status,
+                Priority = allocation.Priority,
+                Notes = allocation.Notes ?? string.Empty,
+                CreatedAt = allocation.CreatedAt,
+                UpdatedAt = allocation.UpdatedAt ?? DateTime.UtcNow,
+                IsActive = allocation.IsActive
+            };
+            return await _inventoryRepository.CreateInventoryAllocationAsync(entity);
+        }
+
+        public async Task<bool> UpdateInventoryAllocationAsync(InventoryAllocationViewModel allocation)
+        {
+            if (allocation.AllocatedQuantity < 0 || allocation.AvailableQuantity < 0)
+                return false;
+
+            if (allocation.MinimumStock < 0 || allocation.MaximumStock <= allocation.MinimumStock)
+                return false;
+
+            var entity = new InventoryAllocation
+            {
+                Id = allocation.Id,
+                ProductId = allocation.ProductId,
+                DealerId = allocation.DealerId,
+                AllocatedQuantity = allocation.AllocatedQuantity,
+                AvailableQuantity = allocation.AvailableQuantity,
+                ReservedQuantity = allocation.ReservedQuantity,
+                MinimumStock = allocation.MinimumStock,
+                MaximumStock = allocation.MaximumStock,
+                LastRestockDate = allocation.LastRestockDate == default ? DateTime.UtcNow : allocation.LastRestockDate,
+                NextRestockDate = allocation.NextRestockDate,
+                Status = allocation.Status,
+                Priority = allocation.Priority,
+                Notes = allocation.Notes ?? string.Empty,
+                CreatedAt = allocation.CreatedAt,
+                UpdatedAt = allocation.UpdatedAt ?? DateTime.UtcNow,
+                IsActive = allocation.IsActive
+            };
+            return await _inventoryRepository.UpdateInventoryAllocationAsync(entity);
         }
 
         public async Task<bool> DeleteInventoryAllocationAsync(Guid id)
@@ -66,29 +112,46 @@ namespace BusinessLayer.Services
             return await _inventoryRepository.DeleteInventoryAllocationAsync(id);
         }
 
-        public async Task<List<InventoryAllocation>> GetLowStockAllocationsAsync()
+        public async Task<List<InventoryAllocationViewModel>> GetLowStockAllocationsAsync()
         {
-            return await _inventoryRepository.GetLowStockAllocationsAsync();
+            var list = await _inventoryRepository.GetLowStockAllocationsAsync();
+            return _mappingService.MapToInventoryAllocationViewModels(list);
         }
 
-        public async Task<List<InventoryAllocation>> GetCriticalStockAllocationsAsync()
+        public async Task<List<InventoryAllocationViewModel>> GetCriticalStockAllocationsAsync()
         {
-            return await _inventoryRepository.GetCriticalStockAllocationsAsync();
+            var list = await _inventoryRepository.GetCriticalStockAllocationsAsync();
+            return _mappingService.MapToInventoryAllocationViewModels(list);
         }
 
-        public async Task<List<InventoryAllocation>> GetOutOfStockAllocationsAsync()
+        public async Task<List<InventoryAllocationViewModel>> GetOutOfStockAllocationsAsync()
         {
-            return await _inventoryRepository.GetOutOfStockAllocationsAsync();
+            var list = await _inventoryRepository.GetOutOfStockAllocationsAsync();
+            return _mappingService.MapToInventoryAllocationViewModels(list);
         }
 
-        public async Task<List<InventoryTransaction>> GetInventoryTransactionsAsync(Guid? productId = null, Guid? dealerId = null, string transactionType = null, DateTime? fromDate = null, DateTime? toDate = null)
+        public async Task<List<InventoryTransactionViewModel>> GetInventoryTransactionsAsync(Guid? productId = null, Guid? dealerId = null, string transactionType = null, DateTime? fromDate = null, DateTime? toDate = null)
         {
-            return await _inventoryRepository.GetInventoryTransactionsAsync(productId, dealerId, transactionType, fromDate, toDate);
+            var list = await _inventoryRepository.GetInventoryTransactionsAsync(productId, dealerId, transactionType, fromDate, toDate);
+            return _mappingService.MapToInventoryTransactionViewModels(list);
         }
 
-        public async Task<bool> CreateInventoryTransactionAsync(InventoryTransaction transaction)
+        public async Task<bool> CreateInventoryTransactionAsync(InventoryTransactionViewModel transaction)
         {
-            return await _inventoryRepository.CreateInventoryTransactionAsync(transaction);
+            var entity = new InventoryTransaction
+            {
+                Id = transaction.Id,
+                ProductId = transaction.ProductId,
+                DealerId = transaction.DealerId,
+                Quantity = transaction.Quantity,
+                TransactionType = transaction.TransactionType,
+                Reason = transaction.Reason,
+                ProcessedByUserId = transaction.ProcessedByUserId,
+                TransactionDate = transaction.CreatedAt,
+                Status = "Completed",
+                Notes = string.Empty
+            };
+            return await _inventoryRepository.CreateInventoryTransactionAsync(entity);
         }
 
         public async Task<bool> TransferStockAsync(Guid productId, Guid fromDealerId, Guid toDealerId, int quantity, string reason, Guid processedByUserId)
@@ -106,9 +169,10 @@ namespace BusinessLayer.Services
             return await _inventoryRepository.AdjustStockAsync(productId, dealerId, quantity, reason, processedByUserId);
         }
 
-        public async Task<List<InventoryAllocation>> GetInventoryReportAsync(Guid? dealerId = null, Guid? productId = null, string status = null)
+        public async Task<List<InventoryAllocationViewModel>> GetInventoryReportAsync(Guid? dealerId = null, Guid? productId = null, string status = null)
         {
-            return await _inventoryRepository.GetInventoryReportAsync(dealerId, productId, status);
+            var list = await _inventoryRepository.GetInventoryReportAsync(dealerId, productId, status);
+            return _mappingService.MapToInventoryAllocationViewModels(list);
         }
 
         public async Task<Dictionary<string, int>> GetStockSummaryAsync()
@@ -116,19 +180,22 @@ namespace BusinessLayer.Services
             return await _inventoryRepository.GetStockSummaryAsync();
         }
 
-        public async Task<List<InventoryTransaction>> GetStockMovementReportAsync(DateTime fromDate, DateTime toDate, Guid? productId = null, Guid? dealerId = null)
+        public async Task<List<InventoryTransactionViewModel>> GetStockMovementReportAsync(DateTime fromDate, DateTime toDate, Guid? productId = null, Guid? dealerId = null)
         {
-            return await _inventoryRepository.GetStockMovementReportAsync(fromDate, toDate, productId, dealerId);
+            var list = await _inventoryRepository.GetStockMovementReportAsync(fromDate, toDate, productId, dealerId);
+            return _mappingService.MapToInventoryTransactionViewModels(list);
         }
 
-        public async Task<List<Product>> GetAllProductsAsync()
+        public async Task<List<ProductViewModel>> GetAllProductsAsync()
         {
-            return await _evmRepository.GetAllProductsAsync();
+            var products = await _evmRepository.GetAllProductsAsync();
+            return _mappingService.MapToProductViewModels(products);
         }
 
-        public async Task<List<Dealer>> GetAllDealersAsync()
+        public async Task<List<DealerViewModel>> GetAllDealersAsync()
         {
-            return await _evmRepository.GetAllDealersAsync();
+            var dealers = await _evmRepository.GetAllDealersAsync();
+            return _mappingService.MapToDealerViewModels(dealers);
         }
     }
 }

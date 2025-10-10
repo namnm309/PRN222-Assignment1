@@ -47,6 +47,11 @@ namespace BusinessLayer.Services
             return _mapper.Map<Customer>(viewModel);
         }
 
+        public List<CustomerViewModel> MapToCustomerViewModels(List<Customer> customers)
+        {
+            return _mapper.Map<List<CustomerViewModel>>(customers);
+        }
+
         // User mappings
         public UserCreateViewModel MapToUserCreateViewModel(Users user)
         {
@@ -180,6 +185,17 @@ namespace BusinessLayer.Services
         public List<InventoryAllocationViewModel> MapToInventoryAllocationViewModels(List<InventoryAllocation> inventoryAllocations)
         {
             return _mapper.Map<List<InventoryAllocationViewModel>>(inventoryAllocations);
+        }
+
+        // InventoryTransaction mappings
+        public InventoryTransactionViewModel MapToInventoryTransactionViewModel(InventoryTransaction transaction)
+        {
+            return _mapper.Map<InventoryTransactionViewModel>(transaction);
+        }
+
+        public List<InventoryTransactionViewModel> MapToInventoryTransactionViewModels(List<InventoryTransaction> transactions)
+        {
+            return _mapper.Map<List<InventoryTransactionViewModel>>(transactions);
         }
 
         // DealerContract mappings

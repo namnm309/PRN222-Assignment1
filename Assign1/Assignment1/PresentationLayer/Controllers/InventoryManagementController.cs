@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
-using DataAccessLayer.Entities;
-using DataAccessLayer.Enum;
+using BusinessLayer.Enums;
+using BusinessLayer.ViewModels;
 
 namespace PresentationLayer.Controllers
 {
@@ -66,11 +66,11 @@ namespace PresentationLayer.Controllers
             ViewBag.Dealers = await _inventoryService.GetAllDealersAsync();
             ViewBag.Products = await _inventoryService.GetAllProductsAsync();
 
-            return View(new InventoryAllocation());
+            return View(new InventoryAllocationViewModel());
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateAllocation(InventoryAllocation allocation)
+        public async Task<IActionResult> CreateAllocation(InventoryAllocationViewModel allocation)
         {
             if (!IsAdmin())
             {
@@ -86,8 +86,8 @@ namespace PresentationLayer.Controllers
             }
 
             allocation.Id = Guid.NewGuid();
-            allocation.LastRestockDate = DateTime.UtcNow;
-            allocation.IsActive = true;
+            allocation.CreatedAt = DateTime.UtcNow;
+            allocation.UpdatedAt = DateTime.UtcNow;
 
             var result = await _inventoryService.CreateInventoryAllocationAsync(allocation);
             if (result)
@@ -125,7 +125,7 @@ namespace PresentationLayer.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditAllocation(InventoryAllocation allocation)
+        public async Task<IActionResult> EditAllocation(InventoryAllocationViewModel allocation)
         {
             if (!IsAdmin())
             {

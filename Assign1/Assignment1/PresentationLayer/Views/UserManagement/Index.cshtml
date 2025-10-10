@@ -1,4 +1,4 @@
-@model List<DataAccessLayer.Entities.Users>
+@model List<BusinessLayer.ViewModels.UserViewModel>
 
 @{
     ViewData["Title"] = "Quản lý tài khoản";
@@ -71,30 +71,35 @@
                                             <td>@user.Email</td>
                                             <td>@user.PhoneNumber</td>
                                             <td>
-                                                @switch (user.Role)
                                                 {
-                                                    case DataAccessLayer.Enum.UserRole.Admin:
+                                                    var roleName = user.Role.ToString();
+                                                    if (roleName == "Admin")
+                                                    {
                                                         <span class="badge bg-danger">Admin</span>
-                                                        break;
-                                                    case DataAccessLayer.Enum.UserRole.EVMStaff:
+                                                    }
+                                                    else if (roleName == "EVMStaff")
+                                                    {
                                                         <span class="badge bg-warning">EVM Staff</span>
-                                                        break;
-                                                    case DataAccessLayer.Enum.UserRole.DealerManager:
+                                                    }
+                                                    else if (roleName == "DealerManager")
+                                                    {
                                                         <span class="badge bg-primary">Dealer Manager</span>
-                                                        break;
-                                                    case DataAccessLayer.Enum.UserRole.DealerStaff:
+                                                    }
+                                                    else if (roleName == "DealerStaff")
+                                                    {
                                                         <span class="badge bg-info">Dealer Staff</span>
-                                                        break;
-                                                    default:
-                                                        <span class="badge bg-secondary">@user.Role</span>
-                                                        break;
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary">@user.Role.ToString()</span>
+                                                    }
                                                 }
                                             </td>
                                             <td>
-                                                @if (user.Dealer != null)
+                                                @if (!string.IsNullOrEmpty(user.DealerName))
                                                 {
                                                     <span class="text-primary">
-                                                        <i class="fas fa-store me-1"></i>@user.Dealer.Name
+                                                        <i class="fas fa-store me-1"></i>@user.DealerName
                                                     </span>
                                                 }
                                                 else
@@ -117,8 +122,8 @@
                                                     <a asp-action="Edit" asp-route-id="@user.Id" class="btn btn-outline-primary">
                                                         <i class="fas fa-edit"></i> Sửa
                                                     </a>
-                                                    @if (user.Role == DataAccessLayer.Enum.UserRole.DealerStaff || 
-                                                         (userRole == "Admin" && user.Role != DataAccessLayer.Enum.UserRole.Admin))
+                                                    @if (user.Role.ToString() == "DealerStaff" || 
+                                                         (userRole == "Admin" && user.Role.ToString() != "Admin"))
                                                     {
                                                         <button type="button" class="btn btn-outline-danger" 
                                                                 onclick="confirmDelete('@user.Id', '@user.FullName')">

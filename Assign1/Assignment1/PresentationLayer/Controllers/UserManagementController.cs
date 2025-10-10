@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
-using DataAccessLayer.Entities;
-using DataAccessLayer.Enum;
+using BusinessLayer.ViewModels;
+using BusinessLayer.Enums;
 using BusinessLayer.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -29,17 +29,19 @@ namespace PresentationLayer.Controllers
             var userRole = HttpContext.Session.GetString("UserRole");
             var dealerIdString = HttpContext.Session.GetString("DealerId");
 
-            List<Users> users;
+            List<UserViewModel> users;
 
             if (userRole == "Admin")
             {
                 // Admin xem tất cả users
-                users = await _evmService.GetAllUsersAsync();
+                var data = await _evmService.GetAllUsersAsync();
+                users = _mappingService.MapToUserViewModels(data);
             }
             else if (userRole == "DealerManager" && !string.IsNullOrEmpty(dealerIdString) && Guid.TryParse(dealerIdString, out Guid dealerId))
             {
                 // Dealer Manager chỉ xem staff của chính dealer mình
-                users = await _evmService.GetUsersByDealerAsync(dealerId);
+                var data2 = await _evmService.GetUsersByDealerAsync(dealerId);
+                users = _mappingService.MapToUserViewModels(data2);
             }
             else
             {
@@ -198,7 +200,7 @@ namespace PresentationLayer.Controllers
                 // Dealer Manager chỉ edit staff của chính dealer mình
                 if (userRole == "DealerManager" && Guid.TryParse(dealerIdString, out Guid dealerId))
                 {
-                    if (user.DealerId != dealerId || user.Role != UserRole.DealerStaff)
+                if (user.DealerId != dealerId || user.Role.ToString() != UserRole.DealerStaff.ToString())
                     {
                         TempData["Error"] = "Bạn chỉ có thể chỉnh sửa nhân viên của chính đại lý mình.";
                         return RedirectToAction(nameof(Index));
@@ -251,7 +253,7 @@ namespace PresentationLayer.Controllers
                 // Dealer Manager chỉ edit staff của chính dealer mình
                 if (userRole == "DealerManager" && Guid.TryParse(dealerIdString, out Guid dealerId))
                 {
-                    if (user.DealerId != dealerId || user.Role != UserRole.DealerStaff)
+                if (user.DealerId != dealerId || user.Role.ToString() != UserRole.DealerStaff.ToString())
                     {
                         TempData["Error"] = "Bạn chỉ có thể chỉnh sửa nhân viên của chính đại lý mình.";
                         return RedirectToAction(nameof(Index));
@@ -310,7 +312,7 @@ namespace PresentationLayer.Controllers
             // Dealer Manager chỉ xóa staff của chính dealer mình
             else if (userRole == "DealerManager" && Guid.TryParse(dealerIdString, out Guid dealerId))
             {
-                if (user.DealerId != dealerId || user.Role != UserRole.DealerStaff)
+                if (user.DealerId != dealerId || user.Role.ToString() == UserRole.Admin.ToString())
                 {
                     TempData["Error"] = "Bạn chỉ có thể xóa nhân viên của chính đại lý mình.";
                     return RedirectToAction(nameof(Index));

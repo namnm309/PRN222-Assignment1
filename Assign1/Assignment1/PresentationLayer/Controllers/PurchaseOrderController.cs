@@ -1,9 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
 using BusinessLayer.ViewModels;
-using DataAccessLayer.Enum;
-using DataAccessLayer.Data;
-using Microsoft.EntityFrameworkCore;
+using BusinessLayer.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,14 +13,12 @@ namespace PresentationLayer.Controllers
     {
         private readonly IPurchaseOrderService _purchaseOrderService;
         private readonly IEVMReportService _evmService;
-        private readonly AppDbContext _dbContext;
         private readonly IMappingService _mappingService;
 
-        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IEVMReportService evmService, AppDbContext dbContext, IMappingService mappingService)
+        public PurchaseOrderController(IPurchaseOrderService purchaseOrderService, IEVMReportService evmService, IMappingService mappingService)
         {
             _purchaseOrderService = purchaseOrderService;
             _evmService = evmService;
-            _dbContext = dbContext;
             _mappingService = mappingService;
         }
 

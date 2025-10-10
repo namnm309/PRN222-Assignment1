@@ -4,7 +4,6 @@ using BusinessLayer.ViewModels;
 using System;
 using System.Threading.Tasks;
 using System.Linq;
-using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace PresentationLayer.Controllers
@@ -16,7 +15,6 @@ namespace PresentationLayer.Controllers
         private readonly ICustomerService _customerService;
         private readonly IDealerContractService _contractService;
         private readonly IEVMReportService _evmService;
-        private readonly AppDbContext _dbContext;
         private readonly IMappingService _mappingService;
 
         public OrderController(
@@ -25,7 +23,6 @@ namespace PresentationLayer.Controllers
             ICustomerService customerService,
             IDealerContractService contractService,
             IEVMReportService evmService,
-            AppDbContext dbContext,
             IMappingService mappingService)
         {
             _orderService = orderService;
@@ -33,7 +30,6 @@ namespace PresentationLayer.Controllers
             _customerService = customerService;
             _contractService = contractService;
             _evmService = evmService;
-            _dbContext = dbContext;
             _mappingService = mappingService;
         }
 
@@ -148,11 +144,11 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction("Index");
             }
 
-            // KIỂM TRA TỒN KHO TRƯỚC KHI TẠO BÁO GIÁ
-            var inventory = await _dbContext.InventoryAllocation
-                .FirstOrDefaultAsync(i => i.ProductId == vm.ProductId && i.DealerId == dealerId && i.IsActive);
-            
-            if (inventory == null || inventory.AvailableQuantity <= 0)
+            // KIỂM TRA TỒN KHO TRƯỚC KHI TẠO BÁO GIÁ (dùng service/report thay vì DbContext)
+            var inventoryList = await _evmService.GetInventoryReportAsync(null);
+            var inventory = inventoryList.FirstOrDefault(i => i.Id == vm.ProductId);
+
+            if (inventory == null || inventory.StockQuantity <= 0)
             {
                 TempData["Error"] = "Sản phẩm này đã hết hàng trong kho đại lý. Vui lòng đặt hàng từ hãng hoặc chọn sản phẩm khác.";
                 ViewBag.Products = await _evmService.GetAllProductsAsync();
@@ -319,7 +315,8 @@ namespace PresentationLayer.Controllers
                     Console.WriteLine("[GetProductStock] No DealerId in session - returning generic stock info");
                     
                     // Với Admin/EVM hoặc user chưa có DealerId -> chỉ hiển thị thông tin chung
-                    var product = await _dbContext.Product.FindAsync(productId);
+                    var products = await _evmService.GetAllProductsAsync();
+                    var product = products.FirstOrDefault(p => p.Id == productId);
                     if (product == null)
                     {
                         return Json(new { success = false, message = "Không tìm thấy sản phẩm" });
@@ -337,9 +334,8 @@ namespace PresentationLayer.Controllers
                 }
 
                 // Dealer role -> kiểm tra tồn kho của dealer
-                var inventory = await _dbContext.InventoryAllocation
-                    .Include(i => i.Product)
-                    .FirstOrDefaultAsync(i => i.ProductId == productId && i.DealerId == dealerId && i.IsActive);
+                var inventories = await _evmService.GetInventoryReportAsync(dealerId);
+                var inventory = inventories.FirstOrDefault(i => i.ProductId == productId);
 
                 Console.WriteLine($"[GetProductStock] Inventory found: {inventory != null}, Available: {inventory?.AvailableQuantity}");
 
@@ -357,14 +353,14 @@ namespace PresentationLayer.Controllers
                 return Json(new
                 {
                     success = true,
-                    hasStock = inventory.AvailableQuantity > 0,
-                    availableQuantity = inventory.AvailableQuantity,
-                    reservedQuantity = inventory.ReservedQuantity,
-                    allocatedQuantity = inventory.AllocatedQuantity,
-                    minimumStock = inventory.MinimumStock,
-                    status = inventory.Status,
-                    message = inventory.AvailableQuantity > 0
-                        ? $"Còn {inventory.AvailableQuantity} xe trong kho"
+                    hasStock = inventory.StockQuantity > 0,
+                    availableQuantity = inventory.StockQuantity,
+                    reservedQuantity = 0,
+                    allocatedQuantity = 0,
+                    minimumStock = 0,
+                    status = "",
+                    message = inventory.StockQuantity > 0
+                        ? $"Còn {inventory.StockQuantity} xe trong kho"
                         : "Sản phẩm đã hết hàng. Vui lòng đặt hàng từ hãng."
                 });
             }

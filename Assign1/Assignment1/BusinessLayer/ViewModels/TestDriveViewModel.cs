@@ -1,6 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
-using DataAccessLayer.Enum;
+using BusinessLayer.Enums;
 
 namespace BusinessLayer.ViewModels
 {
