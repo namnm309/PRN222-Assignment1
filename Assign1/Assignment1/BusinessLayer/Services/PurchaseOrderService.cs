@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using DataAccessLayer.Entities;
 using DataAccessLayer.Repository;
-using DataAccessLayer.Enum;
+using BusinessLayer.Enums;
 using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,7 +36,8 @@ namespace BusinessLayer.Services
 
         public async Task<(bool Success, string Error, List<PurchaseOrder> Data)> GetAllAsync(Guid? dealerId = null, PurchaseOrderStatus? status = null)
         {
-            var purchaseOrders = await _repo.GetAllAsync(dealerId, status);
+            var dalStatus = status.HasValue ? (DataAccessLayer.Enum.PurchaseOrderStatus?)status.Value : null;
+            var purchaseOrders = await _repo.GetAllAsync(dealerId, dalStatus);
             return (true, null, purchaseOrders);
         }
 
@@ -97,7 +98,7 @@ namespace BusinessLayer.Services
                 Notes = notes?.Trim() ?? string.Empty,
                 RequestedDate = DateTime.UtcNow,
                 ExpectedDeliveryDate = expectedDeliveryUtc,
-                Status = PurchaseOrderStatus.Pending
+                Status = (DataAccessLayer.Enum.PurchaseOrderStatus)PurchaseOrderStatus.Pending
             };
 
             try
@@ -121,13 +122,13 @@ namespace BusinessLayer.Services
             if (!exists)
                 return (false, err, null);
 
-            if (purchaseOrder.Status != PurchaseOrderStatus.Pending)
+            if (purchaseOrder.Status != DataAccessLayer.Enum.PurchaseOrderStatus.Pending)
                 return (false, "Chỉ có thể duyệt đơn hàng đang chờ duyệt", null);
 
             if (approvedById == Guid.Empty)
                 return (false, "Approved By ID không hợp lệ", null);
 
-            purchaseOrder.Status = PurchaseOrderStatus.Approved;
+            purchaseOrder.Status = DataAccessLayer.Enum.PurchaseOrderStatus.Approved;
             purchaseOrder.ApprovedById = approvedById;
             purchaseOrder.ApprovedDate = DateTime.UtcNow;
             if (expectedDeliveryDate.HasValue)
@@ -161,7 +162,7 @@ namespace BusinessLayer.Services
             if (!exists)
                 return (false, err, null);
 
-            if (purchaseOrder.Status != PurchaseOrderStatus.Pending)
+            if (purchaseOrder.Status != DataAccessLayer.Enum.PurchaseOrderStatus.Pending)
                 return (false, "Chỉ có thể từ chối đơn hàng đang chờ duyệt", null);
 
             if (rejectedById == Guid.Empty)
@@ -170,7 +171,7 @@ namespace BusinessLayer.Services
             if (string.IsNullOrWhiteSpace(rejectReason))
                 return (false, "Lý do từ chối không được để trống", null);
 
-            purchaseOrder.Status = PurchaseOrderStatus.Rejected;
+            purchaseOrder.Status = DataAccessLayer.Enum.PurchaseOrderStatus.Rejected;
             purchaseOrder.ApprovedById = rejectedById;
             purchaseOrder.ApprovedDate = DateTime.UtcNow;
             purchaseOrder.RejectReason = rejectReason.Trim();
@@ -193,12 +194,12 @@ namespace BusinessLayer.Services
             switch (status)
             {
                 case PurchaseOrderStatus.InTransit:
-                    if (purchaseOrder.Status != PurchaseOrderStatus.Approved)
+                    if (purchaseOrder.Status != DataAccessLayer.Enum.PurchaseOrderStatus.Approved)
                         return (false, "Chỉ có thể chuyển trạng thái 'Đang vận chuyển' từ trạng thái 'Đã duyệt'", null);
                     break;
 
                 case PurchaseOrderStatus.Delivered:
-                    if (purchaseOrder.Status != PurchaseOrderStatus.InTransit)
+                    if (purchaseOrder.Status != DataAccessLayer.Enum.PurchaseOrderStatus.InTransit)
                         return (false, "Chỉ có thể chuyển trạng thái 'Đã giao' từ trạng thái 'Đang vận chuyển'", null);
                     
                     if (actualDeliveryDate.HasValue)
@@ -274,12 +275,12 @@ namespace BusinessLayer.Services
                     break;
 
                 case PurchaseOrderStatus.Cancelled:
-                    if (purchaseOrder.Status == PurchaseOrderStatus.Delivered)
+                    if (purchaseOrder.Status == DataAccessLayer.Enum.PurchaseOrderStatus.Delivered)
                         return (false, "Không thể hủy đơn hàng đã giao", null);
                     break;
             }
 
-            purchaseOrder.Status = status;
+            purchaseOrder.Status = (DataAccessLayer.Enum.PurchaseOrderStatus)status;
 
             var success = await _repo.UpdateAsync(purchaseOrder);
             if (!success)

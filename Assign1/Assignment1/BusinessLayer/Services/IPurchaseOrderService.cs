@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DataAccessLayer.Entities;
-using DataAccessLayer.Enum;
+using BusinessLayer.Enums;
 
 namespace BusinessLayer.Services
 {

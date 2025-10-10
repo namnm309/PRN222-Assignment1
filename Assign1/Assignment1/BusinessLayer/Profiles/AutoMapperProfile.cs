@@ -1,6 +1,7 @@
 using AutoMapper;
 using DataAccessLayer.Entities;
 using BusinessLayer.ViewModels;
+using BusinessLayer.Enums;
 
 namespace BusinessLayer.Profiles
 {
@@ -150,7 +151,7 @@ namespace BusinessLayer.Profiles
                 .ForMember(dest => dest.DealerId, opt => opt.MapFrom(src => src.DealerId))
                 .ForMember(dest => dest.ScheduledDate, opt => opt.MapFrom(src => src.ScheduledDate))
                 .ForMember(dest => dest.Notes, opt => opt.MapFrom(src => src.Notes))
-                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (TestDriveStatus)src.Status))
                 .ForMember(dest => dest.CustomerName, opt => opt.MapFrom(src => src.CustomerName))
                 .ForMember(dest => dest.CustomerPhone, opt => opt.MapFrom(src => src.CustomerPhone))
                 .ForMember(dest => dest.CustomerEmail, opt => opt.MapFrom(src => src.CustomerEmail))
@@ -174,11 +175,13 @@ namespace BusinessLayer.Profiles
                 .ForMember(dest => dest.DealerName, opt => opt.MapFrom(src => src.Dealer != null ? src.Dealer.Name : string.Empty))
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : string.Empty))
                 .ForMember(dest => dest.RequestedByName, opt => opt.MapFrom(src => src.RequestedBy != null ? src.RequestedBy.FullName : string.Empty))
-                .ForMember(dest => dest.ApprovedByName, opt => opt.MapFrom(src => src.ApprovedBy != null ? src.ApprovedBy.FullName : string.Empty));
+                .ForMember(dest => dest.ApprovedByName, opt => opt.MapFrom(src => src.ApprovedBy != null ? src.ApprovedBy.FullName : string.Empty))
+                .ForMember(dest => dest.Status, opt => opt.MapFrom(src => (PurchaseOrderStatus)src.Status));
 
             // User mappings
             CreateMap<Users, UserViewModel>()
-                .ForMember(dest => dest.DealerName, opt => opt.MapFrom(src => src.Dealer != null ? src.Dealer.Name : string.Empty));
+                .ForMember(dest => dest.DealerName, opt => opt.MapFrom(src => src.Dealer != null ? src.Dealer.Name : string.Empty))
+                .ForMember(dest => dest.Role, opt => opt.MapFrom(src => (UserRole)src.Role));
 
             // Dealer mappings
             CreateMap<Dealer, DealerViewModel>()
@@ -191,6 +194,12 @@ namespace BusinessLayer.Profiles
             CreateMap<InventoryAllocation, InventoryAllocationViewModel>()
                 .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : string.Empty))
                 .ForMember(dest => dest.DealerName, opt => opt.MapFrom(src => src.Dealer != null ? src.Dealer.Name : string.Empty));
+
+            // InventoryTransaction mappings
+            CreateMap<InventoryTransaction, InventoryTransactionViewModel>()
+                .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : string.Empty))
+                .ForMember(dest => dest.DealerName, opt => opt.MapFrom(src => src.Dealer != null ? src.Dealer.Name : string.Empty))
+                .ForMember(dest => dest.ProcessedByUserName, opt => opt.MapFrom(src => src.ProcessedByUser != null ? src.ProcessedByUser.FullName : string.Empty));
 
             // DealerContract mappings
             CreateMap<DealerContract, DealerContractViewModel>()

@@ -1,20 +1,23 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
-using DataAccessLayer.Entities;
-using Microsoft.EntityFrameworkCore;
-using DataAccessLayer.Data;
+using BusinessLayer.Enums;
+using BusinessLayer.ViewModels;
 
 namespace PresentationLayer.Controllers
 {
     public class CustomerManagementController : BaseDashboardController
     {
         private readonly ICustomerService _customerService;
-        private readonly AppDbContext _context;
+        private readonly IOrderService _orderService;
+        private readonly ITestDriveService _testDriveService;
+        private readonly IMappingService _mappingService;
 
-        public CustomerManagementController(ICustomerService customerService, AppDbContext context)
+        public CustomerManagementController(ICustomerService customerService, IOrderService orderService, ITestDriveService testDriveService, IMappingService mappingService)
         {
             _customerService = customerService;
-            _context = context;
+            _orderService = orderService;
+            _testDriveService = testDriveService;
+            _mappingService = mappingService;
         }
 
         [HttpGet]
@@ -23,7 +26,7 @@ namespace PresentationLayer.Controllers
             var userRole = HttpContext.Session.GetString("UserRole");
             var dealerIdStr = HttpContext.Session.GetString("DealerId");
 
-            List<Customer> customers;
+            List<CustomerViewModel> customers;
 
             // Admin và EVM Staff xem tất cả khách hàng
             if (userRole == "Admin" || userRole == "EVMStaff")
@@ -32,9 +35,9 @@ namespace PresentationLayer.Controllers
                 if (!ok)
                 {
                     TempData["Error"] = err;
-                    return View(new List<Customer>());
+                    return View(new List<CustomerViewModel>());
                 }
-                customers = data;
+                customers = _mappingService.MapToCustomerViewModels(data);
             }
             // Dealer chỉ xem khách hàng của mình
             else if ((userRole == "DealerManager" || userRole == "DealerStaff") && !string.IsNullOrEmpty(dealerIdStr))
@@ -44,9 +47,9 @@ namespace PresentationLayer.Controllers
                 if (!ok)
                 {
                     TempData["Error"] = err;
-                    return View(new List<Customer>());
+                    return View(new List<CustomerViewModel>());
                 }
-                customers = data;
+                customers = _mappingService.MapToCustomerViewModels(data);
             }
             else
             {
@@ -79,28 +82,22 @@ namespace PresentationLayer.Controllers
                 return RedirectToAction(nameof(Index));
             }
 
-            // Lấy lịch sử đơn hàng
-            var orders = await _context.Order
-                .Include(o => o.Product)
-                .Include(o => o.Dealer)
+            // Lấy lịch sử đơn hàng qua service và lọc theo khách hàng
+            var (_, _, allOrders) = await _orderService.GetAllAsync(null, null);
+            var orders = allOrders
                 .Where(o => o.CustomerId == id)
                 .OrderByDescending(o => o.CreatedAt)
-                .ToListAsync();
+                .ToList();
 
-            // Lấy lịch sử lái thử
-            var testDrives = await _context.TestDrive
-                .Include(td => td.Product)
-                .Include(td => td.Dealer)
-                .Where(td => td.CustomerEmail == customer.Email || td.CustomerPhone == customer.PhoneNumber)
-                .OrderByDescending(td => td.CreatedAt)
-                .ToListAsync();
+            // Lấy lịch sử lái thử qua service
+            var (_, _, testDrives) = await _testDriveService.GetByCustomerAsync(id);
 
             ViewBag.Orders = orders;
             ViewBag.TestDrives = testDrives;
             ViewBag.TotalSpent = orders.Sum(o => o.FinalAmount);
             ViewBag.TotalOrders = orders.Count;
 
-            return View(customer);
+            return View(_mappingService.MapToCustomerViewModel(customer));
         }
 
         [HttpGet]

@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using BusinessLayer.Services;
 using DataAccessLayer.Entities;
-using DataAccessLayer.Enum;
+using BusinessLayer.Enums;
 using DataAccessLayer.Repository;
 
 namespace BusinessLayer.Services
@@ -76,7 +76,7 @@ namespace BusinessLayer.Services
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
                 PhoneNumber = phoneNumber,
                 Address = address,
-                Role = role,
+                Role = (DataAccessLayer.Enum.UserRole)role,
                 DealerId = dealerId,
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,

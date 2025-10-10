@@ -15,6 +15,7 @@ namespace BusinessLayer.Services
         // Customer mappings
         CustomerViewModel MapToCustomerViewModel(Customer customer);
         Customer MapToCustomer(CustomerViewModel viewModel);
+        List<CustomerViewModel> MapToCustomerViewModels(List<Customer> customers);
 
         // User mappings
         UserCreateViewModel MapToUserCreateViewModel(Users user);
@@ -60,6 +61,10 @@ namespace BusinessLayer.Services
         // InventoryAllocation mappings
         InventoryAllocationViewModel MapToInventoryAllocationViewModel(InventoryAllocation inventoryAllocation);
         List<InventoryAllocationViewModel> MapToInventoryAllocationViewModels(List<InventoryAllocation> inventoryAllocations);
+
+        // InventoryTransaction mappings
+        InventoryTransactionViewModel MapToInventoryTransactionViewModel(InventoryTransaction transaction);
+        List<InventoryTransactionViewModel> MapToInventoryTransactionViewModels(List<InventoryTransaction> transactions);
 
         // DealerContract mappings
         DealerContractViewModel MapToDealerContractViewModel(DealerContract dealerContract);

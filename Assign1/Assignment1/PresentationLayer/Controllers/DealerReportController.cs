@@ -1,21 +1,19 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
-using DataAccessLayer.Entities;
-using DataAccessLayer.Enum;
-using Microsoft.EntityFrameworkCore;
-using DataAccessLayer.Data;
+using BusinessLayer.Enums;
+using BusinessLayer.ViewModels;
 
 namespace PresentationLayer.Controllers
 {
     public class DealerReportController : BaseDashboardController
     {
         private readonly IEVMReportService _evmReportService;
-        private readonly AppDbContext _context;
+        private readonly IMappingService _mappingService;
 
-        public DealerReportController(IEVMReportService evmReportService, AppDbContext context)
+        public DealerReportController(IEVMReportService evmReportService, IMappingService mappingService)
         {
             _evmReportService = evmReportService;
-            _context = context;
+            _mappingService = mappingService;
         }
 
         [HttpGet]
@@ -40,18 +38,45 @@ namespace PresentationLayer.Controllers
             var currentMonth = DateTime.Now.Month;
 
             // Doanh số tháng hiện tại
-            var monthlySales = await GetDealerSalesAsync(dealerId, "monthly", currentYear, currentMonth);
+            var monthlySales = await _evmReportService.GetSalesReportByRegionAsync(null, dealerId, "monthly", currentYear, currentMonth, null);
             var monthlyTotal = monthlySales.Sum(o => o.FinalAmount);
 
             // Doanh số năm hiện tại
-            var yearlySales = await GetDealerSalesAsync(dealerId, "yearly", currentYear);
+            var yearlySales = await _evmReportService.GetSalesReportByRegionAsync(null, dealerId, "yearly", currentYear, null, null);
             var yearlyTotal = yearlySales.Sum(o => o.FinalAmount);
 
             // Top nhân viên bán hàng tháng này
-            var topEmployees = await GetTopEmployeesAsync(dealerId, "monthly", currentYear, currentMonth);
+            var topEmployees = monthlySales
+                .Where(o => o.SalesPersonId.HasValue)
+                .GroupBy(o => new { o.SalesPersonId, o.SalesPerson.FullName })
+                .Select(g => new
+                {
+                    EmployeeId = g.Key.SalesPersonId,
+                    EmployeeName = g.Key.FullName,
+                    TotalSales = g.Sum(o => o.FinalAmount),
+                    OrderCount = g.Count()
+                })
+                .OrderByDescending(x => x.TotalSales)
+                .Take(10)
+                .Cast<dynamic>()
+                .ToList();
 
             // Top xe bán chạy tháng này
-            var topVehicles = await GetTopVehiclesAsync(dealerId, "monthly", currentYear, currentMonth);
+            var topVehicles = monthlySales
+                .GroupBy(o => new { o.ProductId, o.Product.Name, o.Product.Sku })
+                .Select(g => new
+                {
+                    ProductId = g.Key.ProductId,
+                    ProductName = g.Key.Name,
+                    ProductSku = g.Key.Sku,
+                    TotalSales = g.Sum(o => o.FinalAmount),
+                    OrderCount = g.Count(),
+                    AveragePrice = g.Average(o => o.FinalAmount)
+                })
+                .OrderByDescending(x => x.TotalSales)
+                .Take(10)
+                .Cast<dynamic>()
+                .ToList();
 
             ViewBag.MonthlyTotal = monthlyTotal;
             ViewBag.YearlyTotal = yearlyTotal;
@@ -86,7 +111,7 @@ namespace PresentationLayer.Controllers
             if (month == null && period == "monthly")
                 month = DateTime.Now.Month;
 
-            var salesReport = await GetDealerSalesByEmployeeAsync(dealerId, employeeId, period, year, month, quarter);
+            var salesReport = await _evmReportService.GetSalesReportByStaffAsync(employeeId, dealerId, period, year, month, quarter);
             var totalSales = salesReport.Sum(o => o.FinalAmount);
 
             ViewBag.TotalSales = totalSales;
@@ -97,7 +122,8 @@ namespace PresentationLayer.Controllers
             ViewBag.Quarter = quarter;
 
             // Get dropdown data - chỉ nhân viên của dealer này
-            ViewBag.Employees = await GetDealerEmployeesAsync(dealerId);
+            var users = await _evmReportService.GetUsersByDealerAsync(dealerId);
+            ViewBag.Employees = _mappingService.MapToUserViewModels(users);
 
             return View(salesReport);
         }
@@ -125,119 +151,8 @@ namespace PresentationLayer.Controllers
             if (month == null && period == "monthly")
                 month = DateTime.Now.Month;
 
-            var topVehicles = await GetTopVehiclesAsync(dealerId, period, year, month, quarter);
-
-            ViewBag.Period = period;
-            ViewBag.Year = year;
-            ViewBag.Month = month;
-            ViewBag.Quarter = quarter;
-
-            return View(topVehicles);
-        }
-
-        // Private helper methods
-        private async Task<List<Order>> GetDealerSalesAsync(Guid dealerId, string period, int year, int? month = null, int? quarter = null)
-        {
-            var query = _context.Order
-                .Include(o => o.Customer)
-                .Include(o => o.Product)
-                .Include(o => o.Dealer)
-                .Include(o => o.SalesPerson)
-                .Where(o => o.DealerId == dealerId);
-
-            // Apply period filter
-            switch (period.ToLower())
-            {
-                case "monthly":
-                    if (month.HasValue)
-                    {
-                        query = query.Where(o => o.OrderDate.Value.Year == year && o.OrderDate.Value.Month == month.Value);
-                    }
-                    break;
-                case "quarterly":
-                    if (quarter.HasValue)
-                    {
-                        var startMonth = (quarter.Value - 1) * 3 + 1;
-                        var endMonth = quarter.Value * 3;
-                        query = query.Where(o => o.OrderDate.Value.Year == year && 
-                                               o.OrderDate.Value.Month >= startMonth && 
-                                               o.OrderDate.Value.Month <= endMonth);
-                    }
-                    break;
-                case "yearly":
-                    query = query.Where(o => o.OrderDate.Value.Year == year);
-                    break;
-            }
-
-            return await query.ToListAsync();
-        }
-
-        private async Task<List<Order>> GetDealerSalesByEmployeeAsync(Guid dealerId, Guid? employeeId, string period, int year, int? month = null, int? quarter = null)
-        {
-            var query = _context.Order
-                .Include(o => o.Customer)
-                .Include(o => o.Product)
-                .Include(o => o.Dealer)
-                .Include(o => o.SalesPerson)
-                .Where(o => o.DealerId == dealerId);
-
-            if (employeeId.HasValue)
-            {
-                query = query.Where(o => o.SalesPersonId == employeeId.Value);
-            }
-
-            // Apply period filter
-            switch (period.ToLower())
-            {
-                case "monthly":
-                    if (month.HasValue)
-                    {
-                        query = query.Where(o => o.OrderDate.Value.Year == year && o.OrderDate.Value.Month == month.Value);
-                    }
-                    break;
-                case "quarterly":
-                    if (quarter.HasValue)
-                    {
-                        var startMonth = (quarter.Value - 1) * 3 + 1;
-                        var endMonth = quarter.Value * 3;
-                        query = query.Where(o => o.OrderDate.Value.Year == year && 
-                                               o.OrderDate.Value.Month >= startMonth && 
-                                               o.OrderDate.Value.Month <= endMonth);
-                    }
-                    break;
-                case "yearly":
-                    query = query.Where(o => o.OrderDate.Value.Year == year);
-                    break;
-            }
-
-            return await query.OrderByDescending(o => o.OrderDate).ToListAsync();
-        }
-
-        private async Task<List<dynamic>> GetTopEmployeesAsync(Guid dealerId, string period, int year, int? month = null, int? quarter = null)
-        {
-            var sales = await GetDealerSalesAsync(dealerId, period, year, month, quarter);
-            
-            return sales
-                .Where(o => o.SalesPersonId.HasValue)
-                .GroupBy(o => new { o.SalesPersonId, o.SalesPerson.FullName })
-                .Select(g => new
-                {
-                    EmployeeId = g.Key.SalesPersonId,
-                    EmployeeName = g.Key.FullName,
-                    TotalSales = g.Sum(o => o.FinalAmount),
-                    OrderCount = g.Count()
-                })
-                .OrderByDescending(x => x.TotalSales)
-                .Take(10)
-                .Cast<dynamic>()
-                .ToList();
-        }
-
-        private async Task<List<dynamic>> GetTopVehiclesAsync(Guid dealerId, string period, int year, int? month = null, int? quarter = null)
-        {
-            var sales = await GetDealerSalesAsync(dealerId, period, year, month, quarter);
-            
-            return sales
+            var sales = await _evmReportService.GetSalesReportByRegionAsync(null, dealerId, period, year, month, quarter);
+            var topVehicles = sales
                 .GroupBy(o => new { o.ProductId, o.Product.Name, o.Product.Sku })
                 .Select(g => new
                 {
@@ -252,14 +167,20 @@ namespace PresentationLayer.Controllers
                 .Take(10)
                 .Cast<dynamic>()
                 .ToList();
+
+            ViewBag.Period = period;
+            ViewBag.Year = year;
+            ViewBag.Month = month;
+            ViewBag.Quarter = quarter;
+
+            return View(topVehicles);
         }
 
-        private async Task<List<Users>> GetDealerEmployeesAsync(Guid dealerId)
-        {
-            return await _context.Users
-                .Where(u => u.DealerId == dealerId && u.Role == UserRole.DealerStaff)
-                .OrderBy(u => u.FullName)
-                .ToListAsync();
-        }
+        // Private helper methods
+        // Đã thay thế bằng IEVMReportService và xử lý nhóm tại Controller
+
+        // helper cũ đã bỏ, dùng service BL
+
+        // Đã thay bằng IEVMReportService
     }
 }

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
-using DataAccessLayer.Entities;
+using BusinessLayer.Enums;
+using BusinessLayer.ViewModels;
 
 namespace PresentationLayer.Controllers
 {
@@ -28,7 +29,7 @@ namespace PresentationLayer.Controllers
             if (!ok)
             {
                 TempData["Error"] = err;
-                return View(new List<Dealer>());
+                return View(new List<DealerViewModel>());
             }
             return View(dealers);
         }

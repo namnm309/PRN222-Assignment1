@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
-using DataAccessLayer.Entities;
-using DataAccessLayer.Enum;
+using BusinessLayer.Enums;
 
 namespace PresentationLayer.Controllers
 {

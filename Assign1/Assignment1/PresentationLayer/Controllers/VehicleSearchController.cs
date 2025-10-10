@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
 using BusinessLayer.ViewModels;
-using DataAccessLayer.Enum;
+using BusinessLayer.Enums;
 
 namespace PresentationLayer.Controllers
 {

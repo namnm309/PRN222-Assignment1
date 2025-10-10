@@ -39,7 +39,7 @@
                         <label class="form-label">Đại lý</label>
                         <select name="dealerId" class="form-select">
                             <option value="">-- Tất cả đại lý --</option>
-                            @foreach (var dealer in ViewBag.Dealers as List<DataAccessLayer.Entities.Dealer>)
+                            @foreach (var dealer in ViewBag.Dealers as List<BusinessLayer.ViewModels.DealerViewModel>)
                             {
                                 <option value="@dealer.Id" selected="@(ViewBag.SelectedDealerId == dealer.Id)">
                                     @dealer.Name
@@ -122,19 +122,19 @@
                                 <td>
                                     @switch (td.Status)
                                     {
-                                        case DataAccessLayer.Enum.TestDriveStatus.Pending:
+                                        case BusinessLayer.Enums.TestDriveStatus.Pending:
                                             <span class="badge bg-warning">Chờ xác nhận</span>
                                             break;
-                                        case DataAccessLayer.Enum.TestDriveStatus.Confirmed:
+                                        case BusinessLayer.Enums.TestDriveStatus.Confirmed:
                                             <span class="badge bg-info">Đã xác nhận</span>
                                             break;
-                                        case DataAccessLayer.Enum.TestDriveStatus.Successfully:
+                                        case BusinessLayer.Enums.TestDriveStatus.Successfully:
                                             <span class="badge bg-success">Thành công</span>
                                             break;
-                                        case DataAccessLayer.Enum.TestDriveStatus.Failed:
+                                        case BusinessLayer.Enums.TestDriveStatus.Failed:
                                             <span class="badge bg-danger">Thất bại</span>
                                             break;
-                                        case DataAccessLayer.Enum.TestDriveStatus.Canceled:
+                                        case BusinessLayer.Enums.TestDriveStatus.Canceled:
                                             <span class="badge bg-secondary">Đã hủy</span>
                                             break;
                                     }
@@ -144,7 +144,7 @@
                                         <i class="fas fa-eye"></i> Chi tiết
                                     </a>
                                     
-                                    @if (td.Status == DataAccessLayer.Enum.TestDriveStatus.Pending)
+                                    @if (td.Status == BusinessLayer.Enums.TestDriveStatus.Pending)
                                     {
                                         <form asp-action="Confirm" asp-route-id="@td.Id" method="post" style="display:inline;">
                                             @Html.AntiForgeryToken()

@@ -1,27 +1,26 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.ViewModels;
-using DataAccessLayer.Data;
 using Microsoft.EntityFrameworkCore;
+using BusinessLayer.Services;
 
 namespace PresentationLayer.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly AppDbContext _dbContext;
+        private readonly IEVMReportService _evmService;
 
-        public HomeController(ILogger<HomeController> logger, AppDbContext dbContext)
+        public HomeController(ILogger<HomeController> logger, IEVMReportService evmService)
         {
             _logger = logger;
-            _dbContext = dbContext;
+            _evmService = evmService;
         }
 
         public async Task<IActionResult> Index(string search)
         {
-            var query = _dbContext.Product
-                .Include(p => p.Brand)
-                .Where(p => p.IsActive);
+            var productsAll = await _evmService.GetAllProductsAsync();
+            var query = productsAll.Where(p => p.IsActive);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -32,7 +31,7 @@ namespace PresentationLayer.Controllers
                     p.Brand.Name.ToLower().Contains(term));
             }
 
-            var products = await query
+            var products = query
                 .OrderBy(p => p.Name)
                 .Take(5)
                 .Select(p => new HomeProductViewModel
@@ -42,20 +41,19 @@ namespace PresentationLayer.Controllers
                     Sku = p.Sku,
                     Description = p.Description,
                     Price = p.Price,
-                    BrandName = p.Brand.Name,
+                    BrandName = p.BrandName,
                     IsActive = p.IsActive,
                     ImageUrl = p.ImageUrl
                 })
-                .ToListAsync();
+                .ToList();
 
             return View(products);
         }
 
         public async Task<IActionResult> All(string search)
         {
-            var query = _dbContext.Product
-                .Include(p => p.Brand)
-                .Where(p => p.IsActive);
+            var productsAll = await _evmService.GetAllProductsAsync();
+            var query = productsAll.Where(p => p.IsActive);
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -66,7 +64,7 @@ namespace PresentationLayer.Controllers
                     p.Brand.Name.ToLower().Contains(term));
             }
 
-            var products = await query
+            var products = query
                 .OrderBy(p => p.Name)
                 .Select(p => new HomeProductViewModel
                 {
@@ -75,11 +73,11 @@ namespace PresentationLayer.Controllers
                     Sku = p.Sku,
                     Description = p.Description,
                     Price = p.Price,
-                    BrandName = p.Brand.Name,
+                    BrandName = p.BrandName,
                     IsActive = p.IsActive,
                     ImageUrl = p.ImageUrl
                 })
-                .ToListAsync();
+                .ToList();
 
             return View(products);
         }
@@ -87,8 +85,8 @@ namespace PresentationLayer.Controllers
         public async Task<IActionResult> TestDrive()
         {
             // Lấy tất cả sản phẩm active để khách hàng chọn lái thử
-            var products = await _dbContext.Product
-                .Include(p => p.Brand)
+            var productsAll = await _evmService.GetAllProductsAsync();
+            var products = productsAll
                 .Where(p => p.IsActive)
                 .OrderBy(p => p.Name)
                 .Select(p => new HomeProductViewModel
@@ -98,11 +96,11 @@ namespace PresentationLayer.Controllers
                     Sku = p.Sku,
                     Description = p.Description,
                     Price = p.Price,
-                    BrandName = p.Brand.Name,
+                    BrandName = p.BrandName,
                     IsActive = p.IsActive,
                     ImageUrl = p.ImageUrl
                 })
-                .ToListAsync();
+                .ToList();
 
 
             return View(products);
