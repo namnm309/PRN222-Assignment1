@@ -1,4 +1,4 @@
-@model DataAccessLayer.Entities.PurchaseOrder
+@model BusinessLayer.ViewModels.PurchaseOrderViewModel
 @using BusinessLayer.Enums
 
 @{
@@ -62,21 +62,19 @@
                     <div class="col-md-6">
                         <h6 class="text-primary mb-3">Thông tin cơ bản</h6>
                         <p><strong>Mã đơn:</strong> @Model.OrderNumber</p>
-                        <p><strong>Đại lý:</strong> @Model.Dealer?.Name</p>
-                        <p><strong>Người đặt:</strong> @Model.RequestedBy?.FullName</p>
+                        <p><strong>Đại lý:</strong> @Model.DealerName</p>
+                        <p><strong>Người đặt:</strong> @Model.RequestedByName</p>
                         <p><strong>Ngày đặt:</strong> @Model.RequestedDate.ToString("dd/MM/yyyy HH:mm")</p>
                         @if (Model.ApprovedDate.HasValue)
                         {
                             <p><strong>Ngày duyệt:</strong> @Model.ApprovedDate.Value.ToString("dd/MM/yyyy HH:mm")</p>
-                            <p><strong>Người duyệt:</strong> @Model.ApprovedBy?.FullName</p>
+                            <p><strong>Người duyệt:</strong> @Model.ApprovedByName</p>
                         }
                     </div>
                     <div class="col-md-6">
                         <h6 class="text-primary mb-3">Sản phẩm & Số lượng</h6>
                         <div class="product-info p-3 border rounded">
-                            <h6 class="mb-2">@Model.Product.Name</h6>
-                            <p class="mb-1"><strong>Thương hiệu:</strong> @Model.Product.Brand?.Name</p>
-                            <p class="mb-1"><strong>SKU:</strong> @Model.Product.Sku</p>
+                            <h6 class="mb-2">@Model.ProductName</h6>
                             <p class="mb-1"><strong>Số lượng:</strong> <span class="badge bg-info">@Model.RequestedQuantity.ToString("N0")</span></p>
                             <p class="mb-1"><strong>Đơn giá:</strong> @Model.UnitPrice.ToString("N0") VNĐ</p>
                             <p class="mb-0"><strong>Tổng tiền:</strong> <span class="text-success fw-bold">@Model.TotalAmount.ToString("N0") VNĐ</span></p>

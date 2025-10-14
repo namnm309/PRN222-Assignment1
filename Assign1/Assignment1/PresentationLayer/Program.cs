@@ -1,4 +1,5 @@
 ﻿using DataAccessLayer.Repository;
+using DataAccessLayer.Data;
 using BusinessLayer.Services;
 using BusinessLayer.Profiles;
 using Microsoft.EntityFrameworkCore;
@@ -24,7 +25,10 @@ namespace PresentationLayer
             // Đăng ký MappingService
             builder.Services.AddScoped<IMappingService, MappingService>();
 
-            // DbContext không được inject trực tiếp vào Presentation theo yêu cầu kiến trúc
+
+            // Đăng ký DbContext cho Repository DAL (chỉ cấu hình DI, không dùng trực tiếp ở Controller)
+            builder.Services.AddDbContext<AppDbContext>(options =>
+                options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
             // Đăng ký Repository và Services
             builder.Services.AddScoped<IAuthen, Authen>();

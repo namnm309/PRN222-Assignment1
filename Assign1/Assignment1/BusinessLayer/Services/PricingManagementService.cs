@@ -11,9 +11,7 @@ namespace BusinessLayer.Services
         private readonly IPricingManagementRepository _pricingRepository;
         private readonly IEVMRepository _evmRepository;
 
-        public PricingManagementService(
-            IPricingManagementRepository pricingRepository,
-            IEVMRepository evmRepository)
+        public PricingManagementService(IPricingManagementRepository pricingRepository, IEVMRepository evmRepository)
         {
             _pricingRepository = pricingRepository;
             _evmRepository = evmRepository;
@@ -62,6 +60,9 @@ namespace BusinessLayer.Services
             if (policy.EffectiveDate > policy.ExpiryDate)
                 return false;
 
+            policy.Id = Guid.NewGuid();
+            policy.CreatedAt = DateTime.UtcNow;
+            policy.UpdatedAt = DateTime.UtcNow;
             return await _pricingRepository.CreatePricingPolicyAsync(policy);
         }
 
@@ -83,6 +84,7 @@ namespace BusinessLayer.Services
             if (policy.EffectiveDate > policy.ExpiryDate)
                 return false;
 
+            policy.UpdatedAt = DateTime.UtcNow;
             return await _pricingRepository.UpdatePricingPolicyAsync(policy);
         }
 

@@ -333,13 +333,13 @@ namespace PresentationLayer.Controllers
                     });
                 }
 
-                // Dealer role -> kiểm tra tồn kho của dealer
-                var inventories = await _evmService.GetInventoryReportAsync(dealerId);
-                var inventory = inventories.FirstOrDefault(i => i.ProductId == productId);
+                // Dealer role -> kiểm tra tồn kho (dựa theo danh sách sản phẩm hiện có)
+                var productsDealer = await _evmService.GetInventoryReportAsync(null);
+                var productInList = productsDealer.FirstOrDefault(p => p.Id == productId);
 
-                Console.WriteLine($"[GetProductStock] Inventory found: {inventory != null}, Available: {inventory?.AvailableQuantity}");
+                Console.WriteLine($"[GetProductStock] Product found: {productInList != null}, Stock: {productInList?.StockQuantity}");
 
-                if (inventory == null)
+                if (productInList == null)
                 {
                     return Json(new
                     {
@@ -353,14 +353,14 @@ namespace PresentationLayer.Controllers
                 return Json(new
                 {
                     success = true,
-                    hasStock = inventory.StockQuantity > 0,
-                    availableQuantity = inventory.StockQuantity,
+                    hasStock = productInList.StockQuantity > 0,
+                    availableQuantity = productInList.StockQuantity,
                     reservedQuantity = 0,
                     allocatedQuantity = 0,
                     minimumStock = 0,
                     status = "",
-                    message = inventory.StockQuantity > 0
-                        ? $"Còn {inventory.StockQuantity} xe trong kho"
+                    message = productInList.StockQuantity > 0
+                        ? $"Còn {productInList.StockQuantity} xe trong kho"
                         : "Sản phẩm đã hết hàng. Vui lòng đặt hàng từ hãng."
                 });
             }
