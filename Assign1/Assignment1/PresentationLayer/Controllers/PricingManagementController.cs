@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
 using BusinessLayer.Enums;
-using BusinessLayer.ViewModels;
+using DataAccessLayer.Entities;
 
 namespace PresentationLayer.Controllers
 {
@@ -69,7 +69,7 @@ namespace PresentationLayer.Controllers
             ViewBag.Dealers = await _pricingService.GetAllDealersAsync();
             ViewBag.Regions = await _pricingService.GetAllRegionsAsync();
 
-            var policy = new PricingPolicyViewModel
+            var policy = new PricingPolicy
             {
                 EffectiveDate = DateTime.Now,
                 PolicyType = "Standard",
@@ -82,7 +82,7 @@ namespace PresentationLayer.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePolicy(PricingPolicyViewModel policy)
+        public async Task<IActionResult> CreatePolicy(PricingPolicy policy)
         {
             if (!IsAdmin())
             {
@@ -136,7 +136,7 @@ namespace PresentationLayer.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditPolicy(PricingPolicyViewModel policy)
+        public async Task<IActionResult> EditPolicy(PricingPolicy policy)
         {
             if (!IsAdmin())
             {

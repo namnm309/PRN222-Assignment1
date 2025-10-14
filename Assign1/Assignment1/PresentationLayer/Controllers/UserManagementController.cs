@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.Services;
 using BusinessLayer.ViewModels;
 using BusinessLayer.Enums;
-using BusinessLayer.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

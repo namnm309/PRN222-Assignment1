@@ -176,6 +176,11 @@ namespace BusinessLayer.Services
             return _mapper.Map<List<PricingPolicyViewModel>>(pricingPolicies);
         }
 
+        public PricingPolicy MapToPricingPolicy(PricingPolicyViewModel viewModel)
+        {
+            return _mapper.Map<PricingPolicy>(viewModel);
+        }
+
         // InventoryAllocation mappings
         public InventoryAllocationViewModel MapToInventoryAllocationViewModel(InventoryAllocation inventoryAllocation)
         {
@@ -207,6 +212,17 @@ namespace BusinessLayer.Services
         public List<DealerContractViewModel> MapToDealerContractViewModels(List<DealerContract> dealerContracts)
         {
             return _mapper.Map<List<DealerContractViewModel>>(dealerContracts);
+        }
+
+        // Region mappings
+        public RegionViewModel MapToRegionViewModel(Region region)
+        {
+            return _mapper.Map<RegionViewModel>(region);
+        }
+
+        public List<RegionViewModel> MapToRegionViewModels(List<Region> regions)
+        {
+            return _mapper.Map<List<RegionViewModel>>(regions);
         }
     }
 }

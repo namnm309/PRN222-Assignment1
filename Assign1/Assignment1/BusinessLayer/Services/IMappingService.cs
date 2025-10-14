@@ -57,6 +57,7 @@ namespace BusinessLayer.Services
         // PricingPolicy mappings
         PricingPolicyViewModel MapToPricingPolicyViewModel(PricingPolicy pricingPolicy);
         List<PricingPolicyViewModel> MapToPricingPolicyViewModels(List<PricingPolicy> pricingPolicies);
+        PricingPolicy MapToPricingPolicy(PricingPolicyViewModel viewModel);
 
         // InventoryAllocation mappings
         InventoryAllocationViewModel MapToInventoryAllocationViewModel(InventoryAllocation inventoryAllocation);
@@ -69,5 +70,9 @@ namespace BusinessLayer.Services
         // DealerContract mappings
         DealerContractViewModel MapToDealerContractViewModel(DealerContract dealerContract);
         List<DealerContractViewModel> MapToDealerContractViewModels(List<DealerContract> dealerContracts);
+
+        // Region mappings
+        RegionViewModel MapToRegionViewModel(Region region);
+        List<RegionViewModel> MapToRegionViewModels(List<Region> regions);
     }
 }

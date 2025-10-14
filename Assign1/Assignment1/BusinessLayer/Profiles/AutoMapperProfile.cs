@@ -188,7 +188,14 @@ namespace BusinessLayer.Profiles
                 .ForMember(dest => dest.RegionName, opt => opt.MapFrom(src => src.Region != null ? src.Region.Name : string.Empty));
 
             // PricingPolicy mappings
-            CreateMap<PricingPolicy, PricingPolicyViewModel>();
+            CreateMap<PricingPolicy, PricingPolicyViewModel>()
+                .ForMember(dest => dest.ValidFrom, opt => opt.MapFrom(src => src.EffectiveDate))
+                .ForMember(dest => dest.ValidTo, opt => opt.MapFrom(src => src.ExpiryDate));
+            CreateMap<PricingPolicyViewModel, PricingPolicy>()
+                .ForMember(dest => dest.EffectiveDate, opt => opt.MapFrom(src => src.ValidFrom))
+                .ForMember(dest => dest.ExpiryDate, opt => opt.MapFrom(src => src.ValidTo))
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
 
             // InventoryAllocation mappings
             CreateMap<InventoryAllocation, InventoryAllocationViewModel>()

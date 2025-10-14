@@ -1,7 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using BusinessLayer.ViewModels;
-using Microsoft.EntityFrameworkCore;
 using BusinessLayer.Services;
 
 namespace PresentationLayer.Controllers
@@ -41,7 +40,7 @@ namespace PresentationLayer.Controllers
                     Sku = p.Sku,
                     Description = p.Description,
                     Price = p.Price,
-                    BrandName = p.BrandName,
+                    BrandName = p.Brand?.Name ?? string.Empty,
                     IsActive = p.IsActive,
                     ImageUrl = p.ImageUrl
                 })
@@ -73,7 +72,7 @@ namespace PresentationLayer.Controllers
                     Sku = p.Sku,
                     Description = p.Description,
                     Price = p.Price,
-                    BrandName = p.BrandName,
+                    BrandName = p.Brand?.Name ?? string.Empty,
                     IsActive = p.IsActive,
                     ImageUrl = p.ImageUrl
                 })
@@ -96,7 +95,7 @@ namespace PresentationLayer.Controllers
                     Sku = p.Sku,
                     Description = p.Description,
                     Price = p.Price,
-                    BrandName = p.BrandName,
+                    BrandName = p.Brand?.Name ?? string.Empty,
                     IsActive = p.IsActive,
                     ImageUrl = p.ImageUrl
                 })
